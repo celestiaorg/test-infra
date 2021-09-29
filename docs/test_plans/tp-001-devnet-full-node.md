@@ -45,15 +45,21 @@ Focus on CFN setup options
 
 ## Timescales
 
-> This section contains estimations for completing the test plan
+Expected estimates
+
+- Test script and preparation - 3/4 days
+- Setting up the pipeline - 2/3 days
+- Execution and babysitting for a while - 2/3 days
+- Test report - 3/4 hours
 
 ## People
 
-> This section points who are going to participate in this test plan
+@Bidon15
 
 ## Test Environment
 
-> This section stores information on tools and environment used to execute tests on
+- Hive-fork
+- Docker env
 
 ## Notes
 
