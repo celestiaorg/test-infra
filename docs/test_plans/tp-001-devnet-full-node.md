@@ -1,0 +1,71 @@
+# Test Plan #001: Devnet Celestia Full Node basic communication
+
+## Introduction
+
+For Devnet stage, Celestia Full node can have several setup options to communicate with Celestia Core. The latter is a tendermint consensus node. For further text, we will refer to acronyms
+
+- Celestia Full Node = CFN
+- Celestia Core Node = CCN
+
+Setup options for CFN can be described with this list:
+
+1. `default` flag, which embeds CCN(acronym -> emCCN)
+2. `--core.disable` flag, which excludes CCN
+3. `--core.remote` flag, which connects to an external CCN(acronym -> rmCCN)
+
+## In-Scope
+
+Focus on CFN setup options
+
+- Integration Testing for CFN default/remote CCN setups
+- Subsystem Testing for communication of CFNs(emCCN) and CFNs(rmCCN)  
+
+## Out-of-Scope
+
+- CFN with disabled CCN (will be covered in #7)
+- Light clients
+- Performance testing scenario N->1 for CFN->CCN
+
+## Risks
+
+- This is unsufficient to cover the cases where there are more CFNs with different setups interacting with each other
+- This plan is not covering the scenarios of constant unstable connection to CCN for remote CFN
+
+## Entry Conditions
+
+- Existing unit tests for CFN and CCN should be green
+- No known Critical or High level defects before execution
+- Reporting of any encountered defects during execution
+
+## Exit Conditions
+
+- All In-Scope testing has been done
+- No unresolved encountered Critical or High level defects
+- Actionable items/decisions has been made by the community on Medium to Low level defects
+- Test Report is presented
+
+## Timescales
+
+Expected estimates
+
+- Test script and preparation - 3/4 days
+- Setting up the pipeline - 2/3 days
+- Execution and babysitting for a while - 2/3 days
+- Test report - 3/4 hours
+
+## People
+
+@Bidon15
+
+## Test Environment
+
+- Hive-fork
+- Docker env
+
+## Notes
+
+[ADR #002: Devnet Celestia Core <> Celestia Node Communication](https://github.com/celestiaorg/celestia-node/blob/main/docs/adr/adr-002-predevnet-core-to-full-communication.md)
+
+[Node Type Definitions](https://celestiaorg.github.io/celestia-specs/latest/specs/node_types.html#node-type-definitions)
+
+[Celestia Core Repo](https://github.com/celestiaorg/celestia-core)
