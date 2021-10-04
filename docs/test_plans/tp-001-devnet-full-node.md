@@ -1,4 +1,4 @@
-# Test Plan #001: Devnet Celestia Full Node Setup
+# Test Plan #001: Devnet Celestia Full Node basic communication
 
 ## Introduction
 
@@ -9,15 +9,16 @@ For Devnet stage, Celestia Full node can have several setup options to communica
 
 Setup options for CFN can be described with this list:
 
-1. `default` flag, which embeds CCN
+1. `default` flag, which embeds CCN(acronym -> emCCN)
 2. `--core.disable` flag, which excludes CCN
-3. `--core.remote` flag, which connects to an external CCN
+3. `--core.remote` flag, which connects to an external CCN(acronym -> rmCCN)
 
 ## In-Scope
 
 Focus on CFN setup options
 
 - Integration Testing for CFN default/remote CCN setups
+- Subsystem Testing for communication of CFNs(emCCN) and CFNs(rmCCN)  
 
 ## Out-of-Scope
 
@@ -64,5 +65,7 @@ Expected estimates
 ## Notes
 
 [ADR #002: Devnet Celestia Core <> Celestia Node Communication](https://github.com/celestiaorg/celestia-node/blob/main/docs/adr/adr-002-predevnet-core-to-full-communication.md)
+
+[Node Type Definitions](https://celestiaorg.github.io/celestia-specs/latest/specs/node_types.html#node-type-definitions)
 
 [Celestia Core Repo](https://github.com/celestiaorg/celestia-core)
