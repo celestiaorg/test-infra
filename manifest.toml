@@ -1,0 +1,31 @@
+name = "celestia-app"
+
+[defaults]
+builder = "exec:go"
+runner = "local:exec"
+
+[builders."docker:go"]
+enabled = true
+go_version = "1.17"
+build_base_image = "golang:1.17.8-buster"
+enable_go_build_cache = true
+
+[builders."exec:go"]
+enabled = true
+go_version = "1.17"
+
+[runners."local:docker"]
+enabled = true
+
+[runners."local:exec"]
+enabled = true
+
+[runners."cluster:swarm"]
+enabled = true
+
+[runners."cluster:k8s"]
+enabled = true
+
+[[testcases]]
+name = "capp-1"
+instances = { min = 1, max = 1, default = 1 }
