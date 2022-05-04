@@ -138,8 +138,10 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.0.1-sdk-v0.44.2
+	// github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.0.1-sdk-v0.44.2
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.1.0-tm-v0.34.16
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
+	github.com/celestiaorg/celestia-app => /Users/bidon4/go/src/github.com/celestiaorg/lazyledger-app
+	github.com/cosmos/cosmos-sdk => /Users/bidon4/go/src/github.com/celestiaorg/cosmos-sdk
 )

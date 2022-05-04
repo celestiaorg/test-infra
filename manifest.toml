@@ -7,7 +7,7 @@ runner = "local:exec"
 [builders."docker:go"]
 enabled = true
 go_version = "1.17"
-build_base_image = "golang:1.17.8-buster"
+build_base_image = "golang:1.17.8"
 enable_go_build_cache = true
 
 [builders."exec:go"]

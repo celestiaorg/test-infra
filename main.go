@@ -1,27 +1,33 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/celestiaorg/celestia-app/app"
+	"github.com/celestiaorg/celestia-app/x/payment/types"
+	"github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/simapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tendermint/spm/cosmoscmd"
+	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/config"
 	"github.com/tendermint/tendermint/libs/log"
-	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/node"
 	"github.com/tendermint/tendermint/p2p"
 	"github.com/tendermint/tendermint/privval"
 	"github.com/tendermint/tendermint/proxy"
-	"github.com/tendermint/tendermint/types"
-	tmtime "github.com/tendermint/tendermint/types/time"
+	tmtype "github.com/tendermint/tendermint/types"
 	db "github.com/tendermint/tm-db"
 
-	"github.com/celestiaorg/celestia-node/libs/utils"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
@@ -30,7 +36,7 @@ const (
 	keyPath           string = "/Users/bidon4/testground/celestia-app/keys"
 	statePath         string = "/Users/bidon4/testground/celestia-app/state"
 	path              string = "/Users/bidon4/testground/celestia-app"
-	defaultValKeyType        = types.ABCIPubKeyTypeSecp256k1
+	defaultValKeyType        = tmtype.ABCIPubKeyTypeSecp256k1
 )
 
 var testcases = map[string]interface{}{
@@ -55,21 +61,17 @@ Actual experiment:
 */
 
 func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	runenv.ToEnvVars()
-	err := os.Setenv("HOME", "/Users/bidon4")
 
-	if err != nil {
-		return err
-	}
-
-	cfg, err := Init(path)
-	if err != nil {
-		return err
-	}
+	cfg := config.DefaultConfig()
+	cfg.SetRoot(path) // ~/testground/celestia-app
+	config.EnsureRoot(path)
 
 	runenv.RecordMessage(cfg.RootDir)
 
-	capp := setApp()
+	capp, err := setApp()
+	if err != nil {
+		return err
+	}
 
 	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
 
@@ -94,6 +96,8 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err = tmNode.Start()
 
+	time.Sleep(10 * time.Second)
+
 	if err != nil {
 		return err
 	}
@@ -101,10 +105,14 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	return nil
 }
 
-func setApp() *app.App {
+func setApp() (*app.App, error) {
 	db, _ := openDB(path)
 
 	skipHeights := make(map[int64]bool)
+
+	encCfg := cosmoscmd.MakeEncodingConfig(app.ModuleBasics)
+
+	keyAcc := GenerateKeyringSigner(testAccName)
 
 	tiaApp := app.New(
 		log.NewTMLogger(log.NewSyncWriter(os.Stdout)),
@@ -114,10 +122,28 @@ func setApp() *app.App {
 		skipHeights,
 		path,
 		0,
-		cosmoscmd.MakeEncodingConfig(app.ModuleBasics),
+		encCfg,
 		simapp.EmptyAppOptions{},
 	)
-	return tiaApp
+
+	genesisState := NewDefaultGenesisState(encCfg.Marshaler)
+
+	genesisState, err := AddGenesisAccount(keyAcc.GetSignerInfo().GetAddress(), genesisState, encCfg.Marshaler)
+	if err != nil {
+		return nil, err
+	}
+
+	stateBytes, err := json.MarshalIndent(genesisState, "", "  ")
+	if err != nil {
+		return nil, err
+	}
+
+	tiaApp.InitChain(
+		abci.RequestInitChain{
+			AppStateBytes: stateBytes,
+		},
+	)
+	return tiaApp, nil
 }
 
 func openDB(rootDir string) (db.DB, error) {
@@ -127,71 +153,13 @@ func openDB(rootDir string) (db.DB, error) {
 
 func Init(path string) (*config.Config, error) {
 
-	var err error
+	// var err error
+
 	cfg := config.DefaultConfig()
-	cfg.SetRoot(path)
-	cfgPath := configPath(path)
-	if !utils.Exists(cfgPath) {
-		err = SaveConfig(cfgPath, cfg)
-		if err != nil {
-			return nil, fmt.Errorf("core: can't write config: %w", err)
-		}
-		// log.Info("New config is generated")
-	} else {
-		return nil, fmt.Errorf("core: cfg already exists")
-	}
-	// 2 - ensure private validator key
-	var pv *privval.FilePV
-	keyPath := cfg.PrivValidatorKeyFile()
-	if !utils.Exists(keyPath) {
-		pv = privval.GenFilePV(keyPath, cfg.PrivValidatorStateFile())
-		pv.Save()
-		// log.Info("New consensus private key is generated")
-	} else {
-		pv = privval.LoadFilePV(keyPath, cfg.PrivValidatorStateFile())
-		// log.Info("Consensus private key already exists")
-	}
-	// 3 - ensure private p2p key
-	_, err = p2p.LoadOrGenNodeKey(cfg.NodeKeyFile())
-	if err != nil {
-		return nil, fmt.Errorf("core: error with key: %w", err)
-	}
-	// 4 - ensure genesis
-	genPath := cfg.GenesisFile()
-	if !utils.Exists(genPath) {
-		// log.Info("New stub genesis document is generated")
-		// log.Warn("Stub genesis document must not be used in production environment!")
-		pubKey, err := pv.GetPubKey()
-		if err != nil {
-			return nil, fmt.Errorf("can't get pubkey: %w", err)
-		}
-
-		params := types.DefaultConsensusParams()
-		params.Validator.PubKeyTypes = []string{defaultValKeyType}
-		genDoc := types.GenesisDoc{
-			ChainID:         fmt.Sprintf("localnet-%v", tmrand.Str(6)),
-			GenesisTime:     tmtime.Now(),
-			ConsensusParams: params,
-			Validators: []types.GenesisValidator{{
-				Address: pubKey.Address(),
-				PubKey:  pubKey,
-				Power:   10,
-			}},
-		}
-
-		err = genDoc.SaveAs(genPath)
-		if err != nil {
-			return nil, err
-		}
-	} else {
-		return nil, fmt.Errorf("core: cfg already exists")
-	}
+	cfg.SetRoot(path) // ~/testground/celestia-app
+	config.EnsureRoot(path)
 
 	return cfg, nil
-}
-
-func configPath(base string) string {
-	return filepath.Join(base, "config.toml")
 }
 
 func SaveConfig(path string, cfg *config.Config) error {
@@ -202,4 +170,104 @@ func SaveConfig(path string, cfg *config.Config) error {
 	defer f.Close()
 
 	return toml.NewEncoder(f).Encode(cfg)
+}
+
+// AddGenesisAccount mimics the cli addGenesisAccount command, providing an
+// account with an allocation of to "token" and "celes" tokens in the genesis
+// state
+func AddGenesisAccount(addr sdk.AccAddress, appState map[string]json.RawMessage, cdc codec.Codec) (map[string]json.RawMessage, error) {
+	// create concrete account type based on input parameters
+	var genAccount authtypes.GenesisAccount
+
+	coins := sdk.Coins{
+		sdk.NewCoin("token", sdk.NewInt(1000000)),
+		sdk.NewCoin(app.BondDenom, sdk.NewInt(1000000)),
+	}
+
+	balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
+	baseAccount := authtypes.NewBaseAccount(addr, nil, 0, 0)
+
+	genAccount = baseAccount
+
+	if err := genAccount.Validate(); err != nil {
+		return appState, fmt.Errorf("failed to validate new genesis account: %w", err)
+	}
+
+	authGenState := authtypes.GetGenesisStateFromAppState(cdc, appState)
+
+	accs, err := authtypes.UnpackAccounts(authGenState.Accounts)
+	if err != nil {
+		return appState, fmt.Errorf("failed to get accounts from any: %w", err)
+	}
+
+	if accs.Contains(addr) {
+		return appState, fmt.Errorf("cannot add account at existing address %s", addr)
+	}
+
+	// Add the new account to the set of genesis accounts and sanitize the
+	// accounts afterwards.
+	accs = append(accs, genAccount)
+	accs = authtypes.SanitizeGenesisAccounts(accs)
+
+	genAccs, err := authtypes.PackAccounts(accs)
+	if err != nil {
+		return appState, fmt.Errorf("failed to convert accounts into any's: %w", err)
+	}
+	authGenState.Accounts = genAccs
+
+	authGenStateBz, err := cdc.MarshalJSON(&authGenState)
+	if err != nil {
+		return appState, fmt.Errorf("failed to marshal auth genesis state: %w", err)
+	}
+
+	appState[authtypes.ModuleName] = authGenStateBz
+
+	bankGenState := banktypes.GetGenesisStateFromAppState(cdc, appState)
+	bankGenState.Balances = append(bankGenState.Balances, balances)
+	bankGenState.Balances = banktypes.SanitizeGenesisBalances(bankGenState.Balances)
+
+	bankGenStateBz, err := cdc.MarshalJSON(bankGenState)
+	if err != nil {
+		return appState, fmt.Errorf("failed to marshal bank genesis state: %w", err)
+	}
+
+	appState[banktypes.ModuleName] = bankGenStateBz
+	return appState, nil
+}
+
+func generateKeyring(accts ...string) keyring.Keyring {
+	kb := keyring.NewInMemory()
+
+	for _, acc := range accts {
+		_, _, err := kb.NewMnemonic(acc, keyring.English, "", "", hd.Secp256k1)
+		if err != nil {
+			return nil
+		}
+	}
+
+	_, err := kb.NewAccount(testAccName, testMnemo, "1234", "", hd.Secp256k1)
+	if err != nil {
+		panic(err)
+	}
+
+	return kb
+}
+
+// GenerateKeyringSigner creates a types.KeyringSigner with keys generated for
+// the provided accounts
+func GenerateKeyringSigner(acct string) *types.KeyringSigner {
+	kr := generateKeyring(acct)
+	return types.NewKeyringSigner(kr, acct, testChainID)
+}
+
+const (
+	// nolint:lll
+	testMnemo   = `ramp soldier connect gadget domain mutual staff unusual first midnight iron good deputy wage vehicle mutual spike unlock rocket delay hundred script tumble choose`
+	testAccName = "test-account"
+	testChainID = "test-chain-1"
+)
+
+// NewDefaultGenesisState generates the default state for the application.
+func NewDefaultGenesisState(cdc codec.JSONCodec) app.GenesisState {
+	return app.ModuleBasics.DefaultGenesis(cdc)
 }
