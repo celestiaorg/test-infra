@@ -3,10 +3,9 @@ module github.com/celestiaorg/test-infra
 go 1.17
 
 require (
-	github.com/BurntSushi/toml v1.0.0
 	github.com/celestiaorg/celestia-app v0.4.0
-	github.com/celestiaorg/celestia-node v0.2.0
 	github.com/cosmos/cosmos-sdk v0.44.3
+	github.com/cosmos/go-bip39 v1.0.0
 	github.com/tendermint/spm v0.1.9
 	github.com/tendermint/tendermint v0.34.16
 	github.com/tendermint/tm-db v0.6.6
@@ -21,6 +20,7 @@ require (
 	github.com/Workiva/go-datastructures v1.0.52 // indirect
 	github.com/armon/go-metrics v0.3.10 // indirect
 	github.com/avast/retry-go v2.6.0+incompatible // indirect
+	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.22.0-beta // indirect
@@ -32,7 +32,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/coinbase/rosetta-sdk-go v0.6.10 // indirect
 	github.com/confio/ics23/go v0.6.6 // indirect
-	github.com/cosmos/go-bip39 v1.0.0 // indirect
 	github.com/cosmos/iavl v0.17.1 // indirect
 	github.com/cosmos/ibc-go v1.2.2 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
@@ -86,6 +85,7 @@ require (
 	github.com/minio/highwayhash v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
+	github.com/onsi/gomega v1.13.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
@@ -138,10 +138,10 @@ require (
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
+	github.com/celestiaorg/celestia-app => /Users/bidon4/go/src/github.com/celestiaorg/lazyledger-app
+	github.com/cosmos/cosmos-sdk => /Users/bidon4/go/src/github.com/celestiaorg/cosmos-sdk
 	// github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.0.1-sdk-v0.44.2
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.1.0-tm-v0.34.16
 	google.golang.org/grpc => google.golang.org/grpc v1.33.2
-	github.com/celestiaorg/celestia-app => /Users/bidon4/go/src/github.com/celestiaorg/lazyledger-app
-	github.com/cosmos/cosmos-sdk => /Users/bidon4/go/src/github.com/celestiaorg/cosmos-sdk
 )
