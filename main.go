@@ -40,9 +40,10 @@ import (
 )
 
 const (
-	keyPath           string = "/Users/bidon4/testground/celestia-app/keys"
-	statePath         string = "/Users/bidon4/testground/celestia-app/state"
-	path              string = "/Users/bidon4/testground/celestia-app"
+	keyPath   string = "/Users/bidon4/testground/celestia-app/keys"
+	statePath string = "/Users/bidon4/testground/celestia-app/state"
+	//path              string = "/Users/bidon4/testground/celestia-app"
+	path              string = "/home/appuser/testground/app"
 	defaultValKeyType        = tmtypes.ABCIPubKeyTypeSecp256k1
 )
 
@@ -86,7 +87,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("Account Genesis Creation")
-	err = addAccGenesis(acc.GetAddress(), cfg)
+	err = addAccGenesis(acc, cfg)
 	if err != nil {
 		return err
 	}
@@ -203,18 +204,12 @@ func addAccount(cfg *config.Config, pk cryptotypes.PubKey) (keyring.Info, error)
 	// 	return nil, err
 	// }
 	fmt.Println("#########Begin Creatinion of Accoutt#############")
-	info, err := kr.NewAccount(name, mnemonic, "", hdPath, hd.Ed25519Type)
+	info, err := kr.NewAccount(name, mnemonic, "", hdPath, hd.Secp256k1)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println("#########Begin asdasdasd of Accoutt#############")
 	fmt.Println(info.GetName())
-	fmt.Println(info.GetPubKey().String())
-
-	// info, err = kr.SavePubKey(name, pk, hd.Secp256k1.Name())
-	// if err != nil {
-	// 	return nil, err
-	// }
 
 	fmt.Println(info.GetAddress().String())
 	fmt.Println(info.GetPubKey().String())
@@ -224,7 +219,8 @@ func addAccount(cfg *config.Config, pk cryptotypes.PubKey) (keyring.Info, error)
 
 }
 
-func addAccGenesis(addr sdk.AccAddress, cfg *config.Config) error {
+func addAccGenesis(kr keyring.Info, cfg *config.Config) error {
+	addr := kr.GetAddress()
 	fmt.Println(addr.String())
 	fmt.Println("----------BEGIN ACCOUNT GENESIS-----------")
 	interfaceRegistry := cdctypes.NewInterfaceRegistry()
@@ -237,7 +233,8 @@ func addAccGenesis(addr sdk.AccAddress, cfg *config.Config) error {
 	var genAccount authtypes.GenesisAccount
 
 	balances := banktypes.Balance{Address: addr.String(), Coins: coins.Sort()}
-	genAccount = authtypes.NewBaseAccount(addr, nil, 0, 0)
+	// genAccount = authtypes.NewBaseAccount(addr, nil, 0, 0)
+	genAccount = authtypes.NewBaseAccountWithAddress(addr)
 
 	if err := genAccount.Validate(); err != nil {
 		return fmt.Errorf("failed to validate new genesis account: %w", err)
@@ -264,12 +261,16 @@ func addAccGenesis(addr sdk.AccAddress, cfg *config.Config) error {
 	accs = append(accs, genAccount)
 	fmt.Println(accs)
 	accs = authtypes.SanitizeGenesisAccounts(accs)
-
+	fmt.Println("----------SANITIZE ACCOUNT GENESIS-----------")
+	fmt.Println(accs)
 	genAccs, err := authtypes.PackAccounts(accs)
 	if err != nil {
 		return fmt.Errorf("failed to convert accounts into any's: %w", err)
 	}
+	fmt.Println("----------PACK ACCOUNT GENESIS-----------")
+	// fmt.Println(genAccs)
 	authGenState.Accounts = genAccs
+	fmt.Println(authGenState)
 
 	authGenStateBz, err := cdc.MarshalJSON(&authGenState)
 	if err != nil {
