@@ -1,0 +1,36 @@
+name = "celestia-app"
+
+[defaults]
+builder = "exec:go"
+runner = "local:exec"
+
+[builders."docker:go"]
+enabled = true
+go_version = "1.17"
+build_base_image = "golang:1.17.8"
+enable_go_build_cache = true
+
+[builders."exec:go"]
+enabled = true
+go_version = "1.17"
+
+[runners."local:docker"]
+enabled = true
+
+[runners."local:exec"]
+enabled = true
+
+[runners."cluster:swarm"]
+enabled = true
+
+[runners."cluster:k8s"]
+enabled = true
+
+[[testcases]]
+name = "capp-1"
+instances = { min = 1, max = 2, default = 1 }
+
+    [testcases.params]
+    orc    = { type = "int", default = 1 }
+    app1   = { type = "string", default = "/Users/bidon4/.celestia-app-1" }
+    app2   = { type = "string", default = "/Users/bidon4/.celestia-app-2" }
