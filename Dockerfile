@@ -86,7 +86,7 @@ COPY --from=builder ${PLAN_DIR}/core-configs /core-configs
 # ENV RABBIT_BROKER_URL=amqp://guest:guest@${RABBIT_URL}:5672/
 # ENV REDIS_URL=redis:6379
 
-RUN ls -la /core-configs
+RUN ls -la /
 
 EXPOSE 9090 26657 26656 1317
 ENTRYPOINT [ "/testplan"]
