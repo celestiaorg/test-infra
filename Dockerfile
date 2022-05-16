@@ -31,7 +31,7 @@ ENV SDK_DIR /sdk
 ARG TESTPLAN_EXEC_PKG="."
 
 # GO_PROXY is the go proxy that will be used, or direct by default.
-ARG GO_PROXY="direct"
+ARG GO_PROXY=https://proxy.golang.org
 
 # BUILD_TAGS is either nothing, or when expanded, it expands to "-tags <comma-separated build tags>"
 ARG BUILD_TAGS
