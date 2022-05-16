@@ -32,5 +32,5 @@ instances = { min = 1, max = 2, default = 1 }
 
     [testcases.params]
     orc    = { type = "int", default = 1 }
-    app1   = { type = "string", default = "/Users/bidon4/.celestia-app-1" }
-    app2   = { type = "string", default = "/Users/bidon4/.celestia-app-2" }
+    app1   = { type = "string", default = "/home/appuser/go/src/github.com/celestiaorg/test-infra/core-configs/celestia-app-1" }
+    app2   = { type = "string", default = "/home/appuser/go/src/github.com/celestiaorg/test-infra/core-configs/celestia-app-2" }
