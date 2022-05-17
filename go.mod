@@ -13,8 +13,10 @@ replace (
 )
 
 require (
+	github.com/BurntSushi/toml v0.3.1
 	github.com/celestiaorg/celestia-app v0.4.0
 	github.com/cosmos/cosmos-sdk v0.44.3
+	github.com/pelletier/go-toml v1.9.4
 	github.com/tendermint/spm v0.1.9
 	github.com/tendermint/tendermint v0.34.16
 	github.com/tendermint/tm-db v0.6.6
@@ -94,7 +96,6 @@ require (
 	github.com/minio/highwayhash v1.0.1 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
-	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/petermattis/goid v0.0.0-20180202154549-b0b1615b78e5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect

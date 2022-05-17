@@ -24,7 +24,7 @@ ENV PLAN_DIR /plan
 ENV SDK_DIR /sdk
 
 # Delete any prior artifacts, if this is a cached image.
-# RUN rm -rf ${PLAN_DIR} ${SDK_DIR} /testground_dep_list
+RUN rm -rf ${PLAN_DIR} ${SDK_DIR} /testground_dep_lists
 
 # TESTPLAN_EXEC_PKG is the executable package of the testplan to build.
 # The image will build that package only.
