@@ -165,18 +165,19 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	valCh := make(chan *ValidatorNode)
 	client.Subscribe(ctx, valt, valCh)
 
+	var persPeers []string
 	for i := 0; i < runenv.TestInstanceCount; i++ {
 		val := <-valCh
 		runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
 		if !val.IP.Equal(config.IPv4.IP) {
-			configPath := filepath.Join(home, "config", "config.toml")
-			//val.PubKey+"@"+val.IP.To4().String()
-			err := AddPersistentPeers(configPath, []string{
-				fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String())})
-			if err != nil {
-				return err
-			}
+			persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
 		}
+	}
+
+	configPath := filepath.Join(home, "config", "config.toml")
+	err = AddPersistentPeers(configPath, persPeers)
+	if err != nil {
+		return err
 	}
 
 	cmd.ResetFlags()
