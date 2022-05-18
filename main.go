@@ -7,6 +7,8 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/celestiaorg/celestia-app/app"
@@ -37,28 +39,36 @@ type ValidatorNode struct {
 	IP     string
 }
 
-type p2p struct {
-	Laddr                  string `toml:"laddr"`
-	ExtAddr                string `toml:"external_address"`
-	Seeds                  string `toml:"seeds"`
-	PersistentPeers        string `toml:"persistent_peers"`
-	UPNP                   string `toml:"upnp"`
-	AddrBookFile           string `toml:"addr_book_file"`
-	AddrBookStrict         bool   `toml:"addr_book_strict"`
-	MaxInboundPeers        int    `toml:"max_num_inbound_peers"`
-	MaxOutboundPeers       int    `toml:"max_num_outbound_peers"`
-	UnconditionalPeersIds  string `toml:"unconditional_peer_ids"`
-	PersistentPeersMaxDial string `toml:"persistent_peers_max_dial_period"`
-	FlushThrottle          string `toml:"flush_throttle_timeout"`
-	MaxPacketPayload       int    `toml:"max_packet_msg_payload_size"`
-	SendRate               int64  `toml:"send_rate"`
-	RecvRate               int64  `toml:"recv_rate"`
-	Pex                    bool   `toml:"pex"`
-	SeedMode               bool   `toml:"seed_mode"`
-	PrivatePeerIds         string `toml:"private_peer_ids"`
-	AllowDuplicateIP       bool   `toml:"allow_duplicate_ip"`
-	HandshakeTimeout       string `toml:"handshake_timeout"`
-	DialTimeout            string `toml:"dial_timeout"`
+func AddPersistentPeers(path string, peers ...string) error {
+	input, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	fmt.Println("file read successfuly")
+	var peersStr string
+	var port int = 26656
+	var separator string = ","
+	for k, peer := range peers {
+		if k == (len(peers) - 1) {
+			separator = ""
+		}
+		peersStr += fmt.Sprintf("%s:%d%s", peer, port, separator)
+	}
+	lines := strings.Split(string(input), "\n")
+
+	for i, line := range lines {
+		if strings.Contains(line, "persistent_peers") {
+			lines[i] = fmt.Sprintf(`persistent_peers="%s"`, peersStr)
+		}
+	}
+	output := strings.Join(lines, "\n")
+	err = ioutil.WriteFile(path, []byte(output), 0644)
+	if err != nil {
+		return err
+	}
+	fmt.Println("file wrotte successfuly")
+
+	return nil
 }
 
 func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -153,17 +163,15 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	for i := 0; i < runenv.TestInstanceCount; i++ {
 		val := <-valCh
-		runenv.RecordMessage("Validator Received: ", val.IP, val.PubKey)
+		runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+		if val.IP != config.IPv4.IP.String() {
+			configPath := filepath.Join(home, "config", "config.toml")
+			fmt.Println(configPath)
+			AddPersistentPeers(configPath, val.PubKey+"@"+val.IP)
+		}
 	}
 
-	// var p2pcfg p2p
-	// _, err = toml.DecodeFile("core-configs/celestia-app-1/config/config.toml", &p2pcfg)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// fmt.Println(p2pcfg)
-
+	cmd.ResetFlags()
 	cmd.Flags().Set(flags.FlagHome, "")
 	out = bytes.NewBuffer(nil)
 	cmd.SetOut(out)
@@ -173,13 +181,13 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	outStr, err = ioutil.ReadAll(out)
-	if err != nil {
-		return err
-	}
-	fmt.Println("Dude ", string(outStr))
+	// outStr, err = ioutil.ReadAll(out)
+	// if err != nil {
+	// 	return err
+	// }
+	// fmt.Println("Dude ", string(outStr))
 
-	time.Sleep(5 * time.Second)
+	// time.Sleep(5 * time.Second)
 
 	return nil
 }
