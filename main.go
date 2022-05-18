@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/spf13/viper"
 
 	"github.com/celestiaorg/celestia-app/app"
 	"github.com/cosmos/cosmos-sdk/baseapp"
@@ -36,37 +39,37 @@ func main() {
 
 type ValidatorNode struct {
 	PubKey string
-	IP     string
+	IP     net.IP
 }
 
-func AddPersistentPeers(path string, peers ...string) error {
-	input, err := ioutil.ReadFile(path)
-	if err != nil {
-		return err
-	}
-	fmt.Println("file read successfuly")
-	var peersStr string
+func AddPersistentPeers(path string, peers []string) error {
+
+	var peersStr bytes.Buffer
 	var port int = 26656
 	var separator string = ","
 	for k, peer := range peers {
 		if k == (len(peers) - 1) {
 			separator = ""
 		}
-		peersStr += fmt.Sprintf("%s:%d%s", peer, port, separator)
+		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
-	lines := strings.Split(string(input), "\n")
 
-	for i, line := range lines {
-		if strings.Contains(line, "persistent_peers") {
-			lines[i] = fmt.Sprintf(`persistent_peers="%s"`, peersStr)
-		}
-	}
-	output := strings.Join(lines, "\n")
-	err = ioutil.WriteFile(path, []byte(output), 0644)
+	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
 	if err != nil {
 		return err
 	}
-	fmt.Println("file wrotte successfuly")
+
+	viper.SetConfigType("toml")
+	err = viper.ReadConfig(fh)
+	if err != nil {
+		return err
+	}
+
+	viper.Set("p2p.persistent_peers", peersStr.String())
+	err = viper.WriteConfigAs(path)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -149,10 +152,11 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	os.Stdout = scrapStdout
 
 	valPubKey := string(outStr)
+	valPubKey = strings.ReplaceAll(valPubKey, "\n", "")
 	fmt.Println("My node-id is:", valPubKey)
 	fmt.Println("My config IP is:", config.IPv4.IP)
 	valt := sync.NewTopic("validator-info", &ValidatorNode{})
-	client.Publish(ctx, valt, &ValidatorNode{valPubKey, config.IPv4.IP.String()})
+	client.Publish(ctx, valt, &ValidatorNode{valPubKey, config.IPv4.IP})
 
 	rdySt := sync.State("ready")
 	client.MustSignalEntry(ctx, rdySt)
@@ -164,30 +168,26 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	for i := 0; i < runenv.TestInstanceCount; i++ {
 		val := <-valCh
 		runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
-		if val.IP != config.IPv4.IP.String() {
+		if !val.IP.Equal(config.IPv4.IP) {
 			configPath := filepath.Join(home, "config", "config.toml")
-			fmt.Println(configPath)
-			AddPersistentPeers(configPath, val.PubKey+"@"+val.IP)
+			//val.PubKey+"@"+val.IP.To4().String()
+			err := AddPersistentPeers(configPath, []string{
+				fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String())})
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	cmd.ResetFlags()
 	cmd.Flags().Set(flags.FlagHome, "")
-	out = bytes.NewBuffer(nil)
-	cmd.SetOut(out)
+
+	cmd.SetErr(os.Stdout)
 	cmd.SetArgs([]string{"start", "--home", home})
 
 	if err := svrcmd.Execute(cmd, app.DefaultNodeHome); err != nil {
 		return err
 	}
-
-	// outStr, err = ioutil.ReadAll(out)
-	// if err != nil {
-	// 	return err
-	// }
-	// fmt.Println("Dude ", string(outStr))
-
-	// time.Sleep(5 * time.Second)
 
 	return nil
 }

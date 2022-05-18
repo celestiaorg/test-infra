@@ -81,12 +81,6 @@ COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
 COPY --from=builder ${PLAN_DIR}/core-configs /core-configs
 
-# ENV ENV_TYPE=docker
-# ENV PORT=8081
-# ENV RABBIT_BROKER_URL=amqp://guest:guest@${RABBIT_URL}:5672/
-# ENV REDIS_URL=redis:6379
-
-RUN ls -la /
 
 EXPOSE 9090 26657 26656 1317
 ENTRYPOINT [ "/testplan"]
