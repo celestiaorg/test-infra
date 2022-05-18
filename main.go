@@ -184,7 +184,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cmd.Flags().Set(flags.FlagHome, "")
 
 	cmd.SetErr(os.Stdout)
-	cmd.SetArgs([]string{"start", "--home", home})
+	cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
 
 	if err := svrcmd.Execute(cmd, app.DefaultNodeHome); err != nil {
 		return err
