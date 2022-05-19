@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"net"
 	"os"
@@ -12,21 +11,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/viper"
-
 	"github.com/celestiaorg/celestia-app/app"
-	"github.com/cosmos/cosmos-sdk/baseapp"
 	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/spf13/viper"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
-	"github.com/tendermint/spm/cosmoscmd"
-	"github.com/tendermint/tendermint/libs/log"
-	dbm "github.com/tendermint/tm-db"
 )
 
 var testcases = map[string]interface{}{
@@ -65,7 +58,7 @@ func AddPersistentPeers(path string, peers []string) error {
 		return err
 	}
 
-	viper.Set("p2p.persistent_peers", peersStr.String())
+	viper.Set("p2p.persistent-peers", peersStr.String())
 	err = viper.WriteConfigAs(path)
 	if err != nil {
 		return err
@@ -119,20 +112,38 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	var home string
-	if seq == 1 {
+	switch seq {
+	case 1:
 		home = runenv.StringParam("app1")
-	} else {
+	case 2:
 		home = runenv.StringParam("app2")
+	case 3:
+		home = runenv.StringParam("app3")
+	case 4:
+		home = runenv.StringParam("app4")
+	case 5:
+		home = runenv.StringParam("app5")
+	case 6:
+		home = runenv.StringParam("app6")
+	case 7:
+		home = runenv.StringParam("app7")
+	case 8:
+		home = runenv.StringParam("app8")
+	case 9:
+		home = runenv.StringParam("app9")
+	case 10:
+		home = runenv.StringParam("app10")
 	}
+
+	// if seq == 1 {
+	// 	home = runenv.StringParam("app1")
+	// } else {
+	// 	home = runenv.StringParam("app2")
+	// }
 	fmt.Println(home)
-	cmd, _ := cosmoscmd.NewRootCmd(
-		app.Name,
-		app.AccountAddressPrefix,
-		home,
-		app.Name,
-		app.ModuleBasics,
-		appBuilder,
-	)
+	cmd := NewRootCmd()
+	const envPrefix = "CELESTIA"
+
 	scrapStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
@@ -140,7 +151,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	out := new(bytes.Buffer)
 	cmd.SetOut(out)
 	cmd.SetArgs([]string{"tendermint", "show-node-id", "--home", home})
-	if err := svrcmd.Execute(cmd, app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(cmd, envPrefix, app.DefaultNodeHome); err != nil {
 		return err
 	}
 
@@ -186,35 +197,9 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cmd.SetErr(os.Stdout)
 	cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
 
-	if err := svrcmd.Execute(cmd, app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(cmd, envPrefix, app.DefaultNodeHome); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func appBuilder(
-	logger log.Logger,
-	db dbm.DB,
-	traceStore io.Writer,
-	loadLatest bool,
-	skipUpgradeHeights map[int64]bool,
-	homePath string,
-	invCheckPeriod uint,
-	encodingConfig cosmoscmd.EncodingConfig,
-	appOpts servertypes.AppOptions,
-	baseAppOptions ...func(*baseapp.BaseApp),
-) cosmoscmd.App {
-	return app.New(
-		logger,
-		db,
-		traceStore,
-		loadLatest,
-		skipUpgradeHeights,
-		homePath,
-		invCheckPeriod,
-		encodingConfig,
-		appOpts,
-		baseAppOptions...,
-	)
 }
