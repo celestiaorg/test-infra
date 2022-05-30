@@ -85,7 +85,9 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		// Set the traffic shaping characteristics.
 		Default: network.LinkShape{
-			Latency:   100 * time.Millisecond,
+			Latency:   400 * time.Millisecond,
+			Jitter:    100 * time.Millisecond,
+			Corrupt:   15,
 			Bandwidth: 1 << 20, // 1Mib
 		},
 
