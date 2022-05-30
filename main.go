@@ -111,35 +111,9 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	var home string
-	switch seq {
-	case 1:
-		home = runenv.StringParam("app1")
-	case 2:
-		home = runenv.StringParam("app2")
-	case 3:
-		home = runenv.StringParam("app3")
-	case 4:
-		home = runenv.StringParam("app4")
-	case 5:
-		home = runenv.StringParam("app5")
-	case 6:
-		home = runenv.StringParam("app6")
-	case 7:
-		home = runenv.StringParam("app7")
-	case 8:
-		home = runenv.StringParam("app8")
-	case 9:
-		home = runenv.StringParam("app9")
-	case 10:
-		home = runenv.StringParam("app10")
-	}
+	// var home string
+	home := runenv.StringParam(fmt.Sprintf("app%d", seq))
 
-	// if seq == 1 {
-	// 	home = runenv.StringParam("app1")
-	// } else {
-	// 	home = runenv.StringParam("app2")
-	// }
 	fmt.Println(home)
 	cmd := NewRootCmd()
 	const envPrefix = "CELESTIA"

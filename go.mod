@@ -4,14 +4,14 @@ go 1.17
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.0.3-dirty-app
-	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.1.2-dirty-sdk-v0.46.0
+	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.1.0-dirty-app
+	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.1.3-dirty-sdk-v0.46.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.2.1-tm-v0.35.4
+	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.2.2-tm-v0.35.4
 )
 
 require (
-	github.com/celestiaorg/celestia-app v0.4.0
+	github.com/celestiaorg/celestia-app v0.5.2
 	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.4.0
