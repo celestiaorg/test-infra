@@ -1,4 +1,4 @@
-package main
+package appkit
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ import (
 	dbm "github.com/tendermint/tm-db"
 )
 
-const envPrefix string = "CELESTIA"
+const EnvPrefix string = "CELESTIA"
 
 // NewRootCmd creates a new root command for celestia-appd. It is called once in the
 // main function.
@@ -58,7 +58,7 @@ func NewRootCmd() *cobra.Command {
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(app.DefaultNodeHome).
-		WithViper(envPrefix)
+		WithViper(EnvPrefix)
 
 	rootCmd := &cobra.Command{
 		Use:   "celestia-appd",

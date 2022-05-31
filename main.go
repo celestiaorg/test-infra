@@ -1,25 +1,17 @@
 package main
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"io/ioutil"
-	"net"
-	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
-	"github.com/celestiaorg/celestia-app/app"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/spf13/viper"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
+
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 var testcases = map[string]interface{}{
@@ -28,43 +20,6 @@ var testcases = map[string]interface{}{
 
 func main() {
 	run.InvokeMap(testcases)
-}
-
-type ValidatorNode struct {
-	PubKey string
-	IP     net.IP
-}
-
-func AddPersistentPeers(path string, peers []string) error {
-
-	var peersStr bytes.Buffer
-	var port int = 26656
-	var separator string = ","
-	for k, peer := range peers {
-		if k == (len(peers) - 1) {
-			separator = ""
-		}
-		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
-	}
-
-	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
-	if err != nil {
-		return err
-	}
-
-	viper.SetConfigType("toml")
-	err = viper.ReadConfig(fh)
-	if err != nil {
-		return err
-	}
-
-	viper.Set("p2p.persistent-peers", peersStr.String())
-	err = viper.WriteConfigAs(path)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -117,39 +72,22 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	home := runenv.StringParam(fmt.Sprintf("app%d", seq))
 
 	fmt.Println(home)
-	cmd := NewRootCmd()
-	const envPrefix = "CELESTIA"
+	cmd := appkit.NewRootCmd()
 
-	scrapStdout := os.Stdout
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
-	out := new(bytes.Buffer)
-	cmd.SetOut(out)
-	cmd.SetArgs([]string{"tendermint", "show-node-id", "--home", home})
-	if err := svrcmd.Execute(cmd, envPrefix, app.DefaultNodeHome); err != nil {
-		return err
-	}
-
-	w.Close()
-	outStr, err := ioutil.ReadAll(r)
+	nodeId, err := appkit.GetNodeId(cmd, home)
 	if err != nil {
+		runenv.RecordCrash(err)
 		return err
 	}
-	os.Stdout = scrapStdout
 
-	valPubKey := string(outStr)
-	valPubKey = strings.ReplaceAll(valPubKey, "\n", "")
-	fmt.Println("My node-id is:", valPubKey)
-	fmt.Println("My config IP is:", config.IPv4.IP)
-	valt := sync.NewTopic("validator-info", &ValidatorNode{})
-	client.Publish(ctx, valt, &ValidatorNode{valPubKey, config.IPv4.IP})
+	valt := sync.NewTopic("validator-info", &appkit.ValidatorNode{})
+	client.Publish(ctx, valt, &appkit.ValidatorNode{nodeId, config.IPv4.IP})
 
 	rdySt := sync.State("ready")
 	client.MustSignalEntry(ctx, rdySt)
 	<-client.MustBarrier(ctx, rdySt, runenv.TestInstanceCount).C
 
-	valCh := make(chan *ValidatorNode)
+	valCh := make(chan *appkit.ValidatorNode)
 	client.Subscribe(ctx, valt, valCh)
 
 	var persPeers []string
@@ -162,20 +100,14 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	configPath := filepath.Join(home, "config", "config.toml")
-	err = AddPersistentPeers(configPath, persPeers)
+	err = appkit.AddPersistentPeers(configPath, persPeers)
 	if err != nil {
 		return err
 	}
 
-	cmd.ResetFlags()
-	cmd.Flags().Set(flags.FlagHome, "")
+	go appkit.StartNode(cmd, home)
 
-	cmd.SetErr(os.Stdout)
-	cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
-
-	if err := svrcmd.Execute(cmd, envPrefix, app.DefaultNodeHome); err != nil {
-		return err
-	}
+	time.Sleep(200 * time.Second)
 
 	return nil
 }
