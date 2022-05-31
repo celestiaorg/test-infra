@@ -68,7 +68,6 @@ func AddPersistentPeers(path string, peers []string) error {
 }
 
 func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	// const home string = "/Users/bidon4/.celestia-app-1"
 	ctx := context.Background()
 	client := initCtx.SyncClient
 	netclient := network.NewClient(client, runenv)
@@ -85,9 +84,10 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		// Set the traffic shaping characteristics.
 		Default: network.LinkShape{
-			Latency:   400 * time.Millisecond,
+			Latency:   200 * time.Millisecond,
 			Jitter:    100 * time.Millisecond,
-			Corrupt:   15,
+			Loss:      2,
+			Corrupt:   2,
 			Bandwidth: 1 << 20, // 1Mib
 		},
 
