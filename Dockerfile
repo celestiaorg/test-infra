@@ -1,6 +1,6 @@
 # BUILD_BASE_IMAGE is the base image to use for the build. It contains a rolling
 # accumulation of Go build/package caches.
-ARG BUILD_BASE_IMAGE=golang:1.17
+ARG BUILD_BASE_IMAGE=golang:1.17.8
 
 # This Dockerfile performs a multi-stage build and RUNTIME_IMAGE is the image
 # onto which to copy the resulting binary.
@@ -82,5 +82,5 @@ COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
 COPY --from=builder ${PLAN_DIR}/core-configs /core-configs
 
 
-EXPOSE 9090 26657 26656 1317
+EXPOSE 9090 26657 26656 1317 26658
 ENTRYPOINT [ "/testplan"]

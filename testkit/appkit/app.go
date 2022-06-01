@@ -2,9 +2,11 @@ package appkit
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
+	"net/http"
 	"os"
 	"strings"
 
@@ -89,4 +91,21 @@ func StartNode(cmd *cobra.Command, home string) error {
 	}
 
 	return nil
+}
+
+func GetBlockHashByHeight(height uint64) (string, error) {
+	uri := fmt.Sprintf("http://127.0.0.1:26657/block?height=%s", height)
+	resp, err := http.Get(uri)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+
+	var res BlockResp
+	if err := json.Unmarshal(body, &res); err != nil {
+		return "", err
+	}
+	return res.Result.BlockID.Hash, nil
 }

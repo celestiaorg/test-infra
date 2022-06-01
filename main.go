@@ -6,7 +6,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/node"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"github.com/celestiaorg/test-infra/testkit/nodekit"
 
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
@@ -107,7 +109,21 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	go appkit.StartNode(cmd, home)
 
-	time.Sleep(200 * time.Second)
+	time.Sleep(40 * time.Second)
 
+	h, err := appkit.GetBlockHashByHeight(1)
+
+	fmt.Print(h)
+
+	ndhome := fmt.Sprintf("/.celestia-bridge-%d", seq)
+	nd, err := nodekit.NewNode(ndhome, node.Bridge, node.WithTrustedHash(h), node.WithRemoteCore("tcp", "127.0.0.1:26657"))
+	if err != nil {
+		return err
+	}
+	nd.Start(ctx)
+	if err != nil {
+		return err
+	}
+	time.Sleep(100 * time.Second)
 	return nil
 }
