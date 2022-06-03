@@ -3,12 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"net"
+	"os"
 	"path/filepath"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
+	logging "github.com/ipfs/go-log/v2"
 
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
@@ -17,14 +21,21 @@ import (
 )
 
 var testcases = map[string]interface{}{
-	"capp-1": run.InitializedTestCaseFn(runSync),
+	"capp-3":  run.InitializedTestCaseFn(runSync),
+	"capp-10": run.InitializedTestCaseFn(runSync),
 }
 
 func main() {
 	run.InvokeMap(testcases)
 }
 
+type AppId struct {
+	ID int
+	IP net.IP
+}
+
 func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+	os.Setenv("GOLOG_OUTPUT", "stdout")
 	ctx := context.Background()
 	client := initCtx.SyncClient
 	netclient := network.NewClient(client, runenv)
@@ -41,15 +52,16 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		// Set the traffic shaping characteristics.
 		Default: network.LinkShape{
-			Latency:   200 * time.Millisecond,
-			Jitter:    100 * time.Millisecond,
-			Loss:      2,
-			Corrupt:   2,
+			Latency: 200 * time.Millisecond,
+			// Jitter:    100 * time.Millisecond,
+			// Loss:      2,
+			// Corrupt:   2,
 			Bandwidth: 1 << 20, // 1Mib
 		},
 
 		// Set what state the sidecar should signal back to you when it's done.
 		CallbackState: "network-configured",
+		RoutingPolicy: network.AllowAll,
 	}
 
 	topic := sync.NewTopic("ip-allocation", "")
@@ -70,60 +82,87 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// var home string
-	home := runenv.StringParam(fmt.Sprintf("app%d", seq))
+	appt := sync.NewTopic("app-ip", &AppId{})
+	if runenv.TestGroupID == "app" {
+		// var home string
+		home := runenv.StringParam(fmt.Sprintf("app%d", initCtx.GroupSeq))
 
-	fmt.Println(home)
-	cmd := appkit.NewRootCmd()
+		fmt.Println(home)
+		cmd := appkit.NewRootCmd()
 
-	nodeId, err := appkit.GetNodeId(cmd, home)
-	if err != nil {
-		runenv.RecordCrash(err)
-		return err
-	}
-
-	valt := sync.NewTopic("validator-info", &appkit.ValidatorNode{})
-	client.Publish(ctx, valt, &appkit.ValidatorNode{nodeId, config.IPv4.IP})
-
-	rdySt := sync.State("ready")
-	client.MustSignalEntry(ctx, rdySt)
-	<-client.MustBarrier(ctx, rdySt, runenv.TestInstanceCount).C
-
-	valCh := make(chan *appkit.ValidatorNode)
-	client.Subscribe(ctx, valt, valCh)
-
-	var persPeers []string
-	for i := 0; i < runenv.TestInstanceCount; i++ {
-		val := <-valCh
-		runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
-		if !val.IP.Equal(config.IPv4.IP) {
-			persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+		nodeId, err := appkit.GetNodeId(cmd, home)
+		if err != nil {
+			runenv.RecordCrash(err)
+			return err
 		}
+
+		valt := sync.NewTopic("validator-info", &appkit.ValidatorNode{})
+		client.Publish(ctx, valt, &appkit.ValidatorNode{nodeId, config.IPv4.IP})
+
+		rdySt := sync.State("ready")
+		seq := client.MustSignalEntry(ctx, rdySt)
+		client.Publish(ctx, appt, &AppId{int(seq), config.IPv4.IP})
+		<-client.MustBarrier(ctx, rdySt, runenv.TestGroupInstanceCount).C
+
+		valCh := make(chan *appkit.ValidatorNode)
+		client.Subscribe(ctx, valt, valCh)
+
+		var persPeers []string
+		for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+			val := <-valCh
+			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+			if !val.IP.Equal(config.IPv4.IP) {
+				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+			}
+		}
+
+		configPath := filepath.Join(home, "config", "config.toml")
+		err = appkit.AddPersistentPeers(configPath, persPeers)
+		if err != nil {
+			return err
+		}
+
+		appkit.StartNode(cmd, home)
+	} else {
+		time.Sleep(10 * time.Second)
+		level, err := logging.LevelFromString("INFO")
+		if err != nil {
+			return err
+		}
+		logs.SetAllLoggers(level)
+		appIPCh := make(chan *AppId)
+		client.Subscribe(ctx, appt, appIPCh)
+		for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+			appIP := <-appIPCh
+			if appIP.ID == int(initCtx.GroupSeq) {
+				h, err := appkit.GetBlockHashByHeight(appIP.IP, 1)
+				fmt.Print(h)
+
+				ndhome := fmt.Sprintf("/.celestia-bridge-%d", seq)
+				rc := fmt.Sprintf("%s:26657", appIP.IP.To4().String())
+				nd, err := nodekit.NewNode(ndhome, node.Bridge, node.WithTrustedHash(h), node.WithRemoteCore("tcp", rc))
+				if err != nil {
+					return err
+				}
+
+				ndCtx := context.Background()
+				nd.Start(ndCtx)
+				if err != nil {
+					return err
+				}
+
+				eh, err := nd.HeaderServ.GetByHeight(ndCtx, uint64(6))
+				if err != nil {
+					return err
+				}
+
+				fmt.Println(eh.Commit.BlockID.Hash.String())
+			}
+		}
+
+		// app is publishing an ip and it's instance number to the topic
+		// node is reading the topic and compares the received instance number from the app with the instance it has to be the same
 	}
 
-	configPath := filepath.Join(home, "config", "config.toml")
-	err = appkit.AddPersistentPeers(configPath, persPeers)
-	if err != nil {
-		return err
-	}
-
-	go appkit.StartNode(cmd, home)
-
-	time.Sleep(40 * time.Second)
-
-	h, err := appkit.GetBlockHashByHeight(1)
-
-	fmt.Print(h)
-
-	ndhome := fmt.Sprintf("/.celestia-bridge-%d", seq)
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, node.WithTrustedHash(h), node.WithRemoteCore("tcp", "127.0.0.1:26657"))
-	if err != nil {
-		return err
-	}
-	nd.Start(ctx)
-	if err != nil {
-		return err
-	}
-	time.Sleep(100 * time.Second)
 	return nil
 }

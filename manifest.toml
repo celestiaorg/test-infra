@@ -6,7 +6,7 @@ runner = "local:exec"
 
 [builders."docker:go"]
 enabled = true
-go_version = "1.17"
+go_version = "1.17.8"
 build_base_image = "golang:1.17.8"
 enable_go_build_cache = true
 
@@ -27,7 +27,18 @@ enabled = true
 enabled = true
 
 [[testcases]]
-name = "capp-1"
+name = "capp-3"
+instances = { min = 1, max = 100, default = 1 }
+
+    [testcases.params]
+    orc    = { type = "int", default = 1 }
+    app1   = { type = "string", default = "/core-configs/.celestia-app-1" }
+    app2   = { type = "string", default = "/core-configs/.celestia-app-2" }
+    app3   = { type = "string", default = "/core-configs/.celestia-app-3" }
+    role   = { type = "string" }
+
+[[testcases]]
+name = "capp-10"
 instances = { min = 1, max = 100, default = 1 }
 
     [testcases.params]

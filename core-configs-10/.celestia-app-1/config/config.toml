@@ -15,7 +15,7 @@
 proxy-app = "tcp://127.0.0.1:26658"
 
 # A custom human readable name for this node
-moniker = "MacBook-Pro-8.local"
+moniker = "xm1"
 
 # Mode of Node: full | validator | seed
 # * validator node
@@ -112,7 +112,7 @@ root-ca-file = ""
 [rpc]
 
 # TCP or UNIX socket address for the RPC server to listen on
-laddr = "tcp://0.0.0.0:26657"
+laddr = "tcp://127.0.0.1:26657"
 
 # A list of origins a cross-domain request can be executed from
 # Default value '[]' disables cors support
@@ -253,7 +253,7 @@ seeds = ""
 bootstrap-peers = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent-peers = ""
+persistent-peers = "26c9a68e138a3d2e191769b576d4de62d98f6389@192.168.2.145:26656,3cc9a98b2f9070b6f25220c9987d1afd67867603@192.168.2.145:26656,430d35c6eba215b7cf90d1575a931a3569ecfc2c@192.168.2.145:26656,4774e427a71c8c93fd4d7d806552fe9440ee8253@192.168.2.145:26656,47dcbdf85eee4218a5bdabc7d63959664b6e570e@192.168.2.145:26656,bff33dffaf94b1e7b1e002c847e46bc9494876d4@192.168.2.145:26656,d2187f3eea2e4abff74fb7346f5ea0ddacff7288@192.168.2.145:26656,d8b1e2041e47d89f8f7b2d29f552ba93e64c00b1@192.168.2.145:26656,fa09ce78e38d9d0fd423e41b136101a5155818c8@192.168.2.145:26656"
 
 # UPNP port forwarding
 upnp = false
@@ -355,7 +355,7 @@ cache-size = 10000
 # Do not remove invalid transactions from the cache (default: false)
 # Set to true if it's not possible for any invalid transaction to become valid
 # again in the future.
-keep-invalid-txs-in-cache = false
+keep-invalid-txs-in-cache = true
 
 # Maximum size of a single transaction.
 # NOTE: the max size of a tx transmitted over the network is {max-tx-bytes}.
@@ -380,7 +380,7 @@ ttl-duration = "0s"
 # Note, if ttl-duration is also defined, a transaction will be removed if it
 # has existed in the mempool at least ttl-num-blocks number of blocks or if
 # it's insertion time into the mempool is beyond ttl-duration.
-ttl-num-blocks = 0
+ttl-num-blocks = 15
 
 #######################################################
 ###         State Sync Configuration Options        ###
@@ -463,7 +463,7 @@ timeout-precommit-delta = "500ms"
 # How long we wait after committing a block, before starting on the new
 # height (this gives us a chance to receive some more precommits, even
 # though we already have +2/3).
-timeout-commit = "1s"
+timeout-commit = "25s"
 
 # How many blocks to look back to check existence of the node's consensus votes before joining consensus
 # When non-zero, the node will panic upon restart

@@ -112,7 +112,7 @@ root-ca-file = ""
 [rpc]
 
 # TCP or UNIX socket address for the RPC server to listen on
-laddr = "tcp://127.0.0.1:26657"
+laddr = "tcp://0.0.0.0:26657"
 
 # A list of origins a cross-domain request can be executed from
 # Default value '[]' disables cors support
@@ -253,7 +253,7 @@ seeds = ""
 bootstrap-peers = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent-peers = "26c9a68e138a3d2e191769b576d4de62d98f6389@192.168.2.145:26656,3cc9a98b2f9070b6f25220c9987d1afd67867603@192.168.2.145:26656,430d35c6eba215b7cf90d1575a931a3569ecfc2c@192.168.2.145:26656,4774e427a71c8c93fd4d7d806552fe9440ee8253@192.168.2.145:26656,47dcbdf85eee4218a5bdabc7d63959664b6e570e@192.168.2.145:26656,bff33dffaf94b1e7b1e002c847e46bc9494876d4@192.168.2.145:26656,d2187f3eea2e4abff74fb7346f5ea0ddacff7288@192.168.2.145:26656,d8b1e2041e47d89f8f7b2d29f552ba93e64c00b1@192.168.2.145:26656,fa09ce78e38d9d0fd423e41b136101a5155818c8@192.168.2.145:26656"
+persistent-peers = "9ab560273685ac4b45592cfda96b3f1172c38c64@192.168.2.145:26656,d883f36a1f860ebd7a1411120ccba7eef3a11062@192.168.2.145:26656"
 
 # UPNP port forwarding
 upnp = false
