@@ -93,7 +93,7 @@ func StartNode(cmd *cobra.Command, home string) error {
 	return nil
 }
 
-func GetBlockHashByHeight(ip net.IP, height uint64) (string, error) {
+func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 	uri := fmt.Sprintf("http://%s:26657/block?height=%s", ip.To4().String(), height)
 	resp, err := http.Get(uri)
 	if err != nil {
