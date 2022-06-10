@@ -131,9 +131,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		go appkit.StartNode(cmd, home)
-		client.MustSignalEntry(ctx, stateDone)
-		<-client.MustBarrier(ctx, stateDone, int(runenv.TestInstanceCount)).C
-		// client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
+		client.MustSignalAndWait(ctx, stateDone, int(initCtx.GlobalSeq))
 		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 
 		return nil
@@ -184,19 +182,18 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				if err != nil {
 					return err
 				}
-				runenv.RecordMessage(addrs[0].String())
-				// rdySt := sync.State("bridgeReady")
-				// client.MustSignalEntry(ctx, rdySt)
+
 				runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
+				runenv.RecordMessage("Publishing bridgeID Addr %s", addrs[0].String())
+
 				bseq, err := client.Publish(ctx, bridget, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
 				if err != nil {
 					return err
 				}
-				// <-client.MustBarrier(ctx, rdySt, runenv.TestGroupInstanceCount).C
 
 				runenv.RecordMessage("%d published bridge id", int(bseq))
-				client.MustSignalEntry(ctx, stateDone)
-				<-client.MustBarrier(ctx, stateDone, int(runenv.TestInstanceCount)).C
+				client.MustSignalAndWait(ctx, stateDone, int(initCtx.GlobalSeq))
+				// <-client.MustBarrier(ctx, stateDone, int(runenv.TestInstanceCount)).C
 				err = nd.Stop(ndCtx)
 				if err != nil {
 					return err
@@ -246,7 +243,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 					if err != nil {
 						return err
 					}
-					client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
+					client.MustSignalAndWait(ctx, stateDone, int(initCtx.GlobalSeq))
 					return nil
 				}
 			}
@@ -305,7 +302,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 					if err != nil {
 						return err
 					}
-					client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
+					client.MustSignalAndWait(ctx, stateDone, int(initCtx.GlobalSeq))
 					return nil
 				}
 			}
