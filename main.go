@@ -186,7 +186,10 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 				rdySt := sync.State("bridgeReady")
 				client.MustSignalEntry(ctx, rdySt)
-				bseq := client.MustPublish(ctx, bridget, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
+				bseq, err := client.Publish(ctx, bridget, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
+				if err != nil {
+					return err
+				}
 				<-client.MustBarrier(ctx, rdySt, runenv.TestGroupInstanceCount).C
 
 				runenv.RecordMessage("%d published bridge id", int(bseq))
@@ -201,43 +204,49 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	} else if runenv.TestGroupID == "full" {
 		os.Setenv("GOLOG_OUTPUT", "stdout")
-
-		time.Sleep(10 * time.Second)
 		level, err := logging.LevelFromString("INFO")
 		if err != nil {
 			return err
 		}
 		logs.SetAllLoggers(level)
+
 		bridgeCh := make(chan *BridgeId)
-		client.MustSubscribe(ctx, bridget, bridgeCh)
+		sub, err := client.Subscribe(ctx, bridget, bridgeCh)
+		if err != nil {
+			return err
+		}
 
-		for i := 1; i <= runenv.TestInstanceCount; i++ {
-			bridge := <-bridgeCh
-			if int(initCtx.GroupSeq) == bridge.ID {
-				ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GroupSeq)
-				runenv.RecordMessage(ndhome)
-				nd, err := nodekit.NewNode(ndhome, node.Full, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
-				if err != nil {
-					return err
-				}
-				ndCtx := context.Background()
-				err = nd.Start(ndCtx)
-				if err != nil {
-					return err
-				}
+		for {
+			select {
+			case <-sub.Done():
+				return fmt.Errorf("nodeId hasn't received")
+			case bridge := <-bridgeCh:
+				if int(initCtx.GroupSeq) == bridge.ID {
+					ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GroupSeq)
+					runenv.RecordMessage(ndhome)
+					nd, err := nodekit.NewNode(ndhome, node.Full, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
+					if err != nil {
+						return err
+					}
+					ndCtx := context.Background()
+					err = nd.Start(ndCtx)
+					if err != nil {
+						return err
+					}
 
-				eh, err := nd.HeaderServ.GetByHeight(ndCtx, uint64(9))
-				if err != nil {
-					return err
-				}
-				runenv.RecordMessage("Reached Block#7 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+					eh, err := nd.HeaderServ.GetByHeight(ndCtx, uint64(9))
+					if err != nil {
+						return err
+					}
+					runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 
-				err = nd.Stop(ndCtx)
-				if err != nil {
-					return err
+					err = nd.Stop(ndCtx)
+					if err != nil {
+						return err
+					}
+					client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
+					return nil
 				}
-				client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
-				return nil
 			}
 		}
 
@@ -251,13 +260,15 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 		logs.SetAllLoggers(level)
 		bridgeCh := make(chan *BridgeId)
-		client.Subscribe(ctx, bridget, bridgeCh)
+		sub, err := client.Subscribe(ctx, bridget, bridgeCh)
+		if err != nil {
+			return err
+		}
 
-		// for i := 1; i <= runenv.TestInstanceCount; i++ {
 		for {
 
 			select {
-			case <-ctx.Done():
+			case <-sub.Done():
 				return fmt.Errorf("nodeId hasn't received")
 			case bridge := <-bridgeCh:
 
@@ -267,8 +278,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				fmt.Println("-----------------BRIDGE---------------------", bridge.ID)
 				fmt.Println("-----------------BRIDGE---------------------", bridge.Amount)
 				fmt.Println("-----------------LIGHT SEQ---------------------", int(initCtx.GroupSeq))
-				// if int(initCtx.GroupSeq)%bridge.Amount == bridge.ID%bridge.Amount {
-				if int(initCtx.GroupSeq) == bridge.ID {
+				if int(initCtx.GroupSeq)%bridge.Amount == bridge.ID%bridge.Amount {
 					ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GroupSeq))
 					runenv.RecordMessage(ndhome)
 					nd, err := nodekit.NewNode(ndhome, node.Light, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
@@ -286,7 +296,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 						return err
 					}
 
-					runenv.RecordMessage("Reached Block#7 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+					runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 					runenv.RecordSuccess()
 
 					err = nd.Stop(ndCtx)
