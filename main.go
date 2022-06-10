@@ -6,6 +6,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"syscall"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/logs"
@@ -60,10 +61,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		// Set the traffic shaping characteristics.
 		Default: network.LinkShape{
-			Latency: 200 * time.Millisecond,
-			// Jitter:    100 * time.Millisecond,
-			// Loss:      2,
-			// Corrupt:   2,
+			Latency:   100 * time.Millisecond,
 			Bandwidth: 1 << 20, // 1Mib
 		},
 
@@ -92,7 +90,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	appt := sync.NewTopic("app-id", &AppId{})
 	bridget := sync.NewTopic("bridge-id", &BridgeId{})
-	// finisht := sync.NewTopic("finish-test", bool)
+	stateDone := sync.State("done")
 	if runenv.TestGroupID == "app" {
 		// var home string
 		home := runenv.StringParam(fmt.Sprintf("app%d", initCtx.GroupSeq))
@@ -132,16 +130,18 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		//TODO(@Bidon15): should be a goroutine as this is blocking func
-		appkit.StartNode(cmd, home)
+		go appkit.StartNode(cmd, home)
+		client.MustSignalEntry(ctx, stateDone)
+		<-client.MustBarrier(ctx, stateDone, int(runenv.TestInstanceCount)).C
+		// client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
+		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 
-		//TODO(@Bidon15): subscribe to an event that tells that the test is finished from node part
+		return nil
 
 	} else if runenv.TestGroupID == "bridge" {
-		// os.Setenv("GOLOG_FILE", "/.bridge.log")
 		os.Setenv("GOLOG_OUTPUT", "stdout")
 
-		time.Sleep(10 * time.Second)
+		time.Sleep(8 * time.Second)
 		level, err := logging.LevelFromString("INFO")
 		if err != nil {
 			return err
@@ -186,25 +186,36 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 				rdySt := sync.State("bridgeReady")
 				client.MustSignalEntry(ctx, rdySt)
-				bseq, _ := client.Publish(ctx, bridget, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
+				bseq := client.MustPublish(ctx, bridget, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
 				<-client.MustBarrier(ctx, rdySt, runenv.TestGroupInstanceCount).C
-				// bseq := client.MustPublish(ctx, bridget, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
 
-				runenv.RecordMessage("%s published bridge id", int(bseq))
+				runenv.RecordMessage("%d published bridge id", int(bseq))
+				client.MustSignalEntry(ctx, stateDone)
+				<-client.MustBarrier(ctx, stateDone, int(runenv.TestInstanceCount)).C
+				err = nd.Stop(ndCtx)
+				if err != nil {
+					return err
+				}
+				return nil
 			}
 		}
-
-		time.Sleep(1 * time.Minute)
-
 	} else if runenv.TestGroupID == "full" {
+		os.Setenv("GOLOG_OUTPUT", "stdout")
+
+		time.Sleep(10 * time.Second)
+		level, err := logging.LevelFromString("INFO")
+		if err != nil {
+			return err
+		}
+		logs.SetAllLoggers(level)
 		bridgeCh := make(chan *BridgeId)
 		client.MustSubscribe(ctx, bridget, bridgeCh)
 
-		for i := 1; i <= runenv.TestGroupInstanceCount; i++ {
-			ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GroupSeq)
-			runenv.RecordMessage(ndhome)
+		for i := 1; i <= runenv.TestInstanceCount; i++ {
 			bridge := <-bridgeCh
 			if int(initCtx.GroupSeq) == bridge.ID {
+				ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GroupSeq)
+				runenv.RecordMessage(ndhome)
 				nd, err := nodekit.NewNode(ndhome, node.Full, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
 				if err != nil {
 					return err
@@ -215,45 +226,77 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 					return err
 				}
 
-				eh, err := nd.HeaderServ.GetByHeight(ndCtx, uint64(12))
+				eh, err := nd.HeaderServ.GetByHeight(ndCtx, uint64(9))
 				if err != nil {
 					return err
 				}
-				runenv.RecordMessage("Reached Block#12 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+				runenv.RecordMessage("Reached Block#7 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+
+				err = nd.Stop(ndCtx)
+				if err != nil {
+					return err
+				}
+				client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
+				return nil
 			}
 		}
 
 	} else if runenv.TestGroupID == "light" {
+		os.Setenv("GOLOG_OUTPUT", "stdout")
+
+		time.Sleep(10 * time.Second)
+		level, err := logging.LevelFromString("INFO")
+		if err != nil {
+			return err
+		}
+		logs.SetAllLoggers(level)
 		bridgeCh := make(chan *BridgeId)
 		client.Subscribe(ctx, bridget, bridgeCh)
 
-		for i := 0; i < runenv.TestGroupInstanceCount; i++ {
-			var nd *node.Node
-			ndhome := fmt.Sprintf("/.celestia-light-%d", i)
-			bridge := <-bridgeCh
-			if i < runenv.TestGroupInstanceCount/3 && bridge.ID == 1 {
-				nd, err = nodekit.NewNode(ndhome, node.Light, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
-			} else if i >= runenv.TestGroupInstanceCount/3 && i < runenv.TestGroupInstanceCount/3*2 && bridge.ID == 2 {
-				nd, err = nodekit.NewNode(ndhome, node.Light, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
-			} else {
-				nd, err = nodekit.NewNode(ndhome, node.Light, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
-			}
-			if err != nil {
-				return err
-			}
+		// for i := 1; i <= runenv.TestInstanceCount; i++ {
+		for {
 
-			ndCtx := context.Background()
-			err = nd.Start(ndCtx)
-			if err != nil {
-				return err
-			}
+			select {
+			case <-ctx.Done():
+				return fmt.Errorf("nodeId hasn't received")
+			case bridge := <-bridgeCh:
 
-			eh, err := nd.HeaderServ.GetByHeight(ndCtx, uint64(12))
-			if err != nil {
-				return err
-			}
+				//we have a total of light nodes
+				//we receive bridgeIDs that contain the ID of bridge and the total amount of bridges
+				//we need to assign light nodes 30/30/30 per each bridge
+				fmt.Println("-----------------BRIDGE---------------------", bridge.ID)
+				fmt.Println("-----------------BRIDGE---------------------", bridge.Amount)
+				fmt.Println("-----------------LIGHT SEQ---------------------", int(initCtx.GroupSeq))
+				// if int(initCtx.GroupSeq)%bridge.Amount == bridge.ID%bridge.Amount {
+				if int(initCtx.GroupSeq) == bridge.ID {
+					ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GroupSeq))
+					runenv.RecordMessage(ndhome)
+					nd, err := nodekit.NewNode(ndhome, node.Light, config.IPv4.IP, node.WithTrustedHash(bridge.TrustedHash), node.WithTrustedPeers(bridge.Maddr))
+					if err != nil {
+						return err
+					}
+					ndCtx := context.Background()
+					err = nd.Start(ndCtx)
+					if err != nil {
+						return err
+					}
 
-			runenv.RecordMessage("Reached Block#12 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+					eh, err := nd.HeaderServ.GetByHeight(ndCtx, uint64(9))
+					if err != nil {
+						return err
+					}
+
+					runenv.RecordMessage("Reached Block#7 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+					runenv.RecordSuccess()
+
+					err = nd.Stop(ndCtx)
+					if err != nil {
+						return err
+					}
+					client.MustSignalAndWait(ctx, stateDone, int(runenv.TestInstanceCount))
+					return nil
+				}
+			}
 		}
 
 	}

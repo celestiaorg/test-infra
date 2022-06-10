@@ -5,7 +5,7 @@
 [global]
   plan = "celestia-app"
   case = "capp-3"
-  total_instances = 18
+  total_instances = 12
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
@@ -58,7 +58,7 @@
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 9
+    count = 3
     percentage = 0.0
   [groups.build]
   [groups.run]

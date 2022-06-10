@@ -5,7 +5,7 @@
 [global]
   plan = "celestia-app"
   case = "capp-3"
-  total_instances = 8
+  total_instances = 7
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
@@ -30,7 +30,7 @@
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 3
+    count = 2
     percentage = 0.0
   [groups.build]
   [groups.run]
@@ -39,7 +39,7 @@
       role = "bridge"
 
 [[groups]]
-  id = "full"
+  id = "light"
   [groups.resources]
     memory = ""
     cpu = ""
@@ -50,4 +50,4 @@
   [groups.run]
     artifact = ""
     [groups.run.test_params]
-      role = "full"
+      role = "light"

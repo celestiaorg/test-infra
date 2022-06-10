@@ -36,20 +36,3 @@ instances = { min = 1, max = 100, default = 1 }
     app2   = { type = "string", default = "/core-configs/.celestia-app-2" }
     app3   = { type = "string", default = "/core-configs/.celestia-app-3" }
     role   = { type = "string" }
-
-[[testcases]]
-name = "capp-10"
-instances = { min = 1, max = 100, default = 1 }
-
-    [testcases.params]
-    orc    = { type = "int", default = 1 }
-    app1   = { type = "string", default = "/core-configs/.celestia-app-1" }
-    app2   = { type = "string", default = "/core-configs/.celestia-app-2" }
-    app3   = { type = "string", default = "/core-configs/.celestia-app-3" }
-    app4   = { type = "string", default = "/core-configs/.celestia-app-4" }
-    app5   = { type = "string", default = "/core-configs/.celestia-app-5" }
-    app6   = { type = "string", default = "/core-configs/.celestia-app-6" }
-    app7   = { type = "string", default = "/core-configs/.celestia-app-7" }
-    app8   = { type = "string", default = "/core-configs/.celestia-app-8" }
-    app9   = { type = "string", default = "/core-configs/.celestia-app-9" }
-    app10   = { type = "string", default = "/core-configs/.celestia-app-10" }
