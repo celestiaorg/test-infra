@@ -178,14 +178,16 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 
 				runenv.RecordMessage("Reached Block#4 contains Hash: %s", eh.Commit.BlockID.Hash.String())
-
+				runenv.RecordMessage("Sending the bridgeID %d", int(initCtx.GroupSeq))
 				//create a new subscription to publish bridge's multiaddress to light nodes
 				addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
 				if err != nil {
 					return err
 				}
+				runenv.RecordMessage(addrs[0].String())
 				rdySt := sync.State("bridgeReady")
 				client.MustSignalEntry(ctx, rdySt)
+				runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
 				bseq, err := client.Publish(ctx, bridget, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
 				if err != nil {
 					return err
@@ -276,7 +278,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				//we receive bridgeIDs that contain the ID of bridge and the total amount of bridges
 				//we need to assign light nodes 30/30/30 per each bridge
 				fmt.Println("-----------------BRIDGE---------------------", bridge.ID)
-				fmt.Println("-----------------BRIDGE---------------------", bridge.Amount)
+				fmt.Println("-----------------BRIDGE Amount---------------------", bridge.Amount)
 				fmt.Println("-----------------LIGHT SEQ---------------------", int(initCtx.GroupSeq))
 				if int(initCtx.GroupSeq)%bridge.Amount == bridge.ID%bridge.Amount {
 					ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GroupSeq))
