@@ -24,8 +24,7 @@ import (
 )
 
 var testcases = map[string]interface{}{
-	"capp-3":  run.InitializedTestCaseFn(runSync),
-	"capp-10": run.InitializedTestCaseFn(runSync),
+	"capp-3": run.InitializedTestCaseFn(runSync),
 }
 
 func main() {
@@ -92,7 +91,6 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	bridget := sync.NewTopic("bridge-id", &BridgeId{})
 	stateDone := sync.State("done")
 	if runenv.TestGroupID == "app" {
-		// var home string
 		home := runenv.StringParam(fmt.Sprintf("app%d", initCtx.GroupSeq))
 
 		fmt.Println(home)
@@ -132,7 +130,10 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		go appkit.StartNode(cmd, home)
 		client.MustSignalAndWait(ctx, stateDone, int(initCtx.GlobalSeq))
-		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		err = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
+		if err != nil {
+			return err
+		}
 
 		return nil
 
@@ -176,8 +177,8 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 
 				runenv.RecordMessage("Reached Block#4 contains Hash: %s", eh.Commit.BlockID.Hash.String())
-				runenv.RecordMessage("Sending the bridgeID %d", int(initCtx.GroupSeq))
-				//create a new subscription to publish bridge's multiaddress to light nodes
+
+				//create a new subscription to publish bridge's multiaddress to full/light nodes
 				addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
 				if err != nil {
 					return err
@@ -193,7 +194,7 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 				runenv.RecordMessage("%d published bridge id", int(bseq))
 				client.MustSignalAndWait(ctx, stateDone, int(initCtx.GlobalSeq))
-				// <-client.MustBarrier(ctx, stateDone, int(runenv.TestInstanceCount)).C
+
 				err = nd.Stop(ndCtx)
 				if err != nil {
 					return err
@@ -252,7 +253,6 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	} else if runenv.TestGroupID == "light" {
 		os.Setenv("GOLOG_OUTPUT", "stdout")
 
-		time.Sleep(10 * time.Second)
 		level, err := logging.LevelFromString("INFO")
 		if err != nil {
 			return err
@@ -271,12 +271,8 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return fmt.Errorf("nodeId hasn't received")
 			case bridge := <-bridgeCh:
 
-				//we have a total of light nodes
 				//we receive bridgeIDs that contain the ID of bridge and the total amount of bridges
 				//we need to assign light nodes 30/30/30 per each bridge
-				fmt.Println("-----------------BRIDGE---------------------", bridge.ID)
-				fmt.Println("-----------------BRIDGE Amount---------------------", bridge.Amount)
-				fmt.Println("-----------------LIGHT SEQ---------------------", int(initCtx.GroupSeq))
 				if int(initCtx.GroupSeq)%bridge.Amount == bridge.ID%bridge.Amount {
 					ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GroupSeq))
 					runenv.RecordMessage(ndhome)
