@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
@@ -356,31 +358,75 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cmd := appkit.NewRootCmd()
 
 	addrt := sync.NewTopic("account-address", "")
-	accountState := sync.State("accountSent")
 
 	output, err := appkit.CreateKey(cmd, "xm1", "test", home)
 	if err != nil {
 		return err
 	}
 
-	if runenv.TestGroupID == "rov" {
-		client.MustPublishAndWait(ctx, addrt, output, accountState, runenv.TestInstanceCount)
-		fmt.Println("rov finish")
-	} else if runenv.TestGroupID == "orc" {
+	client.Publish(ctx, addrt, output)
+
+	initgen := sync.NewTopic("init-gen", []byte(nil))
+
+	if runenv.TestGroupID == "orc" {
+		addrch := make(chan string)
+		client.Subscribe(ctx, addrt, addrch)
+
+		var accounts []string
+		for i := 0; i < runenv.TestInstanceCount; i++ {
+			addr := <-addrch
+			fmt.Println("Received address: ", addr)
+			accounts = append(accounts, addr)
+		}
+
 		fmt.Println(runenv.TestInstanceCount)
 		_, err = appkit.InitChain(cmd, "kek", "tia-test", home)
 		if err != nil {
 			return err
 		}
-		addrch := make(chan string)
-		client.MustSubscribe(ctx, addrt, addrch)
 
-		for i := 0; i < runenv.TestInstanceCount; i++ {
-			addr := <-addrch
-			fmt.Println("Received address: ", addr)
+		for _, v := range accounts {
+			out, err := appkit.AddGenAccount(cmd, v, "1000000000000000utia", home)
+			if err != nil {
+				return err
+			}
+			fmt.Println(out)
 		}
-		client.MustSignalEntry(ctx, accountState)
+
+		gen, err := os.Open(fmt.Sprintf("%s/config/genesis.json", home))
+		if err != nil {
+			return err
+		}
+
+		bt, err := ioutil.ReadAll(gen)
+		var res map[string]interface{}
+		json.Unmarshal([]byte(bt), &res)
+
+		client.Publish(ctx, initgen, bt)
+
+		fmt.Println("finish orc")
+
 	}
+
+	if runenv.TestGroupID == "rov" {
+		ingench := make(chan []byte)
+		client.Subscribe(ctx, initgen, ingench)
+
+		
+		ingen := <-ingench
+		// fmt.Println(ingen)
+
+		var res map[string]interface{}
+		json.Unmarshal([]byte(ingen), &res)
+		
+		fmt.Println(res)
+		err := ioutil.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), ingen, 0777)
+		if err != nil {
+			return err
+		}
+		fmt.Println("rov finish")
+	}
+
 	fmt.Println("finish line")
 	return nil
 }

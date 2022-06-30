@@ -98,6 +98,11 @@ func CreateKey(cmd *cobra.Command, name string, krbackend string, home string) (
 	return execCmd(cmd, []string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
 }
 
+// celestia-appd add-genesis-account celestia1mld039ypx3wu82h9wua4vjygze7es3s6rl9xfl 1000000000000000utia --home ~/.celestia-app-1
+func AddGenAccount(cmd *cobra.Command, addr string, amount string, home string) (output string, err error) {
+	return execCmd(cmd, []string{"add-genesis-account", addr, amount, "--home", home})
+}
+
 func StartNode(cmd *cobra.Command, home string) error {
 	cmd.ResetFlags()
 	cmd.Flags().Set(flags.FlagHome, "")
