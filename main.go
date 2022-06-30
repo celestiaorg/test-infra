@@ -24,7 +24,8 @@ import (
 )
 
 var testcases = map[string]interface{}{
-	"capp-3": run.InitializedTestCaseFn(runSync),
+	"capp-3":   run.InitializedTestCaseFn(runSync),
+	"init-val": run.InitializedTestCaseFn(initVal),
 }
 
 func main() {
@@ -249,7 +250,6 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 			}
 		}
-
 	} else if runenv.TestGroupID == "light" {
 		os.Setenv("GOLOG_OUTPUT", "stdout")
 
@@ -303,7 +303,84 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 			}
 		}
-
 	}
+	return nil
+}
+
+func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
+	defer cancel()
+	client := initCtx.SyncClient
+	netclient := network.NewClient(client, runenv)
+
+	netclient.MustWaitNetworkInitialized(ctx)
+
+	config := network.Config{
+		// Control the "default" network. At the moment, this is the only network.
+		Network: "default",
+
+		// Enable this network. Setting this to false will disconnect this test
+		// instance from this network. You probably don't want to do that.
+		Enable: true,
+
+		// Set the traffic shaping characteristics.
+		Default: network.LinkShape{
+			Latency:   100 * time.Millisecond,
+			Bandwidth: 1 << 20, // 1Mib
+		},
+
+		// Set what state the sidecar should signal back to you when it's done.
+		CallbackState: "network-configured",
+		RoutingPolicy: network.AllowAll,
+	}
+
+	topic := sync.NewTopic("ip-allocation", "")
+	seq := client.MustPublish(ctx, topic, "")
+
+	config.IPv4 = runenv.TestSubnet
+
+	ipC := byte((seq >> 8) + 1)
+	ipD := byte(seq)
+	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
+
+	err := netclient.ConfigureNetwork(ctx, &config)
+	if err != nil {
+		runenv.RecordCrash(err)
+		return err
+	}
+
+	// init the chain
+	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	fmt.Println(home)
+
+	cmd := appkit.NewRootCmd()
+
+	addrt := sync.NewTopic("account-address", "")
+	accountState := sync.State("accountSent")
+
+	output, err := appkit.CreateKey(cmd, "xm1", "test", home)
+	if err != nil {
+		return err
+	}
+
+	if runenv.TestGroupID == "rov" {
+		client.MustPublishAndWait(ctx, addrt, output, accountState, runenv.TestInstanceCount)
+		fmt.Println("rov finish")
+	} else if runenv.TestGroupID == "orc" {
+		fmt.Println(runenv.TestInstanceCount)
+		_, err = appkit.InitChain(cmd, "kek", "tia-test", home)
+		if err != nil {
+			return err
+		}
+		addrch := make(chan string)
+		client.MustSubscribe(ctx, addrt, addrch)
+
+		for i := 0; i < runenv.TestInstanceCount; i++ {
+			addr := <-addrch
+			fmt.Println("Received address: ", addr)
+		}
+		client.MustSignalEntry(ctx, accountState)
+	}
+	fmt.Println("finish line")
 	return nil
 }

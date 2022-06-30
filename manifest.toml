@@ -36,3 +36,12 @@ instances = { min = 1, max = 100, default = 1 }
     app2   = { type = "string", default = "/core-configs/.celestia-app-2" }
     app3   = { type = "string", default = "/core-configs/.celestia-app-3" }
     role   = { type = "string" }
+
+
+[[testcases]]
+name = "init-val"
+instances = { min = 1, max = 100, default = 3 }
+
+    [testcases.params]
+    orc    = { type = "int", default = 1 }
+    role   = { type = "string" }

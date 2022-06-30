@@ -23,14 +23,17 @@ type ValidatorNode struct {
 	IP     net.IP
 }
 
-func GetNodeId(cmd *cobra.Command, home string) (id string, err error) {
+func execCmd(cmd *cobra.Command, args []string) (output string, err error) {
+	fmt.Println(args)
+	cmd.ResetFlags()
+
 	scrapStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
 	out := new(bytes.Buffer)
-	cmd.SetOut(out)
-	cmd.SetArgs([]string{"tendermint", "show-node-id", "--home", home})
+	cmd.Println(out)
+	cmd.SetArgs(args)
 	if err := svrcmd.Execute(cmd, EnvPrefix, app.DefaultNodeHome); err != nil {
 		return "", err
 	}
@@ -42,9 +45,13 @@ func GetNodeId(cmd *cobra.Command, home string) (id string, err error) {
 	}
 	os.Stdout = scrapStdout
 
-	valPubKey := string(outStr)
-	valPubKey = strings.ReplaceAll(valPubKey, "\n", "")
-	return valPubKey, nil
+	output = string(outStr)
+	output = strings.ReplaceAll(output, "\n", "")
+	return output, nil
+}
+
+func GetNodeId(cmd *cobra.Command, home string) (id string, err error) {
+	return execCmd(cmd, []string{"tendermint", "show-node-id", "--home", home})
 }
 
 func AddPersistentPeers(path string, peers []string) error {
@@ -77,6 +84,18 @@ func AddPersistentPeers(path string, peers []string) error {
 	}
 
 	return nil
+}
+
+func InitChain(cmd *cobra.Command, moniker string, chainId string, home string) (output string, err error) {
+	return execCmd(cmd, []string{"init", moniker, "--chain-id", chainId, "--home", home})
+}
+
+func CreateKey(cmd *cobra.Command, name string, krbackend string, home string) (output string, err error) {
+	_, err = execCmd(cmd, []string{"keys", "add", name, "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
+	if err != nil {
+		return "", err
+	}
+	return execCmd(cmd, []string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
 }
 
 func StartNode(cmd *cobra.Command, home string) error {
