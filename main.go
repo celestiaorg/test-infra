@@ -399,6 +399,10 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		bt, err := ioutil.ReadAll(gen)
+		if err != nil {
+			return err
+		}
+
 		var res map[string]interface{}
 		json.Unmarshal([]byte(bt), &res)
 
@@ -412,19 +416,84 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		ingench := make(chan []byte)
 		client.Subscribe(ctx, initgen, ingench)
 
-		
 		ingen := <-ingench
 		// fmt.Println(ingen)
 
 		var res map[string]interface{}
 		json.Unmarshal([]byte(ingen), &res)
-		
+
 		fmt.Println(res)
 		err := ioutil.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), ingen, 0777)
 		if err != nil {
 			return err
 		}
 		fmt.Println("rov finish")
+	}
+
+	output, err = appkit.SignGenTx(cmd, "xm1", "5000000000utia", "test", "tia-test", home)
+	if err != nil {
+		return err
+	}
+
+	// gent := sync.NewTopic("gentx", []byte(nil))
+
+	if runenv.TestGroupID == "rov" {
+		fs, err := os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
+		if err != nil {
+			return err
+		}
+
+		for _, f := range fs {
+			gentx, err := os.Open(fmt.Sprintf("%s/config/gentx/%s", home, f.Name()))
+			if err != nil {
+				return err
+			}
+
+			bt, err := ioutil.ReadAll(gentx)
+			if err != nil {
+				return err
+			}
+
+			client.Publish(ctx, initgen, bt)
+
+			fmt.Println("rov sent gentx")
+		}
+	} else {
+		gentch := make(chan []byte)
+		client.Subscribe(ctx, initgen, gentch)
+
+		for i := 0; i < runenv.TestInstanceCount; i++ {
+			gentx := <-gentch
+			if i != 0 {
+				var res map[string]interface{}
+				json.Unmarshal([]byte(gentx), &res)
+				fmt.Println("----------------------------------------------------")
+				fmt.Println(res)
+				fmt.Println("----------------------------------------------------")
+				err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), gentx, 0777)
+				if err != nil {
+					return err
+				}
+			}
+		}
+
+		fs, err := os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
+		if err != nil {
+			return err
+		}
+		fmt.Println("|||||||||||||||||||||||")
+		for _, f := range fs {
+			fmt.Println(f.Name())
+		}
+
+		fmt.Println("orc got all gentxs")
+
+		output, err = appkit.CollectGenTxs(cmd, home)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(output)
 	}
 
 	fmt.Println("finish line")

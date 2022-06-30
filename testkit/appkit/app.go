@@ -103,6 +103,15 @@ func AddGenAccount(cmd *cobra.Command, addr string, amount string, home string) 
 	return execCmd(cmd, []string{"add-genesis-account", addr, amount, "--home", home})
 }
 
+//celestia-appd gentx xm1 5000000000utia --keyring-backend="test" --chain-id tia-test --home ~/.celestia-app-1
+func SignGenTx(cmd *cobra.Command, accName string, amount string, krbackend string, chainId string, home string) (output string, err error) {
+	return execCmd(cmd, []string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home})
+}
+
+func CollectGenTxs(cmd *cobra.Command, home string) (output string, err error) {
+	return execCmd(cmd, []string{"collect-gentxs", "--home", home})
+}
+
 func StartNode(cmd *cobra.Command, home string) error {
 	cmd.ResetFlags()
 	cmd.Flags().Set(flags.FlagHome, "")
