@@ -7,7 +7,7 @@
   case = "init-val"
   total_instances = 3
   builder = "docker:generic"
-  runner = "local:docker"
+  runner = "cluster:k8s"
   disable_metrics = false
 
 [[groups]]
