@@ -55,7 +55,6 @@ func GetNodeId(cmd *cobra.Command, home string) (id string, err error) {
 }
 
 func AddPersistentPeers(path string, peers []string) error {
-
 	var peersStr bytes.Buffer
 	var port int = 26656
 	var separator string = ","
@@ -78,6 +77,27 @@ func AddPersistentPeers(path string, peers []string) error {
 	}
 
 	viper.Set("p2p.persistent-peers", peersStr.String())
+	err = viper.WriteConfigAs(path)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ChangeNodeMode(path string, mode string) error {
+	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
+	if err != nil {
+		return err
+	}
+
+	viper.SetConfigType("toml")
+	err = viper.ReadConfig(fh)
+	if err != nil {
+		return err
+	}
+
+	viper.Set("mode", mode)
 	err = viper.WriteConfigAs(path)
 	if err != nil {
 		return err

@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"syscall"
 	"time"
+	"strings"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
@@ -45,6 +46,7 @@ type BridgeId struct {
 	TrustedHash string
 	Amount      int
 }
+
 
 func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx := context.Background()
@@ -310,7 +312,10 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 }
 
 func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*1)
+
+
+	//TODO(@Bidon15) ORCHERSTRATOR AS A SEQUENCE NUMBER - not a testgroup ID!
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
 	client := initCtx.SyncClient
 	netclient := network.NewClient(client, runenv)
@@ -336,13 +341,13 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		RoutingPolicy: network.AllowAll,
 	}
 
-	topic := sync.NewTopic("ip-allocation", "")
-	seq := client.MustPublish(ctx, topic, "")
+	// topic := sync.NewTopic("ip-allocation", "")
+	// seq := client.MustPublish(ctx, topic, "")
 
 	config.IPv4 = runenv.TestSubnet
 
-	ipC := byte((seq >> 8) + 1)
-	ipD := byte(seq)
+	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
+	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
 
 	err := netclient.ConfigureNetwork(ctx, &config)
@@ -359,18 +364,19 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	addrt := sync.NewTopic("account-address", "")
 
-	output, err := appkit.CreateKey(cmd, "xm1", "test", home)
+	accAddr, err := appkit.CreateKey(cmd, "xm1", "test", home)
 	if err != nil {
 		return err
 	}
 
-	client.Publish(ctx, addrt, output)
+	client.MustPublish(ctx, addrt, accAddr)
 
-	initgen := sync.NewTopic("init-gen", []byte(nil))
+	// try str instead of byte slice in struct
+	jsont := sync.NewTopic("init-gen", []byte(nil))
 
 	if runenv.TestGroupID == "orc" {
 		addrch := make(chan string)
-		client.Subscribe(ctx, addrt, addrch)
+		client.MustSubscribe(ctx, addrt, addrch)
 
 		var accounts []string
 		for i := 0; i < runenv.TestInstanceCount; i++ {
@@ -386,11 +392,10 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		for _, v := range accounts {
-			out, err := appkit.AddGenAccount(cmd, v, "1000000000000000utia", home)
+			_, err := appkit.AddGenAccount(cmd, v, "1000000000000000utia", home)
 			if err != nil {
 				return err
 			}
-			fmt.Println(out)
 		}
 
 		gen, err := os.Open(fmt.Sprintf("%s/config/genesis.json", home))
@@ -403,10 +408,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		var res map[string]interface{}
-		json.Unmarshal([]byte(bt), &res)
-
-		client.Publish(ctx, initgen, bt)
+		client.MustPublish(ctx, jsont, bt)
 
 		fmt.Println("finish orc")
 
@@ -414,15 +416,9 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	if runenv.TestGroupID == "rov" {
 		ingench := make(chan []byte)
-		client.Subscribe(ctx, initgen, ingench)
-
+		client.MustSubscribe(ctx, jsont, ingench)
 		ingen := <-ingench
-		// fmt.Println(ingen)
-
-		var res map[string]interface{}
-		json.Unmarshal([]byte(ingen), &res)
-
-		fmt.Println(res)
+		
 		err := ioutil.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), ingen, 0777)
 		if err != nil {
 			return err
@@ -430,72 +426,81 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		fmt.Println("rov finish")
 	}
 
-	output, err = appkit.SignGenTx(cmd, "xm1", "5000000000utia", "test", "tia-test", home)
+	ctx2 := context.Background()
+	initCtx.SyncClient, err = sync.NewBoundClient(ctx2, runenv)
+	
 	if err != nil {
 		return err
 	}
 
-	// gent := sync.NewTopic("gentx", []byte(nil))
+	gent := sync.NewTopic("genesis", "")
 
-	if runenv.TestGroupID == "rov" {
-		fs, err := os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
-		if err != nil {
-			return err
-		}
-
-		for _, f := range fs {
-			gentx, err := os.Open(fmt.Sprintf("%s/config/gentx/%s", home, f.Name()))
-			if err != nil {
-				return err
-			}
-
-			bt, err := ioutil.ReadAll(gentx)
-			if err != nil {
-				return err
-			}
-
-			client.Publish(ctx, initgen, bt)
-
-			fmt.Println("rov sent gentx")
-		}
-	} else {
-		gentch := make(chan []byte)
-		client.Subscribe(ctx, initgen, gentch)
-
-		for i := 0; i < runenv.TestInstanceCount; i++ {
-			gentx := <-gentch
-			if i != 0 {
-				var res map[string]interface{}
-				json.Unmarshal([]byte(gentx), &res)
-				fmt.Println("----------------------------------------------------")
-				fmt.Println(res)
-				fmt.Println("----------------------------------------------------")
-				err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), gentx, 0777)
-				if err != nil {
-					return err
-				}
-			}
-		}
-
-		fs, err := os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
-		if err != nil {
-			return err
-		}
-		fmt.Println("|||||||||||||||||||||||")
-		for _, f := range fs {
-			fmt.Println(f.Name())
-		}
-
-		fmt.Println("orc got all gentxs")
-
-		output, err = appkit.CollectGenTxs(cmd, home)
-		if err != nil {
-			return err
-		}
-
-		fmt.Println(output)
+	_, err = appkit.SignGenTx(cmd, "xm1", "5000000000utia", "test", "tia-test", home)
+	if err != nil {
+		return err
 	}
 
+	fs, err := os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
+	if err != nil {
+		return err
+	}
+	// slice is needed because of auto-gen gentx-name
+	for _, f := range fs {
+		gentx, err := os.Open(fmt.Sprintf("%s/config/gentx/%s", home, f.Name()))
+		if err != nil {
+			return err
+		}
+
+		bt, err := ioutil.ReadAll(gentx)
+		if err != nil {
+			return err
+		}
+		
+		client.Publish(ctx2, gent, string(bt))
+
+	}
+
+	gentch := make(chan string)
+	client.Subscribe(ctx2, gent, gentch)
+
+	for i := 0; i < runenv.TestInstanceCount; i++ {
+		gentx := <-gentch
+		fmt.Println(gentx)
+		if strings.Contains(gentx, accAddr) == false {
+			var res map[string]interface{}
+			json.Unmarshal([]byte(gentx), &res)
+			err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(gentx), 0777)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	fs, err = os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
+	if err != nil {
+		return err
+	}
+	fmt.Println("|||||||||||||||||||||||")
+	for _, f := range fs {
+		fmt.Println(f.Name())
+	}
+
+	_, err = appkit.CollectGenTxs(cmd, home)
+	if err != nil {
+		return err
+	}
+
+	configPath := filepath.Join(home, "config", "config.toml")
+	err = appkit.ChangeNodeMode(configPath, "validator")
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("starting........")
+
 	fmt.Println("finish line")
+
+	appkit.StartNode(cmd, home)
+
 	return nil
 }
