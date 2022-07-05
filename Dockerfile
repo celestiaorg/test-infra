@@ -79,7 +79,6 @@ ENV PLAN_DIR /plan
 
 COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
-COPY --from=builder ${PLAN_DIR}/core-configs /core-configs
 
 
 EXPOSE 9090 26657 26656 1317 26658

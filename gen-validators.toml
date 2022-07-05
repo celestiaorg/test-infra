@@ -11,26 +11,12 @@
   disable_metrics = false
 
 [[groups]]
-  id = "orc"
-  [groups.resources]
-    memory = ""
-    cpu = ""
-  [groups.instances]
-    count = 1
-    percentage = 0.0
-  [groups.build]
-  [groups.run]
-    artifact = ""
-    [groups.run.test_params]
-      role = "orc"
-
-[[groups]]
   id = "rov"
   [groups.resources]
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 2
+    count = 3
     percentage = 0.0
   [groups.build]
   [groups.run]

@@ -2,15 +2,14 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
 	"os"
 	"path/filepath"
+	"strings"
 	"syscall"
 	"time"
-	"strings"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
@@ -46,7 +45,6 @@ type BridgeId struct {
 	TrustedHash string
 	Amount      int
 }
-
 
 func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx := context.Background()
@@ -312,11 +310,9 @@ func runSync(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 }
 
 func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-
-
-	//TODO(@Bidon15) ORCHERSTRATOR AS A SEQUENCE NUMBER - not a testgroup ID!
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
+
 	client := initCtx.SyncClient
 	netclient := network.NewClient(client, runenv)
 
@@ -341,9 +337,6 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		RoutingPolicy: network.AllowAll,
 	}
 
-	// topic := sync.NewTopic("ip-allocation", "")
-	// seq := client.MustPublish(ctx, topic, "")
-
 	config.IPv4 = runenv.TestSubnet
 
 	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
@@ -352,7 +345,6 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err := netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
-		runenv.RecordCrash(err)
 		return err
 	}
 
@@ -369,23 +361,27 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	client.MustPublish(ctx, addrt, accAddr)
+	_, err = client.Publish(ctx, addrt, accAddr)
+	if err != nil {
+		return err
+	}
 
-	// try str instead of byte slice in struct
-	jsont := sync.NewTopic("init-gen", []byte(nil))
+	jsont := sync.NewTopic("init-gen", "")
 
-	if runenv.TestGroupID == "orc" {
+	if initCtx.GlobalSeq == 1 {
 		addrch := make(chan string)
-		client.MustSubscribe(ctx, addrt, addrch)
+		_, err = client.Subscribe(ctx, addrt, addrch)
+		if err != nil {
+			return err
+		}
 
 		var accounts []string
 		for i := 0; i < runenv.TestInstanceCount; i++ {
 			addr := <-addrch
-			fmt.Println("Received address: ", addr)
+			runenv.RecordMessage("Received address: %s", addr)
 			accounts = append(accounts, addr)
 		}
 
-		fmt.Println(runenv.TestInstanceCount)
 		_, err = appkit.InitChain(cmd, "kek", "tia-test", home)
 		if err != nil {
 			return err
@@ -408,32 +404,39 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		client.MustPublish(ctx, jsont, bt)
-
-		fmt.Println("finish orc")
-
-	}
-
-	if runenv.TestGroupID == "rov" {
-		ingench := make(chan []byte)
-		client.MustSubscribe(ctx, jsont, ingench)
-		ingen := <-ingench
-		
-		err := ioutil.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), ingen, 0777)
+		_, err = client.Publish(ctx, jsont, string(bt))
 		if err != nil {
 			return err
 		}
-		fmt.Println("rov finish")
+
+		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
+	} 
+	
+	if initCtx.GlobalSeq != 1 {
+		ingench := make(chan string)
+		_, err := client.Subscribe(ctx, jsont, ingench)
+		if err != nil {
+			return err
+		}
+
+		ingen := <-ingench
+
+		err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(ingen), 0777)
+		if err != nil {
+			return err
+		}
+		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
-	ctx2 := context.Background()
-	initCtx.SyncClient, err = sync.NewBoundClient(ctx2, runenv)
-	
+	// TODO(@Bidon15): Figure out why we need this workaround of new sync.clients
+	// instead of using the existing one
+	// issue: #30
+	initCtx.SyncClient, err = sync.NewBoundClient(ctx, runenv)
+	gent := sync.NewTopic("genesis", "")
+
 	if err != nil {
 		return err
 	}
-
-	gent := sync.NewTopic("genesis", "")
 
 	_, err = appkit.SignGenTx(cmd, "xm1", "5000000000utia", "test", "tia-test", home)
 	if err != nil {
@@ -455,34 +458,22 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		if err != nil {
 			return err
 		}
-		
-		client.Publish(ctx2, gent, string(bt))
+
+		client.Publish(ctx, gent, string(bt))
 
 	}
 
 	gentch := make(chan string)
-	client.Subscribe(ctx2, gent, gentch)
+	client.Subscribe(ctx, gent, gentch)
 
 	for i := 0; i < runenv.TestInstanceCount; i++ {
 		gentx := <-gentch
-		fmt.Println(gentx)
-		if strings.Contains(gentx, accAddr) == false {
-			var res map[string]interface{}
-			json.Unmarshal([]byte(gentx), &res)
+		if !strings.Contains(gentx, accAddr) {
 			err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(gentx), 0777)
 			if err != nil {
 				return err
 			}
 		}
-	}
-
-	fs, err = os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
-	if err != nil {
-		return err
-	}
-	fmt.Println("|||||||||||||||||||||||")
-	for _, f := range fs {
-		fmt.Println(f.Name())
 	}
 
 	_, err = appkit.CollectGenTxs(cmd, home)
@@ -497,8 +488,6 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("starting........")
-
-	fmt.Println("finish line")
 
 	appkit.StartNode(cmd, home)
 
