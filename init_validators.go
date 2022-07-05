@@ -17,6 +17,15 @@ import (
 	"github.com/testground/sdk-go/sync"
 )
 
+// This test-case is an 101 on how Celestia-App only should be started
+// In this test-case, we are testing the following scenario:
+// 1. Every instance can create an account
+// 2. The orchestrator(described more below) funds the account at genesis
+//    and sends the initial genesis.json to the rest of the validators' set
+// 3. After receiving the initial genesis.json, validators are signing the
+//    genesis transaction(gentx)
+// 4. Validators collects all genesis transactions
+// 5. The chain is started
 func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
@@ -27,20 +36,12 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	netclient.MustWaitNetworkInitialized(ctx)
 
 	config := network.Config{
-		// Control the "default" network. At the moment, this is the only network.
 		Network: "default",
-
-		// Enable this network. Setting this to false will disconnect this test
-		// instance from this network. You probably don't want to do that.
-		Enable: true,
-
-		// Set the traffic shaping characteristics.
+		Enable:  true,
 		Default: network.LinkShape{
 			Latency:   100 * time.Millisecond,
 			Bandwidth: 1 << 20, // 1Mib
 		},
-
-		// Set what state the sidecar should signal back to you when it's done.
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
 	}
@@ -56,9 +57,8 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// init the chain
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
-	fmt.Println(home)
+	runenv.RecordMessage(home)
 
 	cmd := appkit.NewRootCmd()
 
@@ -74,8 +74,13 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	jsont := sync.NewTopic("init-gen", "")
+	initgent := sync.NewTopic("init-gen", "")
 
+	// Here we assign the first instance to be the orchestrator role
+	//
+	// Orchestrator is receiving all accounts by subscription, to then
+	// execute the `add-genesis-account` command and send back to the rest
+	// of the validators' set the initial genesis.json
 	if initCtx.GlobalSeq == 1 {
 		addrch := make(chan string)
 		_, err = client.Subscribe(ctx, addrt, addrch)
@@ -112,7 +117,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, err = client.Publish(ctx, jsont, string(bt))
+		_, err = client.Publish(ctx, initgent, string(bt))
 		if err != nil {
 			return err
 		}
@@ -122,7 +127,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	if initCtx.GlobalSeq != 1 {
 		ingench := make(chan string)
-		_, err := client.Subscribe(ctx, jsont, ingench)
+		_, err := client.Subscribe(ctx, initgent, ingench)
 		if err != nil {
 			return err
 		}
