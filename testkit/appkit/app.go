@@ -14,7 +14,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	"github.com/cosmos/cosmos-sdk/client/flags"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
@@ -24,7 +23,6 @@ type ValidatorNode struct {
 }
 
 func execCmd(cmd *cobra.Command, args []string) (output string, err error) {
-	fmt.Println(args)
 	cmd.ResetFlags()
 
 	scrapStdout := os.Stdout
@@ -50,8 +48,25 @@ func execCmd(cmd *cobra.Command, args []string) (output string, err error) {
 	return output, nil
 }
 
-func GetNodeId(cmd *cobra.Command, home string) (id string, err error) {
-	return execCmd(cmd, []string{"tendermint", "show-node-id", "--home", home})
+func updateConfig(path, key, value string) error {
+	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
+	if err != nil {
+		return err
+	}
+
+	viper.SetConfigType("toml")
+	err = viper.ReadConfig(fh)
+	if err != nil {
+		return err
+	}
+
+	viper.Set(key, value)
+	err = viper.WriteConfigAs(path)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func AddPersistentPeers(path string, peers []string) error {
@@ -65,85 +80,44 @@ func AddPersistentPeers(path string, peers []string) error {
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
 
-	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
-	if err != nil {
-		return err
-	}
-
-	viper.SetConfigType("toml")
-	err = viper.ReadConfig(fh)
-	if err != nil {
-		return err
-	}
-
-	viper.Set("p2p.persistent-peers", peersStr.String())
-	err = viper.WriteConfigAs(path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return updateConfig(path, "p2p.persistent-peers", peersStr.String())
 }
 
 func ChangeNodeMode(path string, mode string) error {
-	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
-	if err != nil {
-		return err
-	}
-
-	viper.SetConfigType("toml")
-	err = viper.ReadConfig(fh)
-	if err != nil {
-		return err
-	}
-
-	viper.Set("mode", mode)
-	err = viper.WriteConfigAs(path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return updateConfig(path, "mode", mode)
 }
 
-func InitChain(cmd *cobra.Command, moniker string, chainId string, home string) (output string, err error) {
+func InitChain(cmd *cobra.Command, moniker string, chainId string, home string) (string, error) {
 	return execCmd(cmd, []string{"init", moniker, "--chain-id", chainId, "--home", home})
 }
 
-func CreateKey(cmd *cobra.Command, name string, krbackend string, home string) (output string, err error) {
-	_, err = execCmd(cmd, []string{"keys", "add", name, "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
+func CreateKey(cmd *cobra.Command, name string, krbackend string, home string) (string, error) {
+	_, err := execCmd(cmd, []string{"keys", "add", name, "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
 	if err != nil {
 		return "", err
 	}
 	return execCmd(cmd, []string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
 }
 
-// celestia-appd add-genesis-account celestia1mld039ypx3wu82h9wua4vjygze7es3s6rl9xfl 1000000000000000utia --home ~/.celestia-app-1
-func AddGenAccount(cmd *cobra.Command, addr string, amount string, home string) (output string, err error) {
+func AddGenAccount(cmd *cobra.Command, addr string, amount string, home string) (string, error) {
 	return execCmd(cmd, []string{"add-genesis-account", addr, amount, "--home", home})
 }
 
-//celestia-appd gentx xm1 5000000000utia --keyring-backend="test" --chain-id tia-test --home ~/.celestia-app-1
-func SignGenTx(cmd *cobra.Command, accName string, amount string, krbackend string, chainId string, home string) (output string, err error) {
+func SignGenTx(cmd *cobra.Command, accName string, amount string, krbackend string, chainId string, home string) (string, error) {
 	return execCmd(cmd, []string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home})
 }
 
-func CollectGenTxs(cmd *cobra.Command, home string) (output string, err error) {
+func CollectGenTxs(cmd *cobra.Command, home string) (string, error) {
 	return execCmd(cmd, []string{"collect-gentxs", "--home", home})
 }
 
-func StartNode(cmd *cobra.Command, home string) error {
-	cmd.ResetFlags()
-	cmd.Flags().Set(flags.FlagHome, "")
+func GetNodeId(cmd *cobra.Command, home string) (string, error) {
+	return execCmd(cmd, []string{"tendermint", "show-node-id", "--home", home})
+}
 
+func StartNode(cmd *cobra.Command, home string) (string, error) {
 	cmd.SetErr(os.Stdout)
-	cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
-
-	if err := svrcmd.Execute(cmd, EnvPrefix, app.DefaultNodeHome); err != nil {
-		return err
-	}
-
-	return nil
+	return execCmd(cmd, []string{"start", "--home", home, "--log_level", "info"})
 }
 
 func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
