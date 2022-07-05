@@ -115,9 +115,17 @@ func GetNodeId(cmd *cobra.Command, home string) (string, error) {
 	return execCmd(cmd, []string{"tendermint", "show-node-id", "--home", home})
 }
 
-func StartNode(cmd *cobra.Command, home string) (string, error) {
+func StartNode(cmd *cobra.Command, home string) error {
+	cmd.ResetFlags()
+
 	cmd.SetErr(os.Stdout)
-	return execCmd(cmd, []string{"start", "--home", home, "--log_level", "info"})
+	cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
+
+	if err := svrcmd.Execute(cmd, EnvPrefix, app.DefaultNodeHome); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
