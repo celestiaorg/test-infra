@@ -2,7 +2,7 @@
 
 
 ## Introduction
-> This section is a brief description of features we are going to test. Usually the motivation/justification should be included here
+> This section is a brief description of features we are going to test. Usually the motivation/justification should be included here.
 
 ## In-Scope
 > This section is dependable on the introduction that you gave. If the list of features is quite vast, it's pretty obvious to describe how&what that is going to be used to test each of the feature. 
@@ -15,7 +15,7 @@
 that are not discovered now or could not be achieved now.
 
 ## Entry Conditions
-> This section contains conditions under which we know when to start execution of the test plan
+> This section contains conditions under which we know when to start execution of the test plan.
 
 ## Exit Conditions
 > This section contains conditions under which we know when to stop execution of the test plan

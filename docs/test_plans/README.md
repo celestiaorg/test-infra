@@ -2,7 +2,7 @@
 
 This is a location to record all test plans that are covering celestia's ecosystem.
 
-A Test plan should be good if the following conditions are met:
+A test plan should be good if the following conditions are met:
 
 - Short and simple
 - Introduction
@@ -15,7 +15,7 @@ A Test plan should be good if the following conditions are met:
 - People
 - Test Environment
 
-You can include additional chapters of your choice. Still remember to be efficient, as long reads are good sign to split (not considering master test plans)
+You can include additional chapters of your choice. Still remember to be efficient, as long reads are a good sign to split (not considering master test plans).
 
 ## Template
 
