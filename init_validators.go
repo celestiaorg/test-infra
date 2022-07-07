@@ -141,15 +141,8 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
-	// TODO(@Bidon15): Figure out why we need this workaround of new sync.clients
-	// instead of using the existing one
-	// issue: #30
-	initCtx.SyncClient, err = sync.NewBoundClient(ctx, runenv)
-	gent := sync.NewTopic("genesis", "")
 
-	if err != nil {
-		return err
-	}
+	gent := sync.NewTopic("genesis", "")
 
 	_, err = appkit.SignGenTx(cmd, "xm1", "5000000000utia", "test", "tia-test", home)
 	if err != nil {
