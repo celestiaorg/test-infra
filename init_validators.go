@@ -17,7 +17,7 @@ import (
 	"github.com/testground/sdk-go/sync"
 )
 
-// This test-case is an 101 on how Celestia-App only should be started
+// This test-case is a 101 on how Celestia-App only should be started.
 // In this test-case, we are testing the following scenario:
 // 1. Every instance can create an account
 // 2. The orchestrator(described more below) funds the account at genesis
