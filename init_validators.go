@@ -80,7 +80,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	//
 	// Orchestrator is receiving all accounts by subscription, to then
 	// execute the `add-genesis-account` command and send back to the rest
-	// of the validators' set the initial genesis.json
+	// of the validators to set the initial genesis.json
 	if initCtx.GlobalSeq == 1 {
 		addrch := make(chan string)
 		_, err = client.Subscribe(ctx, addrt, addrch)
