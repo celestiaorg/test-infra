@@ -19,3 +19,7 @@ enabled = true
 [[testcases]]
 name = "init-val"
 instances = { min = 1, max = 100, default = 3 }
+
+[[testcases]]
+name = "node-sync"
+instances = { min = 4, max = 100, default = 12 }

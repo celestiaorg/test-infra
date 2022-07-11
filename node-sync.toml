@@ -1,0 +1,67 @@
+[metadata]
+  name = "app-and-node"
+  author = "Bidon15"
+
+[global]
+  plan = "celestia-app"
+  case = "node-sync"
+  total_instances = 12
+  builder = "docker:generic"
+  runner = "local:docker"
+  disable_metrics = false
+
+[[groups]]
+  id = "app"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build]
+  [groups.run]
+    artifact = ""
+    [groups.run.test_params]
+      role = "app"
+
+[[groups]]
+  id = "bridge"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build]
+  [groups.run]
+    artifact = ""
+    [groups.run.test_params]
+      role = "bridge"
+
+[[groups]]
+  id = "full"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build]
+  [groups.run]
+    artifact = ""
+    [groups.run.test_params]
+      role = "full"
+
+[[groups]]
+  id = "light"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build]
+  [groups.run]
+    artifact = ""
+    [groups.run.test_params]
+      role = "light"
