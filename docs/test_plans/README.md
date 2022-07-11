@@ -1,6 +1,6 @@
 # Test Plans
 
-This is a location to record all test plans that are covering celestia's ecosystem.
+This is a document to record all test plans that are covering the testing of Celestia's network.
 
 A test plan should be good if the following conditions are met:
 
@@ -23,6 +23,4 @@ Please consider using our template: [test-plan-template](./tp-template.md)
 
 ## Plan vs Strategy
 
-If you want to consider creating a test strategy, make sure to create a separate dir for it.
-
-
+If you want to consider creating a test strategy, make sure to create a separate directory for it.

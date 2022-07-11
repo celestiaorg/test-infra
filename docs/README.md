@@ -1,6 +1,6 @@
 # Testing Documentation
 
-This location is to concentrate all related testing documentation.
+This document concentrates all testing-related documentation.
 
 What mostly should be stored here: 
 
