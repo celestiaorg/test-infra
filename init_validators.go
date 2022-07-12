@@ -4,17 +4,19 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
+	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"github.com/testground/sdk-go/sync"
 )
 
 // This test-case is a 101 on how Celestia-App only should be started.
@@ -48,6 +50,8 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	config.IPv4 = runenv.TestSubnet
 
+	// using the assigned `GlobalSequencer` id per each of instance
+	// to fill in the last 2 octects of the new IP address for the instance
 	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
 	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
@@ -60,42 +64,42 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appkit.NewRootCmd()
+	cmd := appcmd.NewRootCmd()
 
-	addrt := sync.NewTopic("account-address", "")
-
-	accAddr, err := appkit.CreateKey(cmd, "xm1", "test", home)
+	keyringName := fmt.Sprintf("keyName-%d", initCtx.GlobalSeq)
+	accAddr, err := appkit.CreateKey(cmd, keyringName, "test", home)
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Publish(ctx, addrt, accAddr)
+	_, err = client.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
 		return err
 	}
-
-	initgent := sync.NewTopic("init-gen", "")
 
 	// Here we assign the first instance to be the orchestrator role
 	//
 	// Orchestrator is receiving all accounts by subscription, to then
 	// execute the `add-genesis-account` command and send back to the rest
 	// of the validators to set the initial genesis.json
+	const chainId string = "tia-test"
 	if initCtx.GlobalSeq == 1 {
-		addrch := make(chan string)
-		_, err = client.Subscribe(ctx, addrt, addrch)
+		accAddrCh := make(chan string)
+		_, err = client.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 		if err != nil {
 			return err
 		}
 
 		var accounts []string
 		for i := 0; i < runenv.TestInstanceCount; i++ {
-			addr := <-addrch
+			addr := <-accAddrCh
 			runenv.RecordMessage("Received address: %s", addr)
 			accounts = append(accounts, addr)
 		}
 
-		_, err = appkit.InitChain(cmd, "kek", "tia-test", home)
+		moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
+
+		_, err = appkit.InitChain(cmd, moniker, chainId, home)
 		if err != nil {
 			return err
 		}
@@ -117,34 +121,33 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, err = client.Publish(ctx, initgent, string(bt))
+		_, err = client.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
 		if err != nil {
 			return err
 		}
 
 		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
-	}
-
-	if initCtx.GlobalSeq != 1 {
-		ingench := make(chan string)
-		_, err := client.Subscribe(ctx, initgent, ingench)
+	} else {
+		initGenCh := make(chan string)
+		sub, err := client.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
 		if err != nil {
 			return err
 		}
-
-		ingen := <-ingench
-
-		err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(ingen), 0777)
-		if err != nil {
-			return err
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case initGen := <-initGenCh:
+			err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
+			if err != nil {
+				return err
+			}
 		}
 		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
-
-	gent := sync.NewTopic("genesis", "")
-
-	_, err = appkit.SignGenTx(cmd, "xm1", "5000000000utia", "test", "tia-test", home)
+	_, err = appkit.SignGenTx(cmd, keyringName, "5000000000utia", "test", chainId, home)
 	if err != nil {
 		return err
 	}
@@ -165,19 +168,31 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		client.Publish(ctx, gent, string(bt))
+		_, err = client.Publish(ctx, testkit.GenesisTxTopic, string(bt))
+		if err != nil {
+			return err
+		}
 
 	}
 
-	gentch := make(chan string)
-	client.Subscribe(ctx, gent, gentch)
+	genTxCh := make(chan string)
+	sub, err := client.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
+	if err != nil {
+		return err
+	}
 
 	for i := 0; i < runenv.TestInstanceCount; i++ {
-		gentx := <-gentch
-		if !strings.Contains(gentx, accAddr) {
-			err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(gentx), 0777)
+		select {
+		case err = <-sub.Done():
 			if err != nil {
 				return err
+			}
+		case genTx := <-genTxCh:
+			if !strings.Contains(genTx, accAddr) {
+				err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(genTx), 0777)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -195,7 +210,42 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("starting........")
 
-	appkit.StartNode(cmd, home)
+	go appkit.StartNode(cmd, home)
 
+	// wait for a new block to be produced
+	time.Sleep(1 * time.Minute)
+
+	blockHeight := 2
+	bh, err := appkit.GetBlockHashByHeight(net.ParseIP("127.0.0.1"), blockHeight)
+	runenv.RecordMessage(bh)
+	if err != nil {
+		return err
+	}
+
+	_, err = client.Publish(ctx, testkit.BlockHashTopic, bh)
+	if err != nil {
+		return err
+	}
+
+	blockHashCh := make(chan string)
+	sub, err = client.Subscribe(ctx, testkit.BlockHashTopic, blockHashCh)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < runenv.TestInstanceCount; i++ {
+		select {
+		case err := <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case blockHash := <-blockHashCh:
+			runenv.RecordMessage(blockHash)
+			if bh != blockHash {
+				return fmt.Errorf("hashes for block#%d differs", blockHeight)
+			}
+		}
+	}
+	runenv.RecordSuccess()
 	return nil
 }

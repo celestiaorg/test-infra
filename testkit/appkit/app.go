@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/celestiaorg/celestia-app/app"
+	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -32,7 +33,7 @@ func execCmd(cmd *cobra.Command, args []string) (output string, err error) {
 	out := new(bytes.Buffer)
 	cmd.Println(out)
 	cmd.SetArgs(args)
-	if err := svrcmd.Execute(cmd, EnvPrefix, app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
 		return "", err
 	}
 
@@ -121,7 +122,7 @@ func StartNode(cmd *cobra.Command, home string) error {
 	cmd.SetErr(os.Stdout)
 	cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
 
-	if err := svrcmd.Execute(cmd, EnvPrefix, app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
 		return err
 	}
 
