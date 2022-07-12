@@ -24,10 +24,5 @@ func NewNode(path string, tp node.Type, IP net.IP, options ...node.Option) (*nod
 	cfg.P2P.ListenAddresses = []string{fmt.Sprintf("/ip4/%s/tcp/2121", IP)}
 
 	options = append([]node.Option{node.WithConfig(cfg), node.WithNetwork(params.Private)}, options...)
-	nd, err := node.New(tp, store, options...)
-	if err != nil {
-		return nil, err
-	}
-
-	return nd, nil
+	return node.New(tp, store, options...)
 }
