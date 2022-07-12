@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 
@@ -64,10 +63,10 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appcmd.NewRootCmd()
+	cmd := appkit.New()
 
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GlobalSeq)
-	accAddr, err := appkit.CreateKey(cmd, keyringName, "test", home)
+	accAddr, err := cmd.CreateKey(keyringName, "test", home)
 	if err != nil {
 		return err
 	}
@@ -99,13 +98,13 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
 
-		_, err = appkit.InitChain(cmd, moniker, chainId, home)
+		_, err = cmd.InitChain(moniker, chainId, home)
 		if err != nil {
 			return err
 		}
 
 		for _, v := range accounts {
-			_, err := appkit.AddGenAccount(cmd, v, "1000000000000000utia", home)
+			_, err := cmd.AddGenAccount(v, "1000000000000000utia", home)
 			if err != nil {
 				return err
 			}
@@ -147,7 +146,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
-	_, err = appkit.SignGenTx(cmd, keyringName, "5000000000utia", "test", chainId, home)
+	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", chainId, home)
 	if err != nil {
 		return err
 	}
@@ -197,7 +196,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 
-	_, err = appkit.CollectGenTxs(cmd, home)
+	_, err = cmd.CollectGenTxs(home)
 	if err != nil {
 		return err
 	}
@@ -210,7 +209,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("starting........")
 
-	go appkit.StartNode(cmd, home)
+	go cmd.StartNode(home)
 
 	// wait for a new block to be produced
 	time.Sleep(1 * time.Minute)

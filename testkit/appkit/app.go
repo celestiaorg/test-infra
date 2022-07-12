@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/celestiaorg/celestia-app/app"
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
@@ -23,17 +24,30 @@ type ValidatorNode struct {
 	IP     net.IP
 }
 
-func execCmd(cmd *cobra.Command, args []string) (output string, err error) {
-	cmd.ResetFlags()
+type AppKit struct {
+	m   sync.Mutex
+	Cmd *cobra.Command
+}
 
+func New() *AppKit {
+	return &AppKit{
+		Cmd: appcmd.NewRootCmd(),
+	}
+}
+
+func (ak *AppKit) execCmd(args []string) (output string, err error) {
+	ak.Cmd.ResetFlags()
+
+	ak.m.Lock()
 	scrapStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
+	ak.m.Unlock()
 
 	out := new(bytes.Buffer)
-	cmd.Println(out)
-	cmd.SetArgs(args)
-	if err := svrcmd.Execute(cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
+	ak.Cmd.Println(out)
+	ak.Cmd.SetArgs(args)
+	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
 		return "", err
 	}
 
@@ -49,80 +63,41 @@ func execCmd(cmd *cobra.Command, args []string) (output string, err error) {
 	return output, nil
 }
 
-func updateConfig(path, key, value string) error {
-	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
-	if err != nil {
-		return err
-	}
-
-	viper.SetConfigType("toml")
-	err = viper.ReadConfig(fh)
-	if err != nil {
-		return err
-	}
-
-	viper.Set(key, value)
-	err = viper.WriteConfigAs(path)
-	if err != nil {
-		return err
-	}
-
-	return nil
+func (ak *AppKit) InitChain(moniker string, chainId string, home string) (string, error) {
+	return ak.execCmd([]string{"init", moniker, "--chain-id", chainId, "--home", home})
 }
 
-func AddPersistentPeers(path string, peers []string) error {
-	var peersStr bytes.Buffer
-	var port int = 26656
-	var separator string = ","
-	for k, peer := range peers {
-		if k == (len(peers) - 1) {
-			separator = ""
-		}
-		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
-	}
-
-	return updateConfig(path, "p2p.persistent-peers", peersStr.String())
-}
-
-func ChangeNodeMode(path string, mode string) error {
-	return updateConfig(path, "mode", mode)
-}
-
-func InitChain(cmd *cobra.Command, moniker string, chainId string, home string) (string, error) {
-	return execCmd(cmd, []string{"init", moniker, "--chain-id", chainId, "--home", home})
-}
-
-func CreateKey(cmd *cobra.Command, name string, krbackend string, home string) (string, error) {
-	_, err := execCmd(cmd, []string{"keys", "add", name, "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
+func (ak *AppKit) CreateKey(name string, krbackend string, home string) (string, error) {
+	_, err := ak.execCmd([]string{"keys", "add", name, "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
 	if err != nil {
 		return "", err
 	}
-	return execCmd(cmd, []string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
+	return ak.execCmd([]string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
 }
 
-func AddGenAccount(cmd *cobra.Command, addr string, amount string, home string) (string, error) {
-	return execCmd(cmd, []string{"add-genesis-account", addr, amount, "--home", home})
+func (ak *AppKit) AddGenAccount(addr string, amount string, home string) (string, error) {
+	return ak.execCmd([]string{"add-genesis-account", addr, amount, "--home", home})
 }
 
-func SignGenTx(cmd *cobra.Command, accName string, amount string, krbackend string, chainId string, home string) (string, error) {
-	return execCmd(cmd, []string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home})
+func (ak *AppKit) SignGenTx(accName string, amount string, krbackend string, chainId string, home string) (string, error) {
+	return ak.execCmd([]string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home})
 }
 
-func CollectGenTxs(cmd *cobra.Command, home string) (string, error) {
-	return execCmd(cmd, []string{"collect-gentxs", "--home", home})
+func (ak *AppKit) CollectGenTxs(home string) (string, error) {
+	return ak.execCmd([]string{"collect-gentxs", "--home", home})
 }
 
-func GetNodeId(cmd *cobra.Command, home string) (string, error) {
-	return execCmd(cmd, []string{"tendermint", "show-node-id", "--home", home})
+func (ak *AppKit) GetNodeId(home string) (string, error) {
+	return ak.execCmd([]string{"tendermint", "show-node-id", "--home", home})
 }
 
-func StartNode(cmd *cobra.Command, home string) error {
-	cmd.ResetFlags()
+func (ak *AppKit) StartNode(home string) error {
+	ak.Cmd.ResetFlags()
 
-	cmd.SetErr(os.Stdout)
-	cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
+	ak.Cmd.SetErr(os.Stdout)
+	ak.Cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
 
-	if err := svrcmd.Execute(cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
+	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
 		return err
 	}
 
@@ -146,4 +121,49 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 		return "", err
 	}
 	return res.Result.BlockID.Hash, nil
+}
+
+func updateConfig(path, key, value string) error {
+	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
+	if err != nil {
+		return err
+	}
+
+	viper.SetConfigType("toml")
+	err = viper.ReadConfig(fh)
+	if err != nil {
+		return err
+	}
+
+	viper.Set(key, value)
+	err = viper.WriteConfigAs(path)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// AddPersistentPeers modifies the respective field in the config.toml
+// to allow the peer to always connect to a set of defined peers
+func AddPersistentPeers(path string, peers []string) error {
+	var peersStr bytes.Buffer
+	var port int = 26656
+	var separator string = ","
+	for k, peer := range peers {
+		if k == (len(peers) - 1) {
+			separator = ""
+		}
+		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
+	}
+
+	return updateConfig(path, "p2p.persistent-peers", peersStr.String())
+}
+
+// ChangeNodeMode changes the mode type in config.toml of the app to either be:
+// a) Full - Downloads the block but not produces any new ones
+// b) Validator
+// c) Seed - Only crawls the p2p network to find and share peers with each other
+func ChangeNodeMode(path string, mode string) error {
+	return updateConfig(path, "mode", mode)
 }
