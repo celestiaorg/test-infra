@@ -10,10 +10,12 @@ import (
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
+	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
+	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
@@ -22,32 +24,64 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancel()
 
-	client := initCtx.SyncClient
 	os.Setenv("GOLOG_OUTPUT", "stdout")
-
-	time.Sleep(8 * time.Second)
 	level, err := logging.LevelFromString("INFO")
 	if err != nil {
 		return err
 	}
 	logs.SetAllLoggers(level)
-	appIPCh := make(chan *AppId)
-	_, err = client.Subscribe(ctx, AppNodeTopic, appIPCh)
+
+	client := initCtx.SyncClient
+	netclient := network.NewClient(client, runenv)
+
+	netclient.MustWaitNetworkInitialized(ctx)
+
+	config := network.Config{
+		Network: "default",
+		Enable:  true,
+		Default: network.LinkShape{
+			Latency:   100 * time.Millisecond,
+			Bandwidth: 1 << 20, // 1Mib
+		},
+		CallbackState: "network-configured",
+		RoutingPolicy: network.AllowAll,
+	}
+
+	config.IPv4 = runenv.TestSubnet
+
+	// using the assigned `GlobalSequencer` id per each of instance
+	// to fill in the last 2 octects of the new IP address for the instance
+	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
+	ipD := byte(initCtx.GlobalSeq)
+	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
+
+	err = netclient.ConfigureNetwork(ctx, &config)
+	if err != nil {
+		return err
+	}
+
+	err = <-client.MustBarrier(ctx, testkit.AppStartedState, int(initCtx.GroupSeq)).C
+	if err != nil {
+		return err
+	}
+
+	appInfoCh := make(chan *testkit.AppNodeInfo)
+	_, err = client.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
 	if err != nil {
 		return err
 	}
 
 	for i := 1; i <= runenv.TestGroupInstanceCount; i++ {
-		appIP := <-appIPCh
-		if appIP.ID == int(initCtx.GroupSeq) {
-			h, err := appkit.GetBlockHashByHeight(appIP.IP, 1)
+		appInfo := <-appInfoCh
+		if appInfo.ID == int(initCtx.GroupSeq) {
+			h, err := appkit.GetBlockHashByHeight(appInfo.IP, 1)
 			if err != nil {
 				return err
 			}
 			runenv.RecordMessage("Block#1 Hash: %s", h)
 
 			ndhome := fmt.Sprintf("/.celestia-bridge-%d", initCtx.GroupSeq)
-			rc := fmt.Sprintf("%s:26657", appIP.IP.To4().String())
+			rc := fmt.Sprintf("%s:26657", appInfo.IP.To4().String())
 			runenv.RecordMessage(rc)
 
 			ip, err := initCtx.NetClient.GetDataNetworkIP()
@@ -55,7 +89,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return err
 			}
 
-			nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, node.WithTrustedHash(h), node.WithRemoteCore("tcp", rc))
+			nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h, node.WithRemoteCore("tcp", rc))
 			if err != nil {
 				return err
 			}
@@ -81,17 +115,38 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
 			runenv.RecordMessage("Publishing bridgeID Addr %s", addrs[0].String())
 
-			bseq, err := client.Publish(ctx, BridgeNodeTopic, &BridgeId{int(initCtx.GroupSeq), addrs[0].String(), h, runenv.TestGroupInstanceCount})
+			_, err = client.Publish(
+				ctx,
+				testkit.BridgeNodeTopic,
+				&testkit.BridgeNodeInfo{
+					ID:          int(initCtx.GroupSeq),
+					Maddr:       addrs[0].String(),
+					TrustedHash: h,
+					Amount:      runenv.TestGroupInstanceCount,
+				},
+			)
 			if err != nil {
 				return err
 			}
 
-			runenv.RecordMessage("%d published bridge id", int(bseq))
+			_, err = client.SignalEntry(ctx, testkit.BridgeStartedState)
+			if err != nil {
+				return err
+			}
+
+			// testableInstances are full and light nodes. We are multiplying bridge's
+			// by 2 as we have ratio on 1 app per 1 bridge node
+			testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
+			err = <-client.MustBarrier(ctx, testkit.FinishState, testableInstances).C
+			if err != nil {
+				return err
+			}
 
 			err = nd.Stop(ctx)
 			if err != nil {
 				return err
 			}
+
 			return nil
 		}
 	}
