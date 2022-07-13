@@ -164,3 +164,7 @@ func AddPersistentPeers(path string, peers []string) error {
 func ChangeNodeMode(path string, mode string) error {
 	return updateConfig(path, "mode", mode)
 }
+
+func ChangeRPCServerAddress(path string, ip net.IP) error {
+	return updateConfig(path, "rpc.laddr", fmt.Sprintf("tcp://%s:26657", ip.To4().String()))
+}

@@ -4,67 +4,97 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"github.com/testground/sdk-go/sync"
 )
 
 func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
+
 	client := initCtx.SyncClient
+	netclient := network.NewClient(client, runenv)
+
+	netclient.MustWaitNetworkInitialized(ctx)
+
+	config := network.Config{
+		Network: "default",
+		Enable:  true,
+		Default: network.LinkShape{
+			Latency:   100 * time.Millisecond,
+			Bandwidth: 1 << 20, // 1Mib
+		},
+		CallbackState: "network-configured",
+		RoutingPolicy: network.AllowAll,
+	}
+
+	config.IPv4 = runenv.TestSubnet
+
+	// using the assigned `GlobalSequencer` id per each of instance
+	// to fill in the last 2 octects of the new IP address for the instance
+	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
+	ipD := byte(initCtx.GlobalSeq)
+	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
+
+	err := netclient.ConfigureNetwork(ctx, &config)
+	if err != nil {
+		return err
+	}
 
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appkit.NewRootCmd()
+	cmd := appkit.New()
 
-	addrt := sync.NewTopic("account-address", "")
-
-	accAddr, err := appkit.CreateKey(cmd, "xm1", "test", home)
+	keyringName := fmt.Sprintf("keyName-%d", initCtx.GlobalSeq)
+	accAddr, err := cmd.CreateKey(keyringName, "test", home)
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Publish(ctx, addrt, accAddr)
+	_, err = client.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
 		return err
 	}
-
-	initgent := sync.NewTopic("init-gen", "")
 
 	// Here we assign the first instance to be the orchestrator role
 	//
 	// Orchestrator is receiving all accounts by subscription, to then
 	// execute the `add-genesis-account` command and send back to the rest
-	// of the validators' set the initial genesis.json
-	if initCtx.GlobalSeq == 1 {
-		addrch := make(chan string)
-		_, err = client.Subscribe(ctx, addrt, addrch)
+	// of the validators to set the initial genesis.json
+	const chainId string = "tia-test"
+	if initCtx.GroupSeq == 1 {
+		accAddrCh := make(chan string)
+		_, err = client.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 		if err != nil {
 			return err
 		}
 
 		var accounts []string
-		for i := 0; i < runenv.TestInstanceCount; i++ {
-			addr := <-addrch
+		for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+			addr := <-accAddrCh
 			runenv.RecordMessage("Received address: %s", addr)
 			accounts = append(accounts, addr)
 		}
 
-		_, err = appkit.InitChain(cmd, "kek", "tia-test", home)
+		moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
+
+		_, err = cmd.InitChain(moniker, chainId, home)
 		if err != nil {
 			return err
 		}
 
 		for _, v := range accounts {
-			_, err := appkit.AddGenAccount(cmd, v, "1000000000000000utia", home)
+			_, err := cmd.AddGenAccount(v, "1000000000000000utia", home)
 			if err != nil {
 				return err
 			}
@@ -80,33 +110,33 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, err = client.Publish(ctx, initgent, string(bt))
+		_, err = client.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
 		if err != nil {
 			return err
 		}
 
 		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
-	}
-
-	if initCtx.GlobalSeq != 1 {
-		ingench := make(chan string)
-		_, err := client.Subscribe(ctx, initgent, ingench)
+	} else {
+		initGenCh := make(chan string)
+		sub, err := client.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
 		if err != nil {
 			return err
 		}
-
-		ingen := <-ingench
-
-		err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(ingen), 0777)
-		if err != nil {
-			return err
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case initGen := <-initGenCh:
+			err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
+			if err != nil {
+				return err
+			}
 		}
 		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
-	gent := sync.NewTopic("genesis", "")
-
-	_, err = appkit.SignGenTx(cmd, "xm1", "5000000000utia", "test", "tia-test", home)
+	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", chainId, home)
 	if err != nil {
 		return err
 	}
@@ -127,24 +157,36 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		client.Publish(ctx, gent, string(bt))
+		_, err = client.Publish(ctx, testkit.GenesisTxTopic, string(bt))
+		if err != nil {
+			return err
+		}
 
 	}
 
-	gentch := make(chan string)
-	client.Subscribe(ctx, gent, gentch)
+	genTxCh := make(chan string)
+	sub, err := client.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
+	if err != nil {
+		return err
+	}
 
-	for i := 0; i < runenv.TestInstanceCount; i++ {
-		gentx := <-gentch
-		if !strings.Contains(gentx, accAddr) {
-			err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(gentx), 0777)
+	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+		select {
+		case err = <-sub.Done():
 			if err != nil {
 				return err
+			}
+		case genTx := <-genTxCh:
+			if !strings.Contains(genTx, accAddr) {
+				err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(genTx), 0777)
+				if err != nil {
+					return err
+				}
 			}
 		}
 	}
 
-	_, err = appkit.CollectGenTxs(cmd, home)
+	_, err = cmd.CollectGenTxs(home)
 	if err != nil {
 		return err
 	}
@@ -155,64 +197,48 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	err = appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
+	if err != nil {
+		return err
+	}
+
 	runenv.RecordMessage("publishing app-validator address")
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
 
-	client.Publish(ctx, AppNodeTopic, &AppId{int(initCtx.GroupSeq), ip})
+	_, err = client.Publish(
+		ctx,
+		testkit.AppNodeTopic,
+		&testkit.AppNodeInfo{
+			ID: int(initCtx.GroupSeq),
+			IP: ip,
+		},
+	)
+	if err != nil {
+		return err
+	}
 
 	runenv.RecordMessage("starting........")
-	go appkit.StartNode(cmd, home)
+	go cmd.StartNode(home)
 
+	// wait for a new block to be produced
+	// RPC is also being initialized...
 	time.Sleep(30 * time.Second)
+
+	_, err = client.SignalEntry(ctx, testkit.AppStartedState)
+	if err != nil {
+		return err
+	}
+
+	// testableInstances are full and light nodes. We are multiplying app's
+	// by 2 as we have ratio on 1 app per 1 bridge node
+	testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
+	err = <-client.MustBarrier(ctx, testkit.FinishState, testableInstances).C
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
-
-// if runenv.TestGroupID == "app" {
-// 	home := runenv.StringParam(fmt.Sprintf("app%d", initCtx.GroupSeq))
-
-// 	fmt.Println(home)
-// 	cmd := appkit.NewRootCmd()
-
-// 	nodeId, err := appkit.GetNodeId(cmd, home)
-// 	if err != nil {
-// 		runenv.RecordCrash(err)
-// 		return err
-// 	}
-
-// 	valt := sync.NewTopic("validator-info", &appkit.ValidatorNode{})
-// 	client.Publish(ctx, valt, &appkit.ValidatorNode{nodeId, config.IPv4.IP})
-
-// 	rdySt := sync.State("appReady")
-// 	appseq := client.MustSignalEntry(ctx, rdySt)
-
-// 	<-client.MustBarrier(ctx, rdySt, runenv.TestGroupInstanceCount).C
-
-// 	valCh := make(chan *appkit.ValidatorNode)
-// 	client.Subscribe(ctx, valt, valCh)
-
-// 	var persPeers []string
-// 	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
-// 		val := <-valCh
-// 		runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
-// 		if !val.IP.Equal(config.IPv4.IP) {
-// 			persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
-// 		}
-// 	}
-
-// 	configPath := filepath.Join(home, "config", "config.toml")
-// 	err = appkit.AddPersistentPeers(configPath, persPeers)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	go appkit.StartNode(cmd, home)
-// 	client.MustSignalAndWait(ctx, stateDone, int(initCtx.GlobalSeq))
-// 	err = syscall.Kill(syscall.Getpid(), syscall.SIGINT)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
