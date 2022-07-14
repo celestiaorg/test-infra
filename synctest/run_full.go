@@ -88,6 +88,9 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return err
 			}
 		case bridge := <-bridgeCh:
+			runenv.RecordMessage("---------------------------------")
+			runenv.RecordMessage("Bridge ID = %d", bridge.ID)
+			runenv.RecordMessage("---------------------------------")
 			if int(initCtx.GroupSeq) == bridge.ID {
 				ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GroupSeq)
 				runenv.RecordMessage(ndhome)
@@ -130,6 +133,10 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return nil
 			}
 		}
+	}
+	_, err = client.SignalEntry(ctx, testkit.FinishState)
+	if err != nil {
+		return err
 	}
 	return fmt.Errorf("nothing happened")
 }

@@ -136,5 +136,9 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			}
 		}
 	}
+	_, err = client.SignalEntry(ctx, testkit.FinishState)
+	if err != nil {
+		return err
+	}
 	return fmt.Errorf("nothing happened")
 }
