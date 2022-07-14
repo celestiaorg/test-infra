@@ -101,6 +101,13 @@ func (ak *AppKit) StartNode(home string) error {
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
+func (ak *AppKit) PayForData(namespace []byte, msg []byte, krbackend, chainId, home string) (string, error) {
+	return ak.execCmd([]string{
+		"tx", "payment", "payForData", string(namespace), string(msg),
+		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
+	})
+}
+
 func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
 	resp, err := http.Get(uri)
