@@ -289,5 +289,16 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 	runenv.RecordSuccess()
+
+	// we need to start randomizing pay for data namespace and messages
+	// messages size should be defined in the params of the test-case
+	// params should contain occurence of pfd too
+
+	// we need a mechanism in app to check what is the block size in the header?
+	// populate it here
+	// check that we can produce at least 10-20 blocks constantly with max block size
+
+	// change a flag for block timeout = 30-40 seconds?
+	//
 	return nil
 }
