@@ -15,10 +15,10 @@ func syncNodes(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		err = synctest.RunAppValidator(runenv, initCtx)
 	case "bridge":
 		err = synctest.RunBridgeNode(runenv, initCtx)
-		// case "full":
-		// 	err = synctest.RunFullNode(runenv, initCtx)
-		// case "light":
-		// 	err = synctest.RunLightNode(runenv, initCtx)
+	case "full":
+		err = synctest.RunFullNode(runenv, initCtx)
+	case "light":
+		err = synctest.RunLightNode(runenv, initCtx)
 	}
 
 	if err != nil {

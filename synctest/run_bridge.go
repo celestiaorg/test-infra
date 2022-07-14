@@ -60,94 +60,106 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	if initCtx.GroupSeq == 1 {
+		_, err = client.Publish(ctx, testkit.BridgeTotalTopic, runenv.TestGroupInstanceCount)
+		if err != nil {
+			return err
+		}
+	}
+
 	err = <-client.MustBarrier(ctx, testkit.AppStartedState, int(initCtx.GroupSeq)).C
 	if err != nil {
 		return err
 	}
 
 	appInfoCh := make(chan *testkit.AppNodeInfo)
-	_, err = client.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
+	sub, err := client.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
 	if err != nil {
 		return err
 	}
 
-	for i := 1; i <= runenv.TestGroupInstanceCount; i++ {
-		appInfo := <-appInfoCh
-		if appInfo.ID == int(initCtx.GroupSeq) {
-			h, err := appkit.GetBlockHashByHeight(appInfo.IP, 1)
+	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+		select {
+		case err = <-sub.Done():
 			if err != nil {
 				return err
 			}
-			runenv.RecordMessage("Block#1 Hash: %s", h)
+		case appInfo := <-appInfoCh:
+			if appInfo.ID == int(initCtx.GroupSeq) {
+				h, err := appkit.GetBlockHashByHeight(appInfo.IP, 1)
+				if err != nil {
+					return err
+				}
+				runenv.RecordMessage("Block#1 Hash: %s", h)
 
-			ndhome := fmt.Sprintf("/.celestia-bridge-%d", initCtx.GroupSeq)
-			rc := fmt.Sprintf("%s:26657", appInfo.IP.To4().String())
-			runenv.RecordMessage(rc)
+				ndhome := fmt.Sprintf("/.celestia-bridge-%d", initCtx.GroupSeq)
+				rc := fmt.Sprintf("%s:26657", appInfo.IP.To4().String())
+				runenv.RecordMessage(rc)
 
-			ip, err := initCtx.NetClient.GetDataNetworkIP()
-			if err != nil {
-				return err
+				ip, err := initCtx.NetClient.GetDataNetworkIP()
+				if err != nil {
+					return err
+				}
+
+				nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h, node.WithRemoteCore("tcp", rc))
+				if err != nil {
+					return err
+				}
+
+				nd.Start(ctx)
+				if err != nil {
+					return err
+				}
+
+				eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(4))
+				if err != nil {
+					return err
+				}
+
+				runenv.RecordMessage("Reached Block#4 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+
+				//create a new subscription to publish bridge's multiaddress to full/light nodes
+				addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
+				if err != nil {
+					return err
+				}
+
+				runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
+				runenv.RecordMessage("Publishing bridgeID Addr %s", addrs[0].String())
+
+				_, err = client.SignalEntry(ctx, testkit.BridgeStartedState)
+				if err != nil {
+					return err
+				}
+
+				_, err = client.Publish(
+					ctx,
+					testkit.BridgeNodeTopic,
+					&testkit.BridgeNodeInfo{
+						ID:          int(initCtx.GroupSeq),
+						Maddr:       addrs[0].String(),
+						TrustedHash: h,
+					},
+				)
+				if err != nil {
+					return err
+				}
+
+				// testableInstances are full and light nodes. We are multiplying bridge's
+				// by 2 as we have ratio on 1 app per 1 bridge node
+				testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
+				err = <-client.MustBarrier(ctx, testkit.FinishState, testableInstances).C
+				if err != nil {
+					return err
+				}
+
+				err = nd.Stop(ctx)
+				if err != nil {
+					return err
+				}
+
+				return nil
 			}
-
-			nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h, node.WithRemoteCore("tcp", rc))
-			if err != nil {
-				return err
-			}
-
-			nd.Start(ctx)
-			if err != nil {
-				return err
-			}
-
-			eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(4))
-			if err != nil {
-				return err
-			}
-
-			runenv.RecordMessage("Reached Block#4 contains Hash: %s", eh.Commit.BlockID.Hash.String())
-
-			//create a new subscription to publish bridge's multiaddress to full/light nodes
-			addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
-			if err != nil {
-				return err
-			}
-
-			runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
-			runenv.RecordMessage("Publishing bridgeID Addr %s", addrs[0].String())
-
-			_, err = client.Publish(
-				ctx,
-				testkit.BridgeNodeTopic,
-				&testkit.BridgeNodeInfo{
-					ID:          int(initCtx.GroupSeq),
-					Maddr:       addrs[0].String(),
-					TrustedHash: h,
-					Amount:      runenv.TestGroupInstanceCount,
-				},
-			)
-			if err != nil {
-				return err
-			}
-
-			_, err = client.SignalEntry(ctx, testkit.BridgeStartedState)
-			if err != nil {
-				return err
-			}
-
-			// testableInstances are full and light nodes. We are multiplying bridge's
-			// by 2 as we have ratio on 1 app per 1 bridge node
-			testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
-			err = <-client.MustBarrier(ctx, testkit.FinishState, testableInstances).C
-			if err != nil {
-				return err
-			}
-
-			err = nd.Stop(ctx)
-			if err != nil {
-				return err
-			}
-
-			return nil
 		}
 	}
 	return fmt.Errorf("nothing has been done")

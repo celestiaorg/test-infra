@@ -29,13 +29,13 @@ type BridgeNodeInfo struct {
 	ID          int
 	Maddr       string
 	TrustedHash string
-	Amount      int
 }
 
 // These topics are used around Celestia Bridge/Full/Light instances
 var (
-	AppNodeTopic    = sync.NewTopic("app-info", &AppNodeInfo{})
-	BridgeNodeTopic = sync.NewTopic("bridge-info", &BridgeNodeInfo{})
+	BridgeTotalTopic = sync.NewTopic("bridge-amount", 0)
+	AppNodeTopic     = sync.NewTopic("app-info", &AppNodeInfo{})
+	BridgeNodeTopic  = sync.NewTopic("bridge-info", &BridgeNodeInfo{})
 )
 
 // FinishState should be signaled by those, againts whom we are
