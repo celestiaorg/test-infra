@@ -132,6 +132,11 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 					return err
 				}
 
+				err = <-client.MustBarrier(ctx, testkit.BridgeStartedState, runenv.TestGroupInstanceCount).C
+				if err != nil {
+					return err
+				}
+
 				_, err = client.Publish(
 					ctx,
 					testkit.BridgeNodeTopic,
