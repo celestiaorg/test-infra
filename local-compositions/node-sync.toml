@@ -3,7 +3,7 @@
   author = "Bidon15"
 
 [global]
-  plan = "celestia-app"
+  plan = "celestia"
   case = "node-sync"
   total_instances = 12
   builder = "docker:generic"
@@ -12,56 +12,72 @@
 
 [[groups]]
   id = "app"
+  builder = "docker:generic"
   [groups.resources]
     memory = ""
     cpu = ""
   [groups.instances]
     count = 3
     percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.18.3"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.18"
   [groups.build]
   [groups.run]
     artifact = ""
-    [groups.run.test_params]
-      role = "app"
 
 [[groups]]
   id = "bridge"
+  builder = "docker:generic"
   [groups.resources]
     memory = ""
     cpu = ""
   [groups.instances]
     count = 3
     percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.18.3"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.18"
   [groups.build]
   [groups.run]
     artifact = ""
-    [groups.run.test_params]
-      role = "bridge"
 
 [[groups]]
   id = "full"
+  builder = "docker:generic"
   [groups.resources]
     memory = ""
     cpu = ""
   [groups.instances]
     count = 3
     percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.18.3"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.18"
   [groups.build]
   [groups.run]
     artifact = ""
-    [groups.run.test_params]
-      role = "full"
 
 [[groups]]
   id = "light"
+  builder = "docker:generic"
   [groups.resources]
     memory = ""
     cpu = ""
   [groups.instances]
     count = 3
     percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.18.3"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.18"
   [groups.build]
   [groups.run]
     artifact = ""
-    [groups.run.test_params]
-      role = "light"
