@@ -15,6 +15,7 @@ import (
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/tendermint/tendermint/rpc/coretypes"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
@@ -42,7 +43,6 @@ func (ak *AppKit) execCmd(args []string) (output string, err error) {
 	scrapStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
-	ak.m.Unlock()
 
 	out := new(bytes.Buffer)
 	ak.Cmd.Println(out)
@@ -57,6 +57,7 @@ func (ak *AppKit) execCmd(args []string) (output string, err error) {
 		return "", err
 	}
 	os.Stdout = scrapStdout
+	ak.m.Unlock()
 
 	output = string(outStr)
 	output = strings.ReplaceAll(output, "\n", "")
@@ -97,11 +98,7 @@ func (ak *AppKit) StartNode(home string) error {
 	ak.Cmd.SetErr(os.Stdout)
 	ak.Cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
 
-	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
-		return err
-	}
-
-	return nil
+	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
 func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
@@ -116,11 +113,11 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 		return "", err
 	}
 
-	var res BlockResp
+	var res coretypes.ResultBlock
 	if err := json.Unmarshal(body, &res); err != nil {
 		return "", err
 	}
-	return res.Result.BlockID.Hash, nil
+	return res.BlockID.Hash.String(), nil
 }
 
 func updateConfig(path, key, value string) error {

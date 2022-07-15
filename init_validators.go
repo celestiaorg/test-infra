@@ -212,14 +212,16 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode(home)
 
 	// wait for a new block to be produced
+	// as well as waiting for the rest server to spin up
 	time.Sleep(1 * time.Minute)
 
 	blockHeight := 2
 	bh, err := appkit.GetBlockHashByHeight(net.ParseIP("127.0.0.1"), blockHeight)
-	runenv.RecordMessage(bh)
 	if err != nil {
 		return err
 	}
+
+	runenv.RecordMessage(bh)
 
 	_, err = client.Publish(ctx, testkit.BlockHashTopic, bh)
 	if err != nil {
