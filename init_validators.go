@@ -299,38 +299,30 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	// change a flag for block timeout = 30-40 seconds?
 	//
-	ticker := time.NewTicker(5 * time.Second)
-	done := make(chan bool)
-	go func() error {
-		for {
-			select {
-			case <-done:
-				return nil
-			case <-ticker.C:
-				out, err := cmd.PayForData(
-					accAddr,
-					appkit.GetRandomNamespace(),
-					appkit.GetRandomMessageBySize(200),
-					"test",
-					chainId,
-					home,
-				)
 
-				fmt.Println(err)
-				fmt.Println(out)
+	for i := 0; i < 3; i++ {
+		time.Sleep(5 * time.Second)
+		out, err := cmd.PayForData(
+			accAddr,
+			appkit.GetRandomNamespace(),
+			appkit.GetRandomMessageBySize(200),
+			"test",
+			chainId,
+			home,
+		)
 
-				s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
-				// if err != nil {
-				runenv.RecordFailure(err)
-				// }
+		fmt.Println(err)
+		fmt.Println(out)
 
-				runenv.RecordMessage("size of the block is - %d", s)
-			}
-		}
-	}()
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		// if err != nil {
+		runenv.RecordMessage(err.Error())
+		// }
 
-	time.Sleep(2 * time.Minute)
-	ticker.Stop()
+		runenv.RecordMessage("size of the block is - %d", s)
+
+		time.Sleep(10 * time.Second)
+	}
 
 	return nil
 }
