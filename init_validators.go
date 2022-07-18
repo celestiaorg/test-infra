@@ -307,21 +307,22 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			case <-done:
 				return nil
 			case <-ticker.C:
-				_, err := cmd.PayForData(
+				out, err := cmd.PayForData(
 					accAddr,
 					appkit.GetRandomNamespace(),
-					appkit.GetRandomMessageBySize(1000),
+					appkit.GetRandomMessageBySize(200),
 					"test",
 					chainId,
 					home,
 				)
 
 				fmt.Println(err)
+				fmt.Println(out)
 
 				s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
-				if err != nil {
-					runenv.RecordFailure(err)
-				}
+				// if err != nil {
+				runenv.RecordFailure(err)
+				// }
 
 				runenv.RecordMessage("size of the block is - %d", s)
 			}
