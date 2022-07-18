@@ -81,64 +81,69 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	for i := 0; i < bridgeTotal; i++ {
-		select {
-		case err = <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case bridge := <-bridgeCh:
-			//we receive bridgeIDs that contain the ID of bridge and the total amount of bridges
-			//we need to assign light nodes 30/30/30 per each bridge
-			if int(initCtx.GroupSeq)%bridgeTotal == bridge.ID%bridgeTotal {
-				ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GroupSeq))
-				runenv.RecordMessage(ndhome)
-				ip, err := initCtx.NetClient.GetDataNetworkIP()
+	bridgeNode, err := func(total int) (*testkit.BridgeNodeInfo, error) {
+		for i := 0; i < total; i++ {
+			select {
+			case err = <-sub.Done():
 				if err != nil {
-					return err
+					return nil, err
 				}
-
-				nd, err := nodekit.NewNode(
-					ndhome,
-					node.Light,
-					ip,
-					bridge.TrustedHash,
-					node.WithTrustedPeers(bridge.Maddr),
-				)
-				if err != nil {
-					return err
+			case bridge := <-bridgeCh:
+				//we receive bridgeIDs that contain the ID of bridge and the total amount of bridges
+				//we need to assign light nodes 30/30/30 per each bridge
+				if int(initCtx.GroupSeq)%total == bridge.ID%total {
+					return bridge, nil
 				}
-
-				err = nd.Start(ctx)
-
-				if err != nil {
-					return err
-				}
-
-				eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(9))
-				if err != nil {
-					return err
-				}
-
-				runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
-				runenv.RecordSuccess()
-
-				err = nd.Stop(ctx)
-				if err != nil {
-					return err
-				}
-				_, err = client.SignalEntry(ctx, testkit.FinishState)
-				if err != nil {
-					return err
-				}
-
-				return nil
 			}
 		}
+		return nil, fmt.Errorf("nothing happened for light node")
+	}(bridgeTotal)
+
+	if err != nil {
+		return err
+	}
+
+	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GroupSeq))
+	runenv.RecordMessage(ndhome)
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	if err != nil {
+		return err
+	}
+
+	nd, err := nodekit.NewNode(
+		ndhome,
+		node.Light,
+		ip,
+		bridgeNode.TrustedHash,
+		node.WithTrustedPeers(bridgeNode.Maddr),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = nd.Start(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(9))
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordSuccess()
+
+	err = nd.Stop(ctx)
+	if err != nil {
+		return err
 	}
 	_, err = client.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}
-	return fmt.Errorf("nothing happened")
+
+	return nil
+
 }

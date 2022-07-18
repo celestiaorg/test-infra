@@ -81,62 +81,66 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	for i := 0; i < bridgeTotal; i++ {
-		select {
-		case err = <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case bridge := <-bridgeCh:
-			runenv.RecordMessage("---------------------------------")
-			runenv.RecordMessage("Bridge ID = %d", bridge.ID)
-			runenv.RecordMessage("---------------------------------")
-			if int(initCtx.GroupSeq) == bridge.ID {
-				ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GroupSeq)
-				runenv.RecordMessage(ndhome)
-				ip, err := initCtx.NetClient.GetDataNetworkIP()
+	bridgeNode, err := func(total int) (*testkit.BridgeNodeInfo, error) {
+		for i := 0; i < total; i++ {
+			select {
+			case err = <-sub.Done():
 				if err != nil {
-					return err
+					return nil, err
 				}
-				nd, err := nodekit.NewNode(
-					ndhome,
-					node.Full,
-					ip,
-					bridge.TrustedHash,
-					node.WithTrustedPeers(bridge.Maddr),
-				)
-				if err != nil {
-					return err
-				}
+			case bridge := <-bridgeCh:
+				runenv.RecordMessage("Received Bridge ID = %d", bridge.ID)
 
-				err = nd.Start(ctx)
-				if err != nil {
-					return err
+				if int(initCtx.GroupSeq) == bridge.ID {
+					return bridge, nil
 				}
-
-				eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(9))
-				if err != nil {
-					return err
-				}
-				runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
-
-				err = nd.Stop(ctx)
-				if err != nil {
-					return err
-				}
-
-				_, err = client.SignalEntry(ctx, testkit.FinishState)
-				if err != nil {
-					return err
-				}
-
-				return nil
 			}
 		}
+		return nil, fmt.Errorf("nothing happened for full node")
+	}(bridgeTotal)
+
+	if err != nil {
+		return err
 	}
+
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GroupSeq)
+	runenv.RecordMessage(ndhome)
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	if err != nil {
+		return err
+	}
+	nd, err := nodekit.NewNode(
+		ndhome,
+		node.Full,
+		ip,
+		bridgeNode.TrustedHash,
+		node.WithTrustedPeers(bridgeNode.Maddr),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = nd.Start(ctx)
+	if err != nil {
+		return err
+	}
+
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(9))
+	if err != nil {
+		return err
+	}
+	runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+
+	err = nd.Stop(ctx)
+	if err != nil {
+		return err
+	}
+
 	_, err = client.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}
-	return fmt.Errorf("nothing happened")
+
+	return nil
+
 }
