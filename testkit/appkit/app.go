@@ -109,7 +109,7 @@ func (ak *AppKit) StartNode(home string) error {
 func (ak *AppKit) PayForData(accAdr string, namespace []byte, msg []byte, krbackend, chainId, home string) (string, error) {
 	return ak.execCmd([]string{
 		"tx", "payment", "payForData", hex.EncodeToString(namespace), hex.EncodeToString(msg),
-		"--from", accAdr,
+		"--from", accAdr, "-b", "block", "-y",
 		"--node", "tcp://127.0.0.1:26657",
 		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
 	})
