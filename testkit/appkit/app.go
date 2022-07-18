@@ -16,6 +16,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/tendermint/tendermint/rpc/coretypes"
+	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
@@ -113,11 +114,16 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 		return "", err
 	}
 
-	var res coretypes.ResultBlock
-	if err := json.Unmarshal(body, &res); err != nil {
+	var rpcResponse types.RPCResponse
+	if err := json.Unmarshal(body, &rpcResponse); err != nil {
 		return "", err
 	}
-	return res.BlockID.Hash.String(), nil
+
+	var resBlock coretypes.ResultBlock
+	if err := json.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
+		return "", err
+	}
+	return resBlock.BlockID.Hash.String(), nil
 }
 
 func updateConfig(path, key, value string) error {
