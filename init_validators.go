@@ -308,6 +308,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return nil
 			case <-ticker.C:
 				_, err := cmd.PayForData(
+					accAddr,
 					appkit.GetRandomNamespace(),
 					appkit.GetRandomMessageBySize(1000),
 					"test",
