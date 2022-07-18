@@ -12,10 +12,11 @@ import (
 
 	"github.com/celestiaorg/celestia-app/app"
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
-	"github.com/lazyledger/nmt/namespace"
+	"github.com/celestiaorg/nmt/namespace"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/tendermint/tendermint/pkg/consts"
 	"github.com/tendermint/tendermint/rpc/coretypes"
 	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
@@ -111,35 +112,36 @@ func (ak *AppKit) PayForData(namespace []byte, msg []byte, krbackend, chainId, h
 	})
 }
 
-func getResponse(uri string) ([]byte, error) {
+func getResultBlockResponse(uri string) (coretypes.ResultBlock, error) {
 	resp, err := http.Get(uri)
 	if err != nil {
-		return "", err
+		return coretypes.ResultBlock{}, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
-}
-
-func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
-	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
-	body, err := getResponse(uri)
-	if err != nil {
-		return err
+		return coretypes.ResultBlock{}, err
 	}
 
 	var rpcResponse types.RPCResponse
 	if err := rpcResponse.UnmarshalJSON(body); err != nil {
-		return "", err
+		return coretypes.ResultBlock{}, err
 	}
 
 	var resBlock coretypes.ResultBlock
 	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
+		return coretypes.ResultBlock{}, err
+	}
+
+	return resBlock, nil
+}
+
+func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
+	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
+
+	resBlock, err := getResultBlockResponse(uri)
+	if err != nil {
 		return "", err
 	}
 
@@ -148,19 +150,13 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 
 func GetLatestsBlockSize(ip net.IP) (int, error) {
 	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
-	body, err := getResponse(uri)
 
-	var rpcResponse types.RPCResponse
-	if err := rpcResponse.UnmarshalJSON(body); err != nil {
-		return "", err
+	resBlock, err := getResultBlockResponse(uri)
+	if err != nil {
+		return 0, err
 	}
 
-	var resBlock coretypes.ResultBlock
-	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
-		return "", err
-	}
-
-	return resBlock.BlockID.Hash.String(), nil
+	return resBlock.Block.Size(), nil
 }
 
 func updateConfig(path, key, value string) error {

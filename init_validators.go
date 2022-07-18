@@ -253,15 +253,14 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode(home)
 
 	// wait for a new block to be produced
-	// as well as waiting for the rest server to spin up
 	time.Sleep(1 * time.Minute)
 
 	blockHeight := 2
 	bh, err := appkit.GetBlockHashByHeight(net.ParseIP("127.0.0.1"), blockHeight)
+
 	if err != nil {
 		return err
 	}
-
 	runenv.RecordMessage(bh)
 
 	_, err = client.Publish(ctx, testkit.BlockHashTopic, bh)
@@ -300,5 +299,38 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	// change a flag for block timeout = 30-40 seconds?
 	//
+	ticker := time.NewTicker(5 * time.Second)
+	done := make(chan bool)
+	go func() error {
+		for {
+			select {
+			case <-done:
+				return nil
+			case <-ticker.C:
+				_, err := cmd.PayForData(
+					appkit.GetRandomNamespace(),
+					appkit.GetRandomMessageBySize(1000),
+					"test",
+					chainId,
+					home,
+				)
+
+				if err != nil {
+					runenv.RecordFailure(err)
+				}
+
+				s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+				if err != nil {
+					runenv.RecordFailure(err)
+				}
+
+				runenv.RecordMessage("size of the block is - %d", s)
+			}
+		}
+	}()
+
+	time.Sleep(2 * time.Minute)
+	ticker.Stop()
+
 	return nil
 }
