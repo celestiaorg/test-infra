@@ -105,7 +105,7 @@ func (ak *AppKit) StartNode(home string) error {
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func (ak *AppKit) PayForData(acc string, namespace []byte, msg []byte, krbackend, chainId, home string) (string, error) {
+func (ak *AppKit) PayForData(namespace []byte, msg []byte, krbackend, chainId, home string) (string, error) {
 	return ak.execCmd([]string{
 		"tx", "payment", "payForData", string(namespace), string(msg), "--node", "tcp://127.0.0.1:26657",
 		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
