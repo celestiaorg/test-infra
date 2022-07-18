@@ -2,7 +2,6 @@ package appkit
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -15,6 +14,7 @@ import (
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/rpc/coretypes"
 	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
 
@@ -115,14 +115,21 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 	}
 
 	var rpcResponse types.RPCResponse
-	if err := json.Unmarshal(body, &rpcResponse); err != nil {
+	if err := rpcResponse.UnmarshalJSON(body); err != nil {
+		return "", err
+	}
+
+	var res []byte
+	if err := rpcResponse.Result.UnmarshalJSON(res); err != nil {
 		return "", err
 	}
 
 	var resBlock coretypes.ResultBlock
-	if err := json.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
+	if err := tmjson.Unmarshal(res, &resBlock); err != nil {
 		return "", err
 	}
+
+	fmt.Println(resBlock.BlockID.Hash.String())
 	return resBlock.BlockID.Hash.String(), nil
 }
 
