@@ -119,13 +119,8 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 		return "", err
 	}
 
-	var res []byte
-	if err := rpcResponse.Result.UnmarshalJSON(res); err != nil {
-		return "", err
-	}
-
 	var resBlock coretypes.ResultBlock
-	if err := tmjson.Unmarshal(res, &resBlock); err != nil {
+	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
 		return "", err
 	}
 
