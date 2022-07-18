@@ -15,6 +15,7 @@ replace (
 require (
 	github.com/celestiaorg/celestia-app v0.5.4
 	github.com/celestiaorg/celestia-node v0.3.0-rc2.0.20220708155920-0374d4fdcefd
+	github.com/celestiaorg/nmt v0.10.0
 	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p-core v0.17.0
@@ -46,7 +47,6 @@ require (
 	github.com/celestiaorg/go-leopard v0.1.0 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.1.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
-	github.com/celestiaorg/nmt v0.10.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.5.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.1 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
