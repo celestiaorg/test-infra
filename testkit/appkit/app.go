@@ -2,7 +2,6 @@ package appkit
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -13,9 +12,13 @@ import (
 
 	"github.com/celestiaorg/celestia-app/app"
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
+	"github.com/lazyledger/nmt/namespace"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	tmjson "github.com/tendermint/tendermint/libs/json"
+	"github.com/tendermint/tendermint/pkg/consts"
 	"github.com/tendermint/tendermint/rpc/coretypes"
+	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
@@ -108,23 +111,56 @@ func (ak *AppKit) PayForData(namespace []byte, msg []byte, krbackend, chainId, h
 	})
 }
 
-func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
-	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
+func getResponse(uri string) ([]byte, error) {
 	resp, err := http.Get(uri)
 	if err != nil {
 		return "", err
 	}
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
+
+func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
+	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
+	body, err := getResponse(uri)
+	if err != nil {
+		return err
+	}
+
+	var rpcResponse types.RPCResponse
+	if err := rpcResponse.UnmarshalJSON(body); err != nil {
 		return "", err
 	}
 
-	var res coretypes.ResultBlock
-	if err := json.Unmarshal(body, &res); err != nil {
+	var resBlock coretypes.ResultBlock
+	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
 		return "", err
 	}
-	return res.BlockID.Hash.String(), nil
+
+	return resBlock.BlockID.Hash.String(), nil
+}
+
+func GetLatestsBlockSize(ip net.IP) (int, error) {
+	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
+	body, err := getResponse(uri)
+
+	var rpcResponse types.RPCResponse
+	if err := rpcResponse.UnmarshalJSON(body); err != nil {
+		return "", err
+	}
+
+	var resBlock coretypes.ResultBlock
+	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
+		return "", err
+	}
+
+	return resBlock.BlockID.Hash.String(), nil
 }
 
 func updateConfig(path, key, value string) error {
@@ -170,4 +206,17 @@ func AddPersistentPeers(path string, peers []string) error {
 // c) Seed - Only crawls the p2p network to find and share peers with each other
 func ChangeNodeMode(path string, mode string) error {
 	return updateConfig(path, "mode", mode)
+}
+
+func GetRandomNamespace() namespace.ID {
+	for {
+		s := tmrand.Bytes(8)
+		if bytes.Compare(s, consts.MaxReservedNamespace) > 0 {
+			return s
+		}
+	}
+}
+
+func GetRandomMessageBySize(size int) []byte {
+	return tmrand.Bytes(size)
 }
