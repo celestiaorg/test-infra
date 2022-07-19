@@ -322,7 +322,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		fmt.Println(err)
 		fmt.Println(out)
 
-		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		s, err = appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
 		if err != nil {
 			return err
 		}
