@@ -287,7 +287,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			}
 		}
 	}
-	runenv.RecordSuccess()
+	// runenv.RecordSuccess()
 
 	// we need to start randomizing pay for data namespace and messages
 	// messages size should be defined in the params of the test-case
@@ -308,7 +308,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		runenv.RecordMessage("size of the block is - %d", s)
 
-		time.Sleep(5 * time.Second)
+		time.Sleep(25 * time.Second)
 		out, err := cmd.PayForData(
 			accAddr,
 			appkit.GetRandomNamespace(),
