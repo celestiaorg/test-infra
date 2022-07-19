@@ -301,6 +301,13 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	//
 
 	for i := 0; i < 3; i++ {
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		if err != nil {
+			return err
+		}
+
+		runenv.RecordMessage("size of the block is - %d", s)
+
 		time.Sleep(5 * time.Second)
 		out, err := cmd.PayForData(
 			accAddr,
@@ -313,15 +320,6 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		fmt.Println(err)
 		fmt.Println(out)
-
-		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
-		// if err != nil {
-		runenv.RecordMessage(err.Error())
-		// }
-
-		runenv.RecordMessage("size of the block is - %d", s)
-
-		time.Sleep(10 * time.Second)
 	}
 
 	return nil
