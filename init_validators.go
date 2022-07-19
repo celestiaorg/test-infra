@@ -300,19 +300,20 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// change a flag for block timeout = 30-40 seconds?
 	//
 
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 10; i++ {
+		runenv.RecordMessage("iterating from -> %d", i)
 		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
 		if err != nil {
 			return err
 		}
 
-		runenv.RecordMessage("size of the block is - %d", s)
+		runenv.RecordMessage("prev size of the block is - %d", s)
 
-		time.Sleep(25 * time.Second)
+		time.Sleep(15 * time.Second)
 		out, err := cmd.PayForData(
 			accAddr,
 			appkit.GetRandomNamespace(),
-			appkit.GetRandomMessageBySize(200),
+			appkit.GetRandomMessageBySize(1000000),
 			"test",
 			chainId,
 			home,
@@ -320,6 +321,13 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		fmt.Println(err)
 		fmt.Println(out)
+
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		if err != nil {
+			return err
+		}
+
+		runenv.RecordMessage("latest size of the block is - %d", s)
 	}
 
 	return nil
