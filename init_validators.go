@@ -304,16 +304,16 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("iterating from -> %d", i)
 		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
 		if err != nil {
-			return err
+			runenv.RecordMessage("err in prev size call, %s", err.Error())
 		}
 
 		runenv.RecordMessage("prev size of the block is - %d", s)
 
-		time.Sleep(15 * time.Second)
+		time.Sleep(5 * time.Second)
 		out, err := cmd.PayForData(
 			accAddr,
 			appkit.GetRandomNamespace(),
-			appkit.GetRandomMessageBySize(1000000),
+			appkit.GetRandomMessageBySize(10000),
 			"test",
 			chainId,
 			home,
@@ -324,7 +324,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 		s, err = appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
 		if err != nil {
-			return err
+			runenv.RecordMessage("err in last size call, %s", err.Error())
 		}
 
 		runenv.RecordMessage("latest size of the block is - %d", s)

@@ -110,7 +110,7 @@ func (ak *AppKit) PayForData(accAdr string, namespace []byte, msg []byte, krback
 	return ak.execCmd([]string{
 		"tx", "payment", "payForData", hex.EncodeToString(namespace), hex.EncodeToString(msg),
 		"--from", accAdr, "-b", "block", "-y",
-		"--node", "tcp://127.0.0.1:26657",
+		// "--node", "tcp://127.0.0.1:26657",
 		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
 	})
 }
