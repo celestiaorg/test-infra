@@ -225,14 +225,23 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	valCh := make(chan *appkit.ValidatorNode)
-	client.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+	sub, err = client.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+	if err != nil {
+		return err
+	}
 
 	var persPeers []string
 	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
-		val := <-valCh
-		runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
-		if !val.IP.Equal(config.IPv4.IP) {
-			persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case val := <-valCh:
+			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+			if !val.IP.Equal(config.IPv4.IP) {
+				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+			}
 		}
 	}
 
