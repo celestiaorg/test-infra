@@ -209,6 +209,47 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("starting........")
 
+	nodeId, err := cmd.GetNodeId(home)
+	if err != nil {
+		return err
+	}
+	_, err = client.Publish(
+		ctx,
+		testkit.ValidatorPeerTopic,
+		&appkit.ValidatorNode{
+			PubKey: nodeId,
+			IP:     config.IPv4.IP},
+	)
+	if err != nil {
+		return err
+	}
+
+	valCh := make(chan *appkit.ValidatorNode)
+	sub, err = client.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+	if err != nil {
+		return err
+	}
+
+	var persPeers []string
+	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case val := <-valCh:
+			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+			if !val.IP.Equal(config.IPv4.IP) {
+				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+			}
+		}
+	}
+
+	err = appkit.AddPersistentPeers(configPath, persPeers)
+	if err != nil {
+		return err
+	}
+
 	go cmd.StartNode(home)
 
 	// wait for a new block to be produced
