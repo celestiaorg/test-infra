@@ -2,7 +2,7 @@ package appkit
 
 import (
 	"bytes"
-	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -13,6 +13,7 @@ import (
 
 	"github.com/celestiaorg/celestia-app/app"
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
+	apptypes "github.com/celestiaorg/celestia-app/x/payment/types"
 	"github.com/celestiaorg/nmt/namespace"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -22,7 +23,11 @@ import (
 	"github.com/tendermint/tendermint/rpc/coretypes"
 	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
 
+	sdkclient "github.com/cosmos/cosmos-sdk/client"
+	sdkflags "github.com/cosmos/cosmos-sdk/client/flags"
+	sdktx "github.com/cosmos/cosmos-sdk/client/tx"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 )
 
 type ValidatorNode struct {
@@ -106,13 +111,74 @@ func (ak *AppKit) StartNode(home string) error {
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func (ak *AppKit) PayForData(accAdr string, namespace []byte, msg []byte, krbackend, chainId, home string) (string, error) {
-	return ak.execCmd([]string{
-		"tx", "payment", "payForData", hex.EncodeToString(namespace), hex.EncodeToString(msg),
-		"--from", accAdr, "-b", "block", "-y",
-		// "--node", "tcp://127.0.0.1:26657",
-		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
-	})
+func (ak *AppKit) PayForData(accAdr string, namespace []byte, msg []byte, krbackend, chainId, home string) error {
+	ak.Cmd.Flags().Set(sdkflags.FlagFrom, accAdr)
+	ak.Cmd.Flags().Set(sdkflags.FlagKeyringDir, home)
+	ak.Cmd.Flags().Set(sdkflags.FlagKeyringBackend, krbackend)
+	ak.Cmd.Flags().Set(sdkflags.FlagChainID, chainId)
+	ak.Cmd.Flags().Set(sdkflags.FlagGas, "auto")
+	ak.Cmd.Flags().Set(sdkflags.FlagFees, "10utia")
+	ak.Cmd.Flags().Set(sdkflags.FlagSkipConfirmation, "yes")
+	ak.Cmd.Flags().Set(sdkflags.FlagHome, home)
+
+	clientCtx, err := sdkclient.GetClientTxContext(ak.Cmd)
+	if err != nil {
+		return err
+	}
+
+	accName := clientCtx.GetFromName()
+	if accName == "" {
+		return errors.New("no account name provided, please use the --from flag")
+	}
+
+	pfdMsg, err := apptypes.NewWirePayForData(namespace, msg, apptypes.AllSquareSizes(len(msg))...)
+	if err != nil {
+		return err
+	}
+
+	signer := apptypes.NewKeyringSigner(clientCtx.Keyring, accName, clientCtx.ChainID)
+
+	err = signer.UpdateAccountFromClient(clientCtx)
+	if err != nil {
+		return err
+	}
+
+	// get and parse the gas limit for this tx
+	rawGasLimit, err := ak.Cmd.Flags().GetString(sdkflags.FlagGas)
+	if err != nil {
+		return err
+	}
+	gasSetting, err := sdkflags.ParseGasSetting(rawGasLimit)
+	if err != nil {
+		return err
+	}
+
+	// get and parse the fees for this tx
+	fees, err := ak.Cmd.Flags().GetString(sdkflags.FlagFees)
+	if err != nil {
+		return err
+	}
+	parsedFees, err := sdktypes.ParseCoinsNormalized(fees)
+	if err != nil {
+		return err
+	}
+
+	// sign the  MsgPayForData's ShareCommitments
+	err = pfdMsg.SignShareCommitments(
+		signer,
+		apptypes.SetGasLimit(gasSetting.Gas),
+		apptypes.SetFeeAmount(parsedFees),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = sdktx.GenerateOrBroadcastTxCLI(clientCtx, ak.Cmd.Flags(), pfdMsg)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func getResultBlockResponse(uri string) (coretypes.ResultBlock, error) {
