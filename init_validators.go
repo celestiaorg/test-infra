@@ -253,7 +253,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode(home)
 
 	// wait for a new block to be produced
-	time.Sleep(1 * time.Minute)
+	time.Sleep(30 * time.Second)
 
 	blockHeight := 2
 	bh, err := appkit.GetBlockHashByHeight(net.ParseIP("127.0.0.1"), blockHeight)
@@ -287,7 +287,6 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			}
 		}
 	}
-	// runenv.RecordSuccess()
 
 	// we need to start randomizing pay for data namespace and messages
 	// messages size should be defined in the params of the test-case
@@ -310,7 +309,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("prev size of the block is - %d", s)
 
 		time.Sleep(5 * time.Second)
-		out, err := cmd.PayForData(
+		err = cmd.PayForData(
 			accAddr,
 			appkit.GetRandomNamespace(),
 			appkit.GetRandomMessageBySize(10000),
@@ -320,7 +319,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		)
 
 		fmt.Println(err)
-		fmt.Println(out)
+		// fmt.Println(out)
 
 		s, err = appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
 		if err != nil {
