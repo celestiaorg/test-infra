@@ -253,7 +253,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode(home)
 
 	// wait for a new block to be produced
-	time.Sleep(30 * time.Second)
+	time.Sleep(60 * time.Second)
 
 	blockHeight := 2
 	bh, err := appkit.GetBlockHashByHeight(net.ParseIP("127.0.0.1"), blockHeight)
