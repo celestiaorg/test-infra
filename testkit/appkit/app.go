@@ -121,10 +121,19 @@ func (ak *AppKit) PayForData(accAdr string, namespace []byte, msg []byte, krback
 	ak.Cmd.Flags().Set(sdkflags.FlagSkipConfirmation, "yes")
 	ak.Cmd.Flags().Set(sdkflags.FlagHome, home)
 
-	clientCtx, err := sdkclient.GetClientTxContext(ak.Cmd)
+	var clientCtx sdkclient.Context
+	err := sdkclient.SetCmdClientContext(ak.Cmd, clientCtx)
 	if err != nil {
 		return err
 	}
+	// clientCtx, err := sdkclient.GetClientQueryContext(ak.cmd)
+	// if err != nil {
+	// 	return err
+	// }
+	// clientCtx, err := sdkclient.GetClientTxContext(ak.Cmd)
+	// if err != nil {
+	// 	return err
+	// }
 
 	accName := clientCtx.GetFromName()
 	if accName == "" {
