@@ -311,8 +311,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		time.Sleep(5 * time.Second)
 		err = cmd.PayForData(
 			accAddr,
-			appkit.GetRandomNamespace(),
-			appkit.GetRandomMessageBySize(10000),
+			10000,
 			"test",
 			chainId,
 			home,

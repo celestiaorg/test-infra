@@ -4,7 +4,7 @@ go 1.18
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.2.0-dirty-app
+	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.2.1-dirty-app
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.1.3-dirty-sdk-v0.46.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-verifcid => github.com/celestiaorg/go-verifcid v0.0.1-lazypatch
@@ -18,6 +18,7 @@ require (
 	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
+	github.com/tendermint/tendermint v0.35.4
 	github.com/testground/sdk-go v0.3.0
 )
 
@@ -245,7 +246,6 @@ require (
 	github.com/tendermint/btcd v0.1.1 // indirect
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tendermint/tendermint v0.35.4 // indirect
 	github.com/tendermint/tm-db v0.6.7 // indirect
 	github.com/testground/sync-service v0.1.0 // indirect
 	github.com/testground/testground v0.5.3 // indirect
