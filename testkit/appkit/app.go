@@ -108,7 +108,8 @@ func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, chainId, home st
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
 		"tx", "payment", "payForData", fmt.Sprint(msg),
-		"--from", accAdr, "-b", "block", "-y",
+		"--from", accAdr, "-b", "block", "-y", "--gas", "auto",
+		"--fee", "100000utia",
 		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
 	})
 
