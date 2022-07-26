@@ -76,8 +76,8 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOEl
 github.com/Azure/go-autorest v11.1.2+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
 github.com/Bidon15/cosmos-sdk v1.1.3-dirty-sdk-v0.46.0 h1:YIb2qx0AFaQdguzpWprriF9yyILZ3bFbWM+zpTVz/LQ=
 github.com/Bidon15/cosmos-sdk v1.1.3-dirty-sdk-v0.46.0/go.mod h1:GqLQYM+p8fKlafrn3cRAJgonJBPvSV6h5BUSnuInyvk=
-github.com/Bidon15/lazyledger-app v1.2.1-dirty-app h1:apHdad4aRJcBAH3w1iaBVoiNIIxZ9AWCYgBVEL2Osus=
-github.com/Bidon15/lazyledger-app v1.2.1-dirty-app/go.mod h1:MlWbQH18DKvIlQrU1LN/ZLi05yCXuzcMaNZqEF0M3Xo=
+github.com/Bidon15/lazyledger-app v1.3.0-dirty-app h1:ch9i3r5I+EwB89i+PWTX0JcMM6FyOrgXokihiMBWnf4=
+github.com/Bidon15/lazyledger-app v1.3.0-dirty-app/go.mod h1:v1Sc+6BYBH7lUubdOZ21G9HK1VhQuG9ftHPxXLDm2S0=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.1.0 h1:ksErzDEI1khOiGPgpwuI7x2ebx/uXQNw7xJpn9Eq1+I=
 github.com/BurntSushi/toml v1.1.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
@@ -190,8 +190,8 @@ github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 h1:CJdIpo8n
 github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4/go.mod h1:fzuHnhzj1pUygGz+1ZkB3uQbEUL4htqCGJ4Qs2LwMZA=
 github.com/celestiaorg/nmt v0.10.0 h1:HLfVWvpagHz5+uiE0QSjzv350wLhhnybNmrxq9NHLKc=
 github.com/celestiaorg/nmt v0.10.0/go.mod h1:3bqzTj8xKj0DgQUpOgZzoxvtNkC3MS/hTbQ6dn8SIa0=
-github.com/celestiaorg/rsmt2d v0.5.0 h1:Wa0uNZUXl8lIMJnSunjoD65ktqBedXZD0z2ZU3xKYYw=
-github.com/celestiaorg/rsmt2d v0.5.0/go.mod h1:EZ+O2KdCq8xI7WFwjATLdhtMdrdClmAs2w7zENDr010=
+github.com/celestiaorg/rsmt2d v0.6.0 h1:32Eq5t7lPNbhftPFFjxwCUeEjWg/yGgeMbshxnGw03c=
+github.com/celestiaorg/rsmt2d v0.6.0/go.mod h1:EZ+O2KdCq8xI7WFwjATLdhtMdrdClmAs2w7zENDr010=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/cenkalti/backoff/v4 v4.1.1 h1:G2HAfAmvm/GcKan2oOQpBXOd2tT2G57ZnZGWa1PxPBQ=

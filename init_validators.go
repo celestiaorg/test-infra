@@ -104,7 +104,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		for _, v := range accounts {
-			_, err := cmd.AddGenAccount(v, "1000000000000000utia", home)
+			_, err := cmd.AddGenAccount(v, "100000000000000000utia", home)
 			if err != nil {
 				return err
 			}
@@ -250,82 +250,41 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	go cmd.StartNode(home)
-
-	// wait for a new block to be produced
-	time.Sleep(60 * time.Second)
-
-	blockHeight := 2
-	bh, err := appkit.GetBlockHashByHeight(net.ParseIP("127.0.0.1"), blockHeight)
-
-	if err != nil {
-		return err
-	}
-	runenv.RecordMessage(bh)
-
-	_, err = client.Publish(ctx, testkit.BlockHashTopic, bh)
-	if err != nil {
-		return err
+	var loglvl string
+	if initCtx.GlobalSeq == 1 {
+		loglvl = "panic"
+	} else {
+		loglvl = "info"
 	}
 
-	blockHashCh := make(chan string)
-	sub, err = client.Subscribe(ctx, testkit.BlockHashTopic, blockHashCh)
-	if err != nil {
-		return err
-	}
+	go cmd.StartNode(home, loglvl)
 
-	for i := 0; i < runenv.TestInstanceCount; i++ {
-		select {
-		case err := <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case blockHash := <-blockHashCh:
-			runenv.RecordMessage(blockHash)
-			if bh != blockHash {
-				return fmt.Errorf("hashes for block#%d differs", blockHeight)
-			}
-		}
-	}
+	// // wait for a new block to be produced
+	time.Sleep(1 * time.Minute)
 
-	// we need to start randomizing pay for data namespace and messages
-	// messages size should be defined in the params of the test-case
-	// params should contain occurence of pfd too
-
-	// we need a mechanism in app to check what is the block size in the header?
-	// populate it here
-	// check that we can produce at least 10-20 blocks constantly with max block size
-
-	// change a flag for block timeout = 30-40 seconds?
-	//
-
-	for i := 0; i < 10; i++ {
-		runenv.RecordMessage("iterating from -> %d", i)
-		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
-		if err != nil {
-			runenv.RecordMessage("err in prev size call, %s", err.Error())
-		}
-
-		runenv.RecordMessage("prev size of the block is - %d", s)
-
-		time.Sleep(5 * time.Second)
+	// If all 3 validators submit pfd - it will take too long to produce a new block
+	if initCtx.GlobalSeq != 3 {
+		runenv.RecordMessage("Submitting PFD with 500k bytes random data")
 		err = cmd.PayForData(
 			accAddr,
-			100000,
+			500000,
 			"test",
 			chainId,
 			home,
 		)
 
 		fmt.Println(err)
-		// fmt.Println(out)
-
-		s, err = appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
 		if err != nil {
 			runenv.RecordMessage("err in last size call, %s", err.Error())
 		}
 
 		runenv.RecordMessage("latest size of the block is - %d", s)
+		runenv.RecordSuccess()
+	} else {
+		// rest are waiting until we have a new block - hopefully
+		time.Sleep(4 * time.Minute)
+		runenv.RecordSuccess()
 	}
 
 	return nil
