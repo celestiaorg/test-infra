@@ -93,11 +93,11 @@ func (ak *AppKit) GetNodeId(home string) (string, error) {
 	return ak.execCmd([]string{"tendermint", "show-node-id", "--home", home})
 }
 
-func (ak *AppKit) StartNode(home string) error {
+func (ak *AppKit) StartNode(home, loglvl string) error {
 	ak.Cmd.ResetFlags()
 
 	ak.Cmd.SetErr(os.Stdout)
-	ak.Cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
+	ak.Cmd.SetArgs([]string{"start", "--home", home, "--log_level", loglvl, "--log_format", "plain"})
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
@@ -106,8 +106,8 @@ func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, chainId, home st
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
 		"tx", "payment", "payForData", fmt.Sprint(msg),
-		"--from", accAdr, "-b", "block", "-y", "--gas", "auto",
-		"--fee", "100000utia",
+		"--from", accAdr, "-b", "block", "-y", "--gas", "1000000000",
+		"--fees", "100000000000utia", //15
 		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
 	})
 
@@ -177,6 +177,7 @@ func updateConfig(path, key, value string) error {
 	fmt.Println(viper.Get("mempool.max-txs-bytes"))
 	fmt.Println(viper.Get("mempool.max-tx-bytes"))
 	fmt.Println(viper.Get("mempool.size"))
+	fmt.Println(viper.Get("consensus.timeout-commit"))
 	fmt.Println("--------------------------------------")
 
 	viper.Set(key, value)
@@ -200,7 +201,10 @@ func AddPersistentPeers(path string, peers []string) error {
 		}
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
-
+	err := updateConfig(path, "consensus.timeout-commit", "30s")
+	if err != nil {
+		return err
+	}
 	return updateConfig(path, "p2p.persistent-peers", peersStr.String())
 }
 
