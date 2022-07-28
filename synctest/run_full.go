@@ -3,14 +3,11 @@ package synctest
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	logging "github.com/ipfs/go-log/v2"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -20,15 +17,13 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancel()
 
-	os.Setenv("GOLOG_OUTPUT", "stdout")
-	level, err := logging.LevelFromString("INFO")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
-	logs.SetAllLoggers(level)
 
-	client := initCtx.SyncClient
-	netclient := network.NewClient(client, runenv)
+	syncclient := initCtx.SyncClient
+	netclient := network.NewClient(syncclient, runenv)
 
 	netclient.MustWaitNetworkInitialized(ctx)
 
@@ -57,7 +52,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	bridgeTotalCh := make(chan int)
-	sub, err := client.Subscribe(ctx, testkit.BridgeTotalTopic, bridgeTotalCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.BridgeTotalTopic, bridgeTotalCh)
 	if err != nil {
 		return err
 	}
@@ -69,14 +64,14 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 	case bridgeTotal = <-bridgeTotalCh:
-		err = <-client.MustBarrier(ctx, testkit.BridgeStartedState, bridgeTotal).C
+		err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, bridgeTotal).C
 		if err != nil {
 			return err
 		}
 	}
 
 	bridgeCh := make(chan *testkit.BridgeNodeInfo)
-	sub, err = client.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
+	sub, err = syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
 	if err != nil {
 		return err
 	}
@@ -96,7 +91,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 			}
 		}
-		return nil, fmt.Errorf("nothing happened for full node")
+		return nil,
+			fmt.Errorf("no bridge address has been sent to this full node to connect to")
 	}(bridgeTotal)
 
 	if err != nil {
@@ -130,17 +126,17 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 	runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordSuccess()
 
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}
 
-	_, err = client.SignalEntry(ctx, testkit.FinishState)
+	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}
 
-	return nil
-
+	return err
 }

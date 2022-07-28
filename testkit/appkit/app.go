@@ -124,7 +124,6 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 		return "", err
 	}
 
-	fmt.Println(resBlock.BlockID.Hash.String())
 	return resBlock.BlockID.Hash.String(), nil
 }
 

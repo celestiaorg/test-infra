@@ -38,8 +38,7 @@ var (
 	BridgeNodeTopic  = sync.NewTopic("bridge-info", &BridgeNodeInfo{})
 )
 
-// FinishState should be signaled by those, againts whom we are
-// testing upon
+// FinishState should be signaled by those, againts which we are testing
 var (
 	AppStartedState    = sync.State("app-started")
 	BridgeStartedState = sync.State("bridge-started")

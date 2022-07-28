@@ -21,8 +21,8 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
 
-	client := initCtx.SyncClient
-	netclient := network.NewClient(client, runenv)
+	syncclient := initCtx.SyncClient
+	netclient := network.NewClient(syncclient, runenv)
 
 	netclient.MustWaitNetworkInitialized(ctx)
 
@@ -61,7 +61,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = client.Publish(ctx, testkit.AccountAddressTopic, accAddr)
+	_, err = syncclient.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	const chainId string = "tia-test"
 	if initCtx.GroupSeq == 1 {
 		accAddrCh := make(chan string)
-		_, err = client.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
+		_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 		if err != nil {
 			return err
 		}
@@ -110,7 +110,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, err = client.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
+		_, err = syncclient.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
 		if err != nil {
 			return err
 		}
@@ -118,7 +118,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
 	} else {
 		initGenCh := make(chan string)
-		sub, err := client.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
+		sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
 		if err != nil {
 			return err
 		}
@@ -157,7 +157,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, err = client.Publish(ctx, testkit.GenesisTxTopic, string(bt))
+		_, err = syncclient.Publish(ctx, testkit.GenesisTxTopic, string(bt))
 		if err != nil {
 			return err
 		}
@@ -165,7 +165,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	genTxCh := make(chan string)
-	sub, err := client.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = client.Publish(
+	_, err = syncclient.Publish(
 		ctx,
 		testkit.AppNodeTopic,
 		&testkit.AppNodeInfo{
@@ -227,7 +227,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// RPC is also being initialized...
 	time.Sleep(30 * time.Second)
 
-	_, err = client.SignalEntry(ctx, testkit.AppStartedState)
+	_, err = syncclient.SignalEntry(ctx, testkit.AppStartedState)
 	if err != nil {
 		return err
 	}
@@ -235,10 +235,6 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// testableInstances are full and light nodes. We are multiplying app's
 	// by 2 as we have ratio on 1 app per 1 bridge node
 	testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
-	err = <-client.MustBarrier(ctx, testkit.FinishState, testableInstances).C
-	if err != nil {
-		return err
-	}
-
-	return nil
+	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, testableInstances).C
+	return err
 }

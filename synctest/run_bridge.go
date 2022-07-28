@@ -3,12 +3,8 @@ package synctest
 import (
 	"context"
 	"fmt"
-	"os"
 	"time"
 
-	logging "github.com/ipfs/go-log/v2"
-
-	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
@@ -24,15 +20,13 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancel()
 
-	os.Setenv("GOLOG_OUTPUT", "stdout")
-	level, err := logging.LevelFromString("INFO")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
-	logs.SetAllLoggers(level)
 
-	client := initCtx.SyncClient
-	netclient := network.NewClient(client, runenv)
+	syncclient := initCtx.SyncClient
+	netclient := network.NewClient(syncclient, runenv)
 
 	netclient.MustWaitNetworkInitialized(ctx)
 
@@ -61,19 +55,19 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	if initCtx.GroupSeq == 1 {
-		_, err = client.Publish(ctx, testkit.BridgeTotalTopic, runenv.TestGroupInstanceCount)
+		_, err = syncclient.Publish(ctx, testkit.BridgeTotalTopic, runenv.TestGroupInstanceCount)
 		if err != nil {
 			return err
 		}
 	}
 
-	err = <-client.MustBarrier(ctx, testkit.AppStartedState, int(initCtx.GroupSeq)).C
+	err = <-syncclient.MustBarrier(ctx, testkit.AppStartedState, int(initCtx.GroupSeq)).C
 	if err != nil {
 		return err
 	}
 
 	appInfoCh := make(chan *testkit.AppNodeInfo)
-	sub, err := client.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
 	if err != nil {
 		return err
 	}
@@ -91,7 +85,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				}
 			}
 		}
-		return nil, fmt.Errorf("nothing has been done for bridge node")
+		return nil, fmt.Errorf("no app has been sent for this bridge to connect to remotely")
 	}(runenv.TestGroupInstanceCount)
 
 	if err != nil {
@@ -118,7 +112,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	nd.Start(ctx)
+	err = nd.Start(ctx)
 	if err != nil {
 		return err
 	}
@@ -139,17 +133,17 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
 	runenv.RecordMessage("Publishing bridgeID Addr %s", addrs[0].String())
 
-	_, err = client.SignalEntry(ctx, testkit.BridgeStartedState)
+	_, err = syncclient.SignalEntry(ctx, testkit.BridgeStartedState)
 	if err != nil {
 		return err
 	}
 
-	err = <-client.MustBarrier(ctx, testkit.BridgeStartedState, runenv.TestGroupInstanceCount).C
+	err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, runenv.TestGroupInstanceCount).C
 	if err != nil {
 		return err
 	}
 
-	_, err = client.Publish(
+	_, err = syncclient.Publish(
 		ctx,
 		testkit.BridgeNodeTopic,
 		&testkit.BridgeNodeInfo{
@@ -165,15 +159,10 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// testableInstances are full and light nodes. We are multiplying bridge's
 	// by 2 as we have ratio on 1 app per 1 bridge node
 	testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
-	err = <-client.MustBarrier(ctx, testkit.FinishState, testableInstances).C
+	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, testableInstances).C
 	if err != nil {
 		return err
 	}
 
-	err = nd.Stop(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return nd.Stop(ctx)
 }

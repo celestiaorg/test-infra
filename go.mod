@@ -20,6 +20,7 @@ require (
 	github.com/libp2p/go-libp2p-core v0.17.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
+	github.com/tendermint/tendermint v0.35.4
 	github.com/testground/sdk-go v0.3.0
 )
 
@@ -245,7 +246,6 @@ require (
 	github.com/tendermint/btcd v0.1.1 // indirect
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tendermint/tendermint v0.35.4 // indirect
 	github.com/tendermint/tm-db v0.6.7 // indirect
 	github.com/testground/sync-service v0.1.0 // indirect
 	github.com/testground/testground v0.5.3 // indirect
