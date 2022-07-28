@@ -10,7 +10,7 @@ import (
 func syncNodes(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	var err error
 
-	switch in := runenv.TestGroupID; in {
+	switch runenv.TestGroupID {
 	case "app":
 		err = synctest.RunAppValidator(runenv, initCtx)
 	case "bridge":
