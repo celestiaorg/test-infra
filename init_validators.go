@@ -263,11 +263,11 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	time.Sleep(1 * time.Minute)
 
 	// If all 3 validators submit pfd - it will take too long to produce a new block
-	if initCtx.GlobalSeq != 3 {
+	if initCtx.GlobalSeq == 1 {
 		runenv.RecordMessage("Submitting PFD with 500k bytes random data")
 		err = cmd.PayForData(
 			accAddr,
-			500000,
+			650000,
 			"test",
 			chainId,
 			home,
