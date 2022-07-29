@@ -3,9 +3,12 @@ package nodekit
 import (
 	"fmt"
 	"net"
+	"os"
 
+	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
 	"github.com/celestiaorg/celestia-node/params"
+	logging "github.com/ipfs/go-log/v2"
 )
 
 func NewNode(path string, tp node.Type, IP net.IP, trustedHash string, options ...node.Option) (*node.Node, error) {
@@ -24,4 +27,15 @@ func NewNode(path string, tp node.Type, IP net.IP, trustedHash string, options .
 
 	options = append([]node.Option{node.WithConfig(cfg), node.WithNetwork(params.Private), node.WithTrustedHash(trustedHash)}, options...)
 	return node.New(tp, store, options...)
+}
+
+func SetLoggersLevel(lvl string) error {
+	os.Setenv("GOLOG_OUTPUT", "stdout")
+	level, err := logging.LevelFromString(lvl)
+	if err != nil {
+		return err
+	}
+	logs.SetAllLoggers(level)
+
+	return nil
 }

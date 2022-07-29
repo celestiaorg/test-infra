@@ -2,7 +2,6 @@ package appkit
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net"
@@ -15,7 +14,9 @@ import (
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	tmjson "github.com/tendermint/tendermint/libs/json"
 	"github.com/tendermint/tendermint/rpc/coretypes"
+	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
@@ -113,11 +114,17 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 		return "", err
 	}
 
-	var res coretypes.ResultBlock
-	if err := json.Unmarshal(body, &res); err != nil {
+	var rpcResponse types.RPCResponse
+	if err := rpcResponse.UnmarshalJSON(body); err != nil {
 		return "", err
 	}
-	return res.BlockID.Hash.String(), nil
+
+	var resBlock coretypes.ResultBlock
+	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
+		return "", err
+	}
+
+	return resBlock.BlockID.Hash.String(), nil
 }
 
 func updateConfig(path, key, value string) error {
@@ -163,4 +170,8 @@ func AddPersistentPeers(path string, peers []string) error {
 // c) Seed - Only crawls the p2p network to find and share peers with each other
 func ChangeNodeMode(path string, mode string) error {
 	return updateConfig(path, "mode", mode)
+}
+
+func ChangeRPCServerAddress(path string, ip net.IP) error {
+	return updateConfig(path, "rpc.laddr", fmt.Sprintf("tcp://%s:26657", ip.To4().String()))
 }
