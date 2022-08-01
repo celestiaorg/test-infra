@@ -176,10 +176,10 @@ func updateConfig(path, key, value string) error {
 	}
 
 	fmt.Println("--------------------------------------")
-	fmt.Println(viper.Get("mempool.max-txs-bytes"))
-	fmt.Println(viper.Get("mempool.max-tx-bytes"))
+	fmt.Println(viper.Get("mempool.max_txs_bytes"))
+	fmt.Println(viper.Get("mempool.max_tx_bytes"))
 	fmt.Println(viper.Get("mempool.size"))
-	fmt.Println(viper.Get("consensus.timeout-commit"))
+	fmt.Println(viper.Get("consensus.timeout_commit"))
 	fmt.Println("--------------------------------------")
 
 	viper.Set(key, value)
@@ -203,11 +203,11 @@ func AddPersistentPeers(path string, peers []string) error {
 		}
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
-	err := updateConfig(path, "consensus.timeout-commit", "30s")
+	err := updateConfig(path, "consensus.timeout_commit", "30s")
 	if err != nil {
 		return err
 	}
-	return updateConfig(path, "p2p.persistent-peers", peersStr.String())
+	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
 }
 
 // ChangeNodeMode changes the mode type in config.toml of the app to either be:

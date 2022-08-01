@@ -20,7 +20,6 @@ require (
 	github.com/libp2p/go-libp2p-core v0.17.0
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/viper v1.12.0
-	// github.com/tendermint/tendermint v0.35.2
 	github.com/testground/sdk-go v0.3.0
 )
 

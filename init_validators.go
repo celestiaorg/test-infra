@@ -283,7 +283,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordSuccess()
 	// } else {
 	// rest are waiting until we have a new block - hopefully
-	time.Sleep(10 * time.Minute)
+	time.Sleep(3 * time.Minute)
 	runenv.RecordSuccess()
 	// }
 
