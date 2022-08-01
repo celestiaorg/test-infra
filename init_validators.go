@@ -263,29 +263,29 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	time.Sleep(1 * time.Minute)
 
 	// If all 3 validators submit pfd - it will take too long to produce a new block
-	if initCtx.GlobalSeq == 1 {
-		runenv.RecordMessage("Submitting PFD with 500k bytes random data")
-		err = cmd.PayForData(
-			accAddr,
-			650000,
-			"test",
-			chainId,
-			home,
-		)
+	// if initCtx.GlobalSeq == 1 {
+	runenv.RecordMessage("Submitting PFD with 500k bytes random data")
+	err = cmd.PayForData(
+		accAddr,
+		90000,
+		"test",
+		chainId,
+		home,
+	)
 
-		fmt.Println(err)
-		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
-		if err != nil {
-			runenv.RecordMessage("err in last size call, %s", err.Error())
-		}
-
-		runenv.RecordMessage("latest size of the block is - %d", s)
-		runenv.RecordSuccess()
-	} else {
-		// rest are waiting until we have a new block - hopefully
-		time.Sleep(4 * time.Minute)
-		runenv.RecordSuccess()
+	fmt.Println(err)
+	s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+	if err != nil {
+		runenv.RecordMessage("err in last size call, %s", err.Error())
 	}
+
+	runenv.RecordMessage("latest size of the block is - %d", s)
+	runenv.RecordSuccess()
+	// } else {
+	// rest are waiting until we have a new block - hopefully
+	time.Sleep(10 * time.Minute)
+	runenv.RecordSuccess()
+	// }
 
 	return nil
 }
