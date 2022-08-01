@@ -17,7 +17,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/rpc/core"
+	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
 
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
@@ -116,26 +116,26 @@ func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, chainId, home st
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func getResultBlockResponse(uri string) (core.ResultBlock, error) {
+func getResultBlockResponse(uri string) (coretypes.ResultBlock, error) {
 	resp, err := http.Get(uri)
 	if err != nil {
-		return core.ResultBlock{}, err
+		return coretypes.ResultBlock{}, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return core.ResultBlock{}, err
+		return coretypes.ResultBlock{}, err
 	}
 
 	var rpcResponse types.RPCResponse
 	if err := rpcResponse.UnmarshalJSON(body); err != nil {
-		return core.ResultBlock{}, err
+		return coretypes.ResultBlock{}, err
 	}
 
-	var resBlock core.ResultBlock
+	var resBlock coretypes.ResultBlock
 	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
-		return core.ResultBlock{}, err
+		return coretypes.ResultBlock{}, err
 	}
 
 	return resBlock, nil
