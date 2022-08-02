@@ -40,8 +40,8 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Latency:   100 * time.Millisecond,
-			Bandwidth: 1 << 20, // 1Mib
+			// Latency:   100 * time.Millisecond,
+			// Bandwidth: 3 << 25, // ~100Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
@@ -250,40 +250,48 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	var loglvl string
-	if initCtx.GlobalSeq == 1 {
-		loglvl = "panic"
-	} else {
-		loglvl = "info"
-	}
+	// var loglvl string
+	// if initCtx.GlobalSeq == 1 {
+	// 	loglvl = "panic"
+	// } else {
+	// 	loglvl = "info"
+	// }
 
-	go cmd.StartNode(home, loglvl)
+	go cmd.StartNode(home, "info")
 
 	// // wait for a new block to be produced
 	time.Sleep(1 * time.Minute)
 
 	// If all 3 validators submit pfd - it will take too long to produce a new block
-	if initCtx.GlobalSeq == 1 {
-		runenv.RecordMessage("Submitting PFD with 500k bytes random data")
+	for i := 0; i < 10; i++ {
+		runenv.RecordMessage("Submitting PFD with 10k bytes random data")
 		err = cmd.PayForData(
 			accAddr,
-			100000,
+			500000,
 			"test",
 			chainId,
 			home,
 		)
 
-		fmt.Println(err)
-		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
 		if err != nil {
-			runenv.RecordMessage("err in last size call, %s", err.Error())
+			runenv.RecordFailure(err)
+			return err
 		}
+		go func() {
+			s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+			if err != nil {
+				runenv.RecordMessage("err in last size call, %s", err.Error())
+			}
 
-		runenv.RecordMessage("latest size of the block is - %d", s)
-		runenv.RecordSuccess()
+			runenv.RecordMessage("latest size of the block is - %d", s)
+		}()
+		// time.Sleep(10 * time.Second)
 	}
+
+	// runenv.RecordSuccess()
+	// }
 	// rest are waiting until we have a new block - hopefully
-	time.Sleep(3 * time.Minute)
+	time.Sleep(30 * time.Second)
 	runenv.RecordSuccess()
 	// }
 

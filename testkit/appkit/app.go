@@ -203,10 +203,39 @@ func AddPersistentPeers(path string, peers []string) error {
 		}
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
-	err := updateConfig(path, "consensus.timeout_commit", "30s")
+
+	err := updateConfig(path, "consensus.timeout_propose", "3s")
 	if err != nil {
 		return err
 	}
+
+	err = updateConfig(path, "consensus.timeout_prevote", "1s")
+	if err != nil {
+		return err
+	}
+	err = updateConfig(path, "consensus.timeout_precommit", "1s")
+	if err != nil {
+		return err
+	}
+
+	err = updateConfig(path, "consensus.timeout_commit", "30s")
+	if err != nil {
+		return err
+	}
+
+	err = updateConfig(path, "rpc.timeout_broadcast_tx_commit", "60s")
+	if err != nil {
+		return err
+	}
+	err = updateConfig(path, "rpc.max_body_bytes", "1000000")
+	if err != nil {
+		return err
+	}
+	err = updateConfig(path, "rpc.max_header_bytes", "1048576")
+	if err != nil {
+		return err
+	}
+	//
 	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
 }
 
