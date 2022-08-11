@@ -50,6 +50,10 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
+	err = os.Mkdir(home, 0777)
+	if err != nil {
+		return err
+	}
 
 	err = <-client.MustBarrier(ctx, testkit.FinalGenesisState, 1).C
 	if err != nil {

@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "init-val"
-  total_instances = 21
+  total_instances = 20
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -17,7 +17,7 @@
     memory = "4Gi"
     cpu = "2"
   [groups.instances]
-    count = 20
+    count = 19
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"
