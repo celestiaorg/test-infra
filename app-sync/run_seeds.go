@@ -53,7 +53,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	cmd := appkit.New()
 
-	_, err = cmd.InitChain("seed", "tia-test", home)
+	nodeId, err := cmd.GetNodeId(home)
 	if err != nil {
 		return err
 	}
@@ -87,10 +87,6 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	nodeId, err := cmd.GetNodeId(home)
-	if err != nil {
-		return err
-	}
 	_, err = client.Publish(
 		ctx,
 		testkit.ValidatorPeerTopic,
