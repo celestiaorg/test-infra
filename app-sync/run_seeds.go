@@ -50,7 +50,10 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
-	err = os.Mkdir(home, 0777)
+
+	cmd := appkit.New()
+
+	_, err = cmd.InitChain("seed", "tia-test", home)
 	if err != nil {
 		return err
 	}
@@ -59,8 +62,6 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-
-	cmd := appkit.New()
 
 	initGenCh := make(chan string)
 	sub, err := client.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
@@ -73,10 +74,6 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 	case initGen := <-initGenCh:
-		err = os.Mkdir(fmt.Sprintf("%s/config", home), 0777)
-		if err != nil {
-			return err
-		}
 		err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
 		if err != nil {
 			return err
