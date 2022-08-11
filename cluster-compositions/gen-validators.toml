@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "init-val"
-  total_instances = 13
+  total_instances = 21
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -14,10 +14,28 @@
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
-    memory = "8Gi"
-    cpu = "4"
+    memory = "4Gi"
+    cpu = "2"
   [groups.instances]
-    count = 13
+    count = 20
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.18.3"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.18"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+
+[[groups]]
+  id = "seed"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "2Gi"
+    cpu = "2"
+  [groups.instances]
+    count = 1
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"

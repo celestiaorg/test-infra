@@ -43,4 +43,5 @@ var (
 	AppStartedState    = sync.State("app-started")
 	BridgeStartedState = sync.State("bridge-started")
 	FinishState        = sync.State("test-finished")
+	FinalGenesisState  = sync.State("final-genesis")
 )

@@ -14,13 +14,12 @@ import (
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
 	"github.com/celestiaorg/celestia-core/pkg/consts"
 	"github.com/celestiaorg/nmt/namespace"
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 type ValidatorNode struct {
@@ -163,7 +162,7 @@ func GetLatestsBlockSize(ip net.IP) (int, error) {
 	return resBlock.Block.Size(), nil
 }
 
-func updateConfig(path, key, value string) error {
+func updateConfig(path, key string, value interface{}) error {
 	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
 	if err != nil {
 		return err
@@ -175,13 +174,6 @@ func updateConfig(path, key, value string) error {
 		return err
 	}
 
-	fmt.Println("--------------------------------------")
-	fmt.Println(viper.Get("mempool.max_txs_bytes"))
-	fmt.Println(viper.Get("mempool.max_tx_bytes"))
-	fmt.Println(viper.Get("mempool.size"))
-	fmt.Println(viper.Get("consensus.timeout_commit"))
-	fmt.Println("--------------------------------------")
-
 	viper.Set(key, value)
 	err = viper.WriteConfigAs(path)
 	if err != nil {
@@ -189,6 +181,19 @@ func updateConfig(path, key, value string) error {
 	}
 
 	return nil
+}
+
+func AddSeedPeers(path string, peers []string) error {
+	var peersStr bytes.Buffer
+	var port int = 26656
+	var separator string = ","
+	for k, peer := range peers {
+		if k == (len(peers) - 1) {
+			separator = ""
+		}
+		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
+	}
+	return updateConfig(path, "p2p.seeds", peersStr.String())
 }
 
 // AddPersistentPeers modifies the respective field in the config.toml
@@ -239,12 +244,9 @@ func AddPersistentPeers(path string, peers []string) error {
 	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
 }
 
-// ChangeNodeMode changes the mode type in config.toml of the app to either be:
-// a) Full - Downloads the block but not produces any new ones
-// b) Validator
-// c) Seed - Only crawls the p2p network to find and share peers with each other
-func ChangeNodeMode(path string, mode string) error {
-	return updateConfig(path, "mode", mode)
+func ChangeConfigParam(path, section, mode string, value interface{}) error {
+	field := fmt.Sprintf("%s.%s", section, mode)
+	return updateConfig(path, field, value)
 }
 
 func ChangeRPCServerAddress(path string, ip net.IP) error {
