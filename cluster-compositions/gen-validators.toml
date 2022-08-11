@@ -29,7 +29,7 @@
     artifact = ""
 
 [[groups]]
-  id = "seed"
+  id = "seeds"
   builder = "docker:generic"
   [groups.resources]
     memory = "2Gi"

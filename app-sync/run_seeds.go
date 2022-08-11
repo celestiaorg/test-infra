@@ -69,6 +69,10 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 	case initGen := <-initGenCh:
+		err = os.Mkdir(fmt.Sprintf("%s/config", home), 0777)
+		if err != nil {
+			return err
+		}
 		err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
 		if err != nil {
 			return err
