@@ -15,6 +15,7 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
+// TODO(@Bidon15): seed nodes are not working as expected
 func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()

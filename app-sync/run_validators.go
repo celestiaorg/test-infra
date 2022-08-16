@@ -31,8 +31,10 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			// Latency:   100 * time.Millisecond,
-			Bandwidth: 4 << 26, // 256Mib
+			// Latency: 100 * time.Millisecond,
+			// Bandwidth: 4 << 26, // 256Mib
+			Bandwidth: 5 << 26, // 320Mib
+			// Bandwidth: 4 << 27, // 512Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
@@ -51,7 +53,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(home)
 
 	cmd := appkit.New()
@@ -73,7 +75,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// execute the `add-genesis-account` command and send back to the rest
 	// of the validators to set the initial genesis.json
 	const chainId string = "tia-test"
-	if initCtx.GroupSeq == 1 {
+	if initCtx.GlobalSeq == 1 {
 		accAddrCh := make(chan string)
 		_, err = client.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 		if err != nil {
@@ -171,7 +173,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+	for i := 0; i < runenv.TestInstanceCount; i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
@@ -192,68 +194,61 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	if initCtx.GroupSeq == 1 {
-		client.MustSignalEntry(ctx, testkit.FinalGenesisState)
-
-		gen, err := os.Open(fmt.Sprintf("%s/config/genesis.json", home))
-		if err != nil {
-			return err
-		}
-
-		bt, err := ioutil.ReadAll(gen)
-		if err != nil {
-			return err
-		}
-
-		_, err = client.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
-		if err != nil {
-			return err
-		}
-	}
-
-	runenv.RecordMessage("starting........")
-
-	// nodeId, err := cmd.GetNodeId(home)
-	// if err != nil {
-	// 	return err
-	// }
-	// _, err = client.Publish(
-	// 	ctx,
-	// 	testkit.ValidatorPeerTopic,
-	// 	&appkit.ValidatorNode{
-	// 		PubKey: nodeId,
-	// 		IP:     config.IPv4.IP},
-	// )
-	// if err != nil {
-	// 	return err
-	// }
-
-	valCh := make(chan *appkit.ValidatorNode)
-	sub, err = client.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
-	if err != nil {
-		return err
-	}
-
-	var persPeers []string
-	for i := 0; i < runenv.TestInstanceCount-runenv.TestGroupInstanceCount; i++ {
-		select {
-		case err = <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case val := <-valCh:
-			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
-			if !val.IP.Equal(config.IPv4.IP) {
-				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
-			}
-		}
-	}
-
 	configPath := filepath.Join(home, "config", "config.toml")
-	err = appkit.AddSeedPeers(configPath, persPeers)
+
+	if initCtx.GlobalSeq <= 10 {
+		nodeId, err := cmd.GetNodeId(home)
+		if err != nil {
+			return err
+		}
+		// err = appkit.ChangeConfigParam(configPath, "p2p", "seed_mode", true)
+		// if err != nil {
+		// 	return err
+		// }
+
+		_, err = client.Publish(
+			ctx,
+			testkit.ValidatorPeerTopic,
+			&appkit.ValidatorNode{
+				PubKey: nodeId,
+				IP:     config.IPv4.IP},
+		)
+		if err != nil {
+			return err
+		}
+	} else {
+		valCh := make(chan *appkit.ValidatorNode)
+		sub, err = client.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+		if err != nil {
+			return err
+		}
+
+		var persPeers []string
+		for i := 0; i < 10; i++ {
+			select {
+			case err = <-sub.Done():
+				if err != nil {
+					return err
+				}
+			case val := <-valCh:
+				runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+				if !val.IP.Equal(config.IPv4.IP) {
+					persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+				}
+
+				err = appkit.AddPersistentPeers(configPath, persPeers)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	err = appkit.ChangeConfigParam(configPath, "p2p", "external_address", fmt.Sprintf("%s:26656", config.IPv4.IP.To4().String()))
 	if err != nil {
 		return err
 	}
+	runenv.RecordMessage("starting........")
 
 	err = changeConfig(configPath)
 	if err != nil {
@@ -266,10 +261,10 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	// If all 3 validators submit pfd - it will take too long to produce a new block
 	for i := 0; i < 10; i++ {
-		runenv.RecordMessage("Submitting PFD with 220k bytes random data")
+		runenv.RecordMessage("Submitting PFD with 90k bytes random data")
 		err = cmd.PayForData(
 			accAddr,
-			220000,
+			50000,
 			"test",
 			chainId,
 			home,
@@ -308,7 +303,7 @@ func changeConfig(path string) error {
 			"timeout_commit":    "30s",
 		},
 		"rpc": {
-			"timeout_broadcast_tx_commit": "60s",
+			"timeout_broadcast_tx_commit": "90s",
 			"max_body_bytes":              "1000000",
 			"max_header_bytes":            "1048576",
 		},
