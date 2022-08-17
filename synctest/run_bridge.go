@@ -99,15 +99,14 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("Block#1 Hash: %s", h)
 
 	ndhome := fmt.Sprintf("/.celestia-bridge-%d", initCtx.GroupSeq)
-	rc := fmt.Sprintf("%s:26657", appNode.IP.To4().String())
-	runenv.RecordMessage(rc)
+	runenv.RecordMessage(appNode.IP.To4().String())
 
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
 
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h, node.WithRemoteCoreIP(rc), node.WithRemoteCorePort("26657"))
+	nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h, node.WithRemoteCoreIP(appNode.IP.To4().String()), node.WithRemoteCorePort("26657"))
 	if err != nil {
 		return err
 	}
