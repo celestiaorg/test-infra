@@ -91,8 +91,8 @@ github.com/Bidon15/celestia-node v0.4.0-dirty h1:FA3Lsla3tO96gJ0Ao+XEpt1F9BbsCTk
 github.com/Bidon15/celestia-node v0.4.0-dirty/go.mod h1:CLC8cY3P2spLDBSB+awpRwNYvqc4uYOIl2g7b1CB0K8=
 github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0 h1:rpLt48XTOb+xu4HfXXKSzeI3ZaGnaHnNwrGP08S06Hs=
 github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0/go.mod h1:OXRC0p460CFKl77uQZWY/8p5uZmDrNum7BmVZDupq0Q=
-github.com/Bidon15/lazyledger-app v1.4.0-dirty-app h1:/vdDwjFlzfxwqik/2u3nC1wjP1Cqo1c/uUra/epZ/9M=
-github.com/Bidon15/lazyledger-app v1.4.0-dirty-app/go.mod h1:pAIMoZKf9Mw3FVvZgARgpWDtXPF7KK2IO18KGzI/i5g=
+github.com/Bidon15/lazyledger-app v1.4.1-dirty-app h1:kqC8i3IlBK5if624kKF0krKpe17XcmTwvsKXZvp0ULE=
+github.com/Bidon15/lazyledger-app v1.4.1-dirty-app/go.mod h1:44uDT9LPUrPlh1z1YW16uSK+2DXID1RfELcshH121js=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.2.0 h1:Rt8g24XnyGTyglgET/PRUNlrUeu9F5L+7FilkXfZgs0=
 github.com/BurntSushi/toml v1.2.0/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
@@ -217,34 +217,16 @@ github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
-<<<<<<< HEAD
-github.com/celestiaorg/celestia-core v1.2.4-tm-v0.35.6 h1:vKYvdlHpmWDcDP+jKfU64oEp2H74jAWJxCDjTHlXYSs=
-github.com/celestiaorg/celestia-core v1.2.4-tm-v0.35.6/go.mod h1:4J51zu8jaHB7vlgwfKC1eyGKpRP3C0REiipTwPPfvCE=
-github.com/celestiaorg/celestia-node v0.3.0-rc2.0.20220708155920-0374d4fdcefd h1:PMjDNm9C3gw8hqBEkxAiw0Cb8lv3tLXxWTXJfYXY/5g=
-github.com/celestiaorg/celestia-node v0.3.0-rc2.0.20220708155920-0374d4fdcefd/go.mod h1:yze8VOph0tPoHfs/dKOXnz/Jfxyq0nGoDIpLIZNLpwg=
-github.com/celestiaorg/go-leopard v0.1.0 h1:28z2EkvKJIez5J9CEaiiUEC+OxalRLtTGJJ1oScfE1g=
-github.com/celestiaorg/go-leopard v0.1.0/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
-github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
-github.com/celestiaorg/go-libp2p-messenger v0.1.0/go.mod h1:XzNksXrH0VxuNRGOnjPL9Ck4UyQlbmMpCYg9YwSBerI=
-github.com/celestiaorg/go-libp2p-pubsub v0.6.2-0.20220628100036-657948473f1f h1:jS/yGji/w6ddoSEd6cAwoV3jycdKIg9mJ7avwoiMCk0=
-github.com/celestiaorg/go-libp2p-pubsub v0.6.2-0.20220628100036-657948473f1f/go.mod h1:EuyBJFtF8qF67IEA98biwK8Xnw5MNJpJ/Z+8iWCMFwc=
-github.com/celestiaorg/go-verifcid v0.0.1-lazypatch h1:9TSe3w1cmJmbWlweCwCTIZkan7jV8M+KwglXpdD+UG8=
-github.com/celestiaorg/go-verifcid v0.0.1-lazypatch/go.mod h1:kXPYu0XqTNUKWA1h3M95UHjUqBzDwXVVt/RXZDjKJmQ=
-=======
 github.com/celestiaorg/celestia-core v1.3.0-tm-v0.34.20 h1:Mq/3VB22g1iunaHBIsH2mD0Y/Pm34q6xxokKeHkXCD8=
 github.com/celestiaorg/celestia-core v1.3.0-tm-v0.34.20/go.mod h1:bFyLvRuHAPewkGy4WazXJhfYhdV4u79iuoYaeNL3EO4=
-github.com/celestiaorg/go-leopard v0.1.0 h1:28z2EkvKJIez5J9CEaiiUEC+OxalRLtTGJJ1oScfE1g=
-github.com/celestiaorg/go-leopard v0.1.0/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
-<<<<<<< HEAD
->>>>>>> chore: adapt to temp downgrade
-=======
+github.com/celestiaorg/celestia-core v1.3.1-tm-v0.34.20 h1:/kcfjyOXA6QoJbyVT0LM2I9WeCQHEoPVWJ/MYz+S/r4=
+github.com/celestiaorg/celestia-core v1.3.1-tm-v0.34.20/go.mod h1:bFyLvRuHAPewkGy4WazXJhfYhdV4u79iuoYaeNL3EO4=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0/go.mod h1:XzNksXrH0VxuNRGOnjPL9Ck4UyQlbmMpCYg9YwSBerI=
 github.com/celestiaorg/go-libp2p-pubsub v0.6.2-0.20220812132010-46b2a019f2f2 h1:Tb1lPVAGSJvBjRCM7YpC+VaITzdZjjno4+KEnbPT6tU=
 github.com/celestiaorg/go-libp2p-pubsub v0.6.2-0.20220812132010-46b2a019f2f2/go.mod h1:y+eARQ8AoaWpe0mlz3/uYKdl+GhFOtIxjG5xeek2kbM=
 github.com/celestiaorg/go-verifcid v0.0.1-lazypatch h1:9TSe3w1cmJmbWlweCwCTIZkan7jV8M+KwglXpdD+UG8=
 github.com/celestiaorg/go-verifcid v0.0.1-lazypatch/go.mod h1:kXPYu0XqTNUKWA1h3M95UHjUqBzDwXVVt/RXZDjKJmQ=
->>>>>>> chore: revert back celestia-node part
 github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 h1:CJdIpo8n5MFP2MwK0gSRcOVlDlFdQJO1p+FqdxYzmvc=
 github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4/go.mod h1:fzuHnhzj1pUygGz+1ZkB3uQbEUL4htqCGJ4Qs2LwMZA=
 github.com/celestiaorg/nmt v0.10.0 h1:HLfVWvpagHz5+uiE0QSjzv350wLhhnybNmrxq9NHLKc=
@@ -333,7 +315,6 @@ github.com/cosmos/cosmos-proto v1.0.0-alpha7 h1:yqYUOHF2jopwZh4dVQp3xgqwftE5/2hk
 github.com/cosmos/cosmos-proto v1.0.0-alpha7/go.mod h1:dosO4pSAbJF8zWCzCoTWP7nNsjcvSUBQmniFxDg5daw=
 github.com/cosmos/cosmos-sdk/api v0.1.0 h1:xfSKM0e9p+EJTMQnf5PbWE6VT8ruxTABIJ64Rd064dE=
 github.com/cosmos/cosmos-sdk/api v0.1.0/go.mod h1:CupqQBskAOiTXO1XDZ/wrtWzN/wTxUvbQmOqdUhR8wI=
-github.com/cosmos/cosmos-sdk/errors v1.0.0-beta.3 h1:Ep7FHNViVwwGnwLFEPewZYsyN2CJNVMmMvFmtNQtbnw=
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
 github.com/cosmos/go-bip39 v1.0.0/go.mod h1:RNJv0H/pOIVgxw6KS7QeX2a0Uo0aKUlfhZ4xuwvCdJw=
