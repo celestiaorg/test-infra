@@ -107,7 +107,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h, node.WithRemoteCore("tcp", rc))
+	nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h, node.WithRemoteCoreIP(rc))
 	if err != nil {
 		return err
 	}
