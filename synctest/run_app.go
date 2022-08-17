@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"net"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -189,16 +191,16 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// configPath := filepath.Join(home, "config", "config.toml")
+	configPath := filepath.Join(home, "config", "config.toml")
 	// err = appkit.ChangeNodeMode(configPath, "validator")
 	// if err != nil {
 	// 	return err
 	// }
 
-	// err = appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
-	// if err != nil {
-	// 	return err
-	// }
+	err = appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
+	if err != nil {
+		return err
+	}
 
 	runenv.RecordMessage("publishing app-validator address")
 	ip, err := initCtx.NetClient.GetDataNetworkIP()

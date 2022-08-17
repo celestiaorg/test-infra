@@ -211,6 +211,10 @@ func AddPersistentPeers(path string, peers []string) error {
 	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
 }
 
+func ChangeRPCServerAddress(path string, ip net.IP) error {
+	return updateConfig(path, "rpc.laddr", fmt.Sprintf("tcp://%s:26657", ip.To4().String()))
+}
+
 func ChangeConfigParam(path, section, mode string, value interface{}) error {
 	field := fmt.Sprintf("%s.%s", section, mode)
 	return updateConfig(path, field, value)
