@@ -192,11 +192,6 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	configPath := filepath.Join(home, "config", "config.toml")
-	// err = appkit.ChangeNodeMode(configPath, "validator")
-	// if err != nil {
-	// 	return err
-	// }
-
 	err = appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
 	if err != nil {
 		return err
@@ -231,7 +226,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	// wait for a new block to be produced
 	// RPC is also being initialized...
-	time.Sleep(30 * time.Second)
+	time.Sleep(1 * time.Minute)
 
 	_, err = syncclient.SignalEntry(ctx, testkit.AppStartedState)
 	if err != nil {
@@ -250,7 +245,7 @@ func changeConfig(path string) error {
 			"timeout_propose":   "3s",
 			"timeout_prevote":   "1s",
 			"timeout_precommit": "1s",
-			"timeout_commit":    "30s",
+			"timeout_commit":    "25s",
 		},
 		"rpc": {
 			"timeout_broadcast_tx_commit": "90s",

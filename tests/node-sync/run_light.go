@@ -123,12 +123,12 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(9))
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(6))
 	if err != nil {
 		return err
 	}
 
-	runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordMessage("Reached Block#6 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 	runenv.RecordSuccess()
 
 	err = nd.Stop(ctx)

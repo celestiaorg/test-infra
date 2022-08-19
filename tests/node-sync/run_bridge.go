@@ -115,12 +115,12 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(4))
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(3))
 	if err != nil {
 		return err
 	}
 
-	runenv.RecordMessage("Reached Block#4 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordMessage("Reached Block#3 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 
 	//create a new subscription to publish bridge's multiaddress to full/light nodes
 	addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
