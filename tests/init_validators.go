@@ -1,7 +1,7 @@
-package main
+package tests
 
 import (
-	appsync "github.com/celestiaorg/test-infra/app-sync"
+	appsync "github.com/celestiaorg/test-infra/tests/app-sync"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
@@ -15,7 +15,7 @@ import (
 //    genesis transaction(gentx)
 // 4. Validators collects all genesis transactions
 // 5. The chain is started
-func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func InitVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	var err error
 
 	switch runenv.TestGroupID {

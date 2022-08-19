@@ -1,4 +1,4 @@
-package synctest
+package nodesync
 
 import (
 	"context"
@@ -34,8 +34,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Latency:   100 * time.Millisecond,
-			Bandwidth: 1 << 20, // 1Mib
+			Bandwidth: 5 << 26, // 320Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
@@ -54,14 +53,14 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	if initCtx.GroupSeq == 1 {
-		_, err = syncclient.Publish(ctx, testkit.BridgeTotalTopic, runenv.TestGroupInstanceCount)
-		if err != nil {
-			return err
-		}
-	}
+	// if int(initCtx.GlobalSeq) == (runenv.IntParam("bridge") + 1) {
+	// 	_, err = syncclient.Publish(ctx, testkit.BridgeTotalTopic, runenv.TestGroupInstanceCount)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	err = <-syncclient.MustBarrier(ctx, testkit.AppStartedState, int(initCtx.GroupSeq)).C
+	err = <-syncclient.MustBarrier(ctx, testkit.AppStartedState, runenv.IntParam("validator")).C
 	if err != nil {
 		return err
 	}
@@ -73,20 +72,20 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	appNode, err := func(total int) (*testkit.AppNodeInfo, error) {
-		for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+		for i := 0; i < total; i++ {
 			select {
 			case err = <-sub.Done():
 				if err != nil {
 					return nil, err
 				}
 			case appInfo := <-appInfoCh:
-				if appInfo.ID == int(initCtx.GroupSeq) {
+				if appInfo.ID == (int(initCtx.GlobalSeq) - runenv.IntParam("bridge")) {
 					return appInfo, nil
 				}
 			}
 		}
 		return nil, fmt.Errorf("no app has been sent for this bridge to connect to remotely")
-	}(runenv.TestGroupInstanceCount)
+	}(runenv.IntParam("validator"))
 
 	if err != nil {
 		return err
@@ -98,7 +97,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 	runenv.RecordMessage("Block#1 Hash: %s", h)
 
-	ndhome := fmt.Sprintf("/.celestia-bridge-%d", initCtx.GroupSeq)
+	ndhome := fmt.Sprintf("/.celestia-bridge-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(appNode.IP.To4().String())
 
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
@@ -129,7 +128,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
+	runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GlobalSeq))
 	runenv.RecordMessage("Publishing bridgeID Addr %s", addrs[0].String())
 
 	_, err = syncclient.SignalEntry(ctx, testkit.BridgeStartedState)
@@ -137,7 +136,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, runenv.TestGroupInstanceCount).C
+	err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge")).C
 	if err != nil {
 		return err
 	}
@@ -146,7 +145,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		ctx,
 		testkit.BridgeNodeTopic,
 		&testkit.BridgeNodeInfo{
-			ID:          int(initCtx.GroupSeq),
+			ID:          int(initCtx.GlobalSeq),
 			Maddr:       addrs[0].String(),
 			TrustedHash: h,
 		},
@@ -155,9 +154,8 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// testableInstances are full and light nodes. We are multiplying bridge's
-	// by 2 as we have ratio on 1 app per 1 bridge node
-	testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
+	// testableInstances are full and light nodes
+	testableInstances := runenv.TestInstanceCount - (runenv.IntParam("validator") + runenv.IntParam("bridge"))
 	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, testableInstances).C
 	if err != nil {
 		return err

@@ -1,4 +1,4 @@
-package synctest
+package nodesync
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
 	defer cancel()
 
@@ -31,8 +31,8 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Latency:   100 * time.Millisecond,
-			Bandwidth: 1 << 20, // 1Mib
+			// Latency:   100 * time.Millisecond,
+			Bandwidth: 5 << 26, // 320Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
@@ -51,27 +51,27 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeTotalCh := make(chan int)
-	sub, err := syncclient.Subscribe(ctx, testkit.BridgeTotalTopic, bridgeTotalCh)
-	if err != nil {
-		return err
-	}
+	// bridgeTotalCh := make(chan int)
+	// sub, err := syncclient.Subscribe(ctx, testkit.BridgeTotalTopic, bridgeTotalCh)
+	// if err != nil {
+	// 	return err
+	// }
 
-	var bridgeTotal int
-	select {
-	case err = <-sub.Done():
-		if err != nil {
-			return err
-		}
-	case bridgeTotal = <-bridgeTotalCh:
-		err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, bridgeTotal).C
-		if err != nil {
-			return err
-		}
-	}
+	// var bridgeTotal int
+	// select {
+	// case err = <-sub.Done():
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// case bridgeTotal = <-bridgeTotalCh:
+	// 	err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, bridgeTotal).C
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
 	bridgeCh := make(chan *testkit.BridgeNodeInfo)
-	sub, err = syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
 	if err != nil {
 		return err
 	}
@@ -84,31 +84,31 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 					return nil, err
 				}
 			case bridge := <-bridgeCh:
-				//we receive bridgeIDs that contain the ID of bridge and the total amount of bridges
-				//we need to assign light nodes 30/30/30 per each bridge
-				if int(initCtx.GroupSeq)%total == bridge.ID%total {
+				runenv.RecordMessage("Received Bridge ID = %d", bridge.ID)
+
+				if bridge.ID == (int(initCtx.GlobalSeq) - runenv.IntParam("full")) {
 					return bridge, nil
 				}
 			}
 		}
 		return nil,
-			fmt.Errorf("no bridge address has been sent to this light node to connect to")
-	}(bridgeTotal)
+			fmt.Errorf("no bridge address has been sent to this full node to connect to")
+	}(runenv.IntParam("bridge"))
 
 	if err != nil {
 		return err
 	}
 
-	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GroupSeq))
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
+
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
-
 	nd, err := nodekit.NewNode(
 		ndhome,
-		node.Light,
+		node.Full,
 		ip,
 		bridgeNode.TrustedHash,
 		node.WithTrustedPeers(bridgeNode.Maddr),
@@ -126,7 +126,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-
 	runenv.RecordMessage("Reached Block#9 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 	runenv.RecordSuccess()
 
@@ -134,6 +133,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err

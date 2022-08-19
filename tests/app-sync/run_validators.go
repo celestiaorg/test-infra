@@ -1,4 +1,4 @@
-package synctest
+package appsync
 
 import (
 	"context"
@@ -12,12 +12,13 @@ import (
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
+
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
 
@@ -30,8 +31,10 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Latency:   100 * time.Millisecond,
-			Bandwidth: 1 << 20, // 1Mib
+			// Latency: 100 * time.Millisecond,
+			// Bandwidth: 4 << 26, // 256Mib
+			Bandwidth: 5 << 26, // 320Mib
+			// Bandwidth: 4 << 27, // 512Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
@@ -50,7 +53,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(home)
 
 	cmd := appkit.New()
@@ -72,7 +75,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// execute the `add-genesis-account` command and send back to the rest
 	// of the validators to set the initial genesis.json
 	const chainId string = "tia-test"
-	if initCtx.GroupSeq == 1 {
+	if initCtx.GlobalSeq == 1 {
 		accAddrCh := make(chan string)
 		_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 		if err != nil {
@@ -94,7 +97,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		for _, v := range accounts {
-			_, err := cmd.AddGenAccount(v, "1000000000000000utia", home)
+			_, err := cmd.AddGenAccount(v, "100000000000000000utia", home)
 			if err != nil {
 				return err
 			}
@@ -170,7 +173,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+	for i := 0; i < runenv.TestInstanceCount; i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
@@ -192,49 +195,127 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	configPath := filepath.Join(home, "config", "config.toml")
-	// err = appkit.ChangeNodeMode(configPath, "validator")
-	// if err != nil {
-	// 	return err
-	// }
 
-	err = appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
+	if initCtx.GlobalSeq <= 10 {
+		nodeId, err := cmd.GetNodeId(home)
+		if err != nil {
+			return err
+		}
+		// err = appkit.ChangeConfigParam(configPath, "p2p", "seed_mode", true)
+		// if err != nil {
+		// 	return err
+		// }
+
+		_, err = syncclient.Publish(
+			ctx,
+			testkit.ValidatorPeerTopic,
+			&appkit.ValidatorNode{
+				PubKey: nodeId,
+				IP:     config.IPv4.IP},
+		)
+		if err != nil {
+			return err
+		}
+	} else {
+		valCh := make(chan *appkit.ValidatorNode)
+		sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+		if err != nil {
+			return err
+		}
+
+		var persPeers []string
+		for i := 0; i < 10; i++ {
+			select {
+			case err = <-sub.Done():
+				if err != nil {
+					return err
+				}
+			case val := <-valCh:
+				runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+				if !val.IP.Equal(config.IPv4.IP) {
+					persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+				}
+
+				err = appkit.AddPersistentPeers(configPath, persPeers)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	err = appkit.ChangeConfigParam(configPath, "p2p", "external_address", fmt.Sprintf("%s:26656", config.IPv4.IP.To4().String()))
 	if err != nil {
 		return err
 	}
-
-	runenv.RecordMessage("publishing app-validator address")
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return err
-	}
-
-	_, err = syncclient.Publish(
-		ctx,
-		testkit.AppNodeTopic,
-		&testkit.AppNodeInfo{
-			ID: int(initCtx.GroupSeq),
-			IP: ip,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
 	runenv.RecordMessage("starting........")
+
+	err = changeConfig(configPath)
+	if err != nil {
+		return err
+	}
 	go cmd.StartNode(home, "info")
 
-	// wait for a new block to be produced
-	// RPC is also being initialized...
-	time.Sleep(30 * time.Second)
+	// // wait for a new block to be produced
+	time.Sleep(1 * time.Minute)
 
-	_, err = syncclient.SignalEntry(ctx, testkit.AppStartedState)
-	if err != nil {
-		return err
+	// If all 3 validators submit pfd - it will take too long to produce a new block
+	for i := 0; i < 10; i++ {
+		runenv.RecordMessage("Submitting PFD with 90k bytes random data")
+		err = cmd.PayForData(
+			accAddr,
+			50000,
+			"test",
+			chainId,
+			home,
+		)
+
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
+		}
+		go func() {
+			s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+			if err != nil {
+				runenv.RecordMessage("err in last size call, %s", err.Error())
+			}
+
+			runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
+		}()
 	}
 
-	// testableInstances are full and light nodes. We are multiplying app's
-	// by 2 as we have ratio on 1 app per 1 bridge node
-	testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
-	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, testableInstances).C
-	return err
+	// runenv.RecordSuccess()
+	// }
+	// rest are waiting until we have a new block - hopefully
+	time.Sleep(30 * time.Second)
+	runenv.RecordSuccess()
+	// }
+
+	return nil
+}
+
+func changeConfig(path string) error {
+	cfg := map[string]map[string]string{
+		"consensus": {
+			"timeout_propose":   "3s",
+			"timeout_prevote":   "1s",
+			"timeout_precommit": "1s",
+			"timeout_commit":    "30s",
+		},
+		"rpc": {
+			"timeout_broadcast_tx_commit": "90s",
+			"max_body_bytes":              "1000000",
+			"max_header_bytes":            "1048576",
+		},
+	}
+
+	for i, j := range cfg {
+		for k, v := range j {
+			err := appkit.ChangeConfigParam(path, i, k, v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

@@ -16,12 +16,14 @@ import (
 )
 
 // TODO(@Bidon15): seed nodes are not working as expected
+// Now this code is not used anywhere in test-plan/cases
+// More info to follow up: https://github.com/tendermint/tendermint/issues/9289
 func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
 
-	client := initCtx.SyncClient
-	netclient := network.NewClient(client, runenv)
+	syncclient := initCtx.SyncClient
+	netclient := network.NewClient(syncclient, runenv)
 
 	netclient.MustWaitNetworkInitialized(ctx)
 
@@ -59,13 +61,13 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	err = <-client.MustBarrier(ctx, testkit.FinalGenesisState, 1).C
+	err = <-syncclient.MustBarrier(ctx, testkit.FinalGenesisState, 1).C
 	if err != nil {
 		return err
 	}
 
 	initGenCh := make(chan string)
-	sub, err := client.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
 	if err != nil {
 		return err
 	}
@@ -88,7 +90,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = client.Publish(
+	_, err = syncclient.Publish(
 		ctx,
 		testkit.ValidatorPeerTopic,
 		&appkit.ValidatorNode{

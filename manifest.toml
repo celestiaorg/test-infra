@@ -23,3 +23,8 @@ instances = { min = 1, max = 100, default = 3 }
 [[testcases]]
 name = "node-sync"
 instances = { min = 4, max = 100, default = 12 }
+    [testcases.params]
+    validator = { type = "int", default = 3}
+    bridge = { type = "int", default = 3}
+    full = { type = "int", default = 3}
+    light = { type = "int", default = 3}
