@@ -14,7 +14,7 @@ import (
 )
 
 func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*2)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
 	err := nodekit.SetLoggersLevel("INFO")
@@ -51,24 +51,10 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// bridgeTotalCh := make(chan int)
-	// sub, err := syncclient.Subscribe(ctx, testkit.BridgeTotalTopic, bridgeTotalCh)
-	// if err != nil {
-	// 	return err
-	// }
-
-	// var bridgeTotal int
-	// select {
-	// case err = <-sub.Done():
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// case bridgeTotal = <-bridgeTotalCh:
-	// 	err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, bridgeTotal).C
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge")).C
+	if err != nil {
+		return err
+	}
 
 	bridgeCh := make(chan *testkit.BridgeNodeInfo)
 	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
