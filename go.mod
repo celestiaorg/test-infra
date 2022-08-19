@@ -26,8 +26,6 @@ require (
 
 require (
 	github.com/celestiaorg/celestia-node v0.3.0-rc2
-	github.com/ipfs/go-log/v2 v2.5.1
-	github.com/libp2p/go-libp2p-core v0.17.0
 	github.com/tendermint/tendermint v0.35.4
 )
 
@@ -55,6 +53,7 @@ require (
 	github.com/celestiaorg/go-leopard v0.1.0 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.1.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
+	github.com/celestiaorg/nmt v0.10.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.6.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect

@@ -12,8 +12,6 @@ import (
 
 	"github.com/celestiaorg/celestia-app/app"
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
-	"github.com/celestiaorg/celestia-core/pkg/consts"
-	"github.com/celestiaorg/nmt/namespace"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -218,21 +216,4 @@ func ChangeRPCServerAddress(path string, ip net.IP) error {
 func ChangeConfigParam(path, section, mode string, value interface{}) error {
 	field := fmt.Sprintf("%s.%s", section, mode)
 	return updateConfig(path, field, value)
-}
-
-func ChangeRPCServerAddress(path string, ip net.IP) error {
-	return updateConfig(path, "rpc.laddr", fmt.Sprintf("tcp://%s:26657", ip.To4().String()))
-}
-
-func GetRandomNamespace() namespace.ID {
-	for {
-		s := tmrand.Bytes(8)
-		if bytes.Compare(s, consts.MaxReservedNamespace) > 0 {
-			return s
-		}
-	}
-}
-
-func GetRandomMessageBySize(size int) []byte {
-	return tmrand.Bytes(size)
 }
