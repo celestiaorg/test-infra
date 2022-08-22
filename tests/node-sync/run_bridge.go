@@ -152,11 +152,20 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, runenv.TestInstanceCount).C
+	b, err := syncclient.Barrier(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {
 		runenv.RecordMessage("error happened during barriering for testableinstances")
 		runenv.RecordFailure(err)
 		return err
+	}
+	select {
+	case err = <-b.C:
+		if err != nil {
+			runenv.RecordCrash(err)
+			return err
+		}
+	case <-ctx.Done():
+		return fmt.Errorf("fallen out of timeout")
 	}
 
 	return nd.Stop(ctx)
