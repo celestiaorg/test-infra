@@ -151,6 +151,8 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	testableInstances := runenv.TestInstanceCount - (runenv.IntParam("validator") + runenv.IntParam("bridge"))
 	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, testableInstances).C
 	if err != nil {
+		runenv.RecordMessage("error happened during barriering for testableinstances")
+		runenv.RecordFailure(err)
 		return err
 	}
 
