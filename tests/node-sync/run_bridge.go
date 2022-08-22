@@ -158,17 +158,14 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordFailure(err)
 		return err
 	}
-	for i := 0; i < runenv.TestInstanceCount; i++ {
-		select {
-		case err = <-b.C:
-			if err != nil {
-				runenv.RecordCrash(err)
-				return err
-			}
-		case <-ctx.Done():
-			return fmt.Errorf("fallen out of timeout")
+	for err = range b.C {
+		if err != nil {
+			runenv.RecordCrash(err)
+			return err
+		} else {
+			return nd.Stop(ctx)
 		}
 	}
 
-	return nd.Stop(ctx)
+	return fmt.Errorf("fallen out of timeout")
 }
