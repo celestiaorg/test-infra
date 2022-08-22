@@ -147,25 +147,22 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(8))
+	if err != nil {
+		return err
+	}
+	runenv.RecordMessage("Reached Block#8 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordSuccess()
+
+	err = nd.Stop(ctx)
+	if err != nil {
+		return err
+	}
+
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}
 
-	b, err := syncclient.Barrier(ctx, testkit.FinishState, runenv.TestInstanceCount)
-	if err != nil {
-		runenv.RecordMessage("error happened during barriering for testableinstances")
-		runenv.RecordFailure(err)
-		return err
-	}
-	for err = range b.C {
-		if err != nil {
-			runenv.RecordCrash(err)
-			return err
-		} else {
-			return nd.Stop(ctx)
-		}
-	}
-
-	return fmt.Errorf("fallen out of timeout")
+	return nil
 }

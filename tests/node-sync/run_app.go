@@ -222,7 +222,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	if initCtx.GlobalSeq <= 5 {
+	if initCtx.GlobalSeq <= 1 {
 		nodeId, err := cmd.GetNodeId(home)
 		if err != nil {
 			return err
@@ -246,7 +246,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		var persPeers []string
-		for i := 0; i < 10; i++ {
+		for i := 0; i < runenv.IntParam("validator"); i++ {
 			select {
 			case err = <-sub.Done():
 				if err != nil {
@@ -277,13 +277,12 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {
 		return err
 	}
 
-	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, runenv.TestInstanceCount).C
-	return err
+	return nil
 }
 
 func changeConfig(path string) error {
