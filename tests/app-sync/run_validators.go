@@ -201,10 +201,6 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		if err != nil {
 			return err
 		}
-		// err = appkit.ChangeConfigParam(configPath, "p2p", "seed_mode", true)
-		// if err != nil {
-		// 	return err
-		// }
 
 		_, err = syncclient.Publish(
 			ctx,
@@ -284,12 +280,8 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}()
 	}
 
-	// runenv.RecordSuccess()
-	// }
-	// rest are waiting until we have a new block - hopefully
 	time.Sleep(30 * time.Second)
 	runenv.RecordSuccess()
-	// }
 
 	return nil
 }

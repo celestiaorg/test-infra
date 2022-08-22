@@ -222,6 +222,50 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	if initCtx.GlobalSeq <= 5 {
+		nodeId, err := cmd.GetNodeId(home)
+		if err != nil {
+			return err
+		}
+
+		_, err = syncclient.Publish(
+			ctx,
+			testkit.ValidatorPeerTopic,
+			&appkit.ValidatorNode{
+				PubKey: nodeId,
+				IP:     config.IPv4.IP},
+		)
+		if err != nil {
+			return err
+		}
+	} else {
+		valCh := make(chan *appkit.ValidatorNode)
+		sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+		if err != nil {
+			return err
+		}
+
+		var persPeers []string
+		for i := 0; i < 10; i++ {
+			select {
+			case err = <-sub.Done():
+				if err != nil {
+					return err
+				}
+			case val := <-valCh:
+				runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+				if !val.IP.Equal(config.IPv4.IP) {
+					persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+				}
+
+				err = appkit.AddPersistentPeers(configPath, persPeers)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
 	go cmd.StartNode(home, "info")
 
 	// wait for a new block to be produced

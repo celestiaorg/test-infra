@@ -53,13 +53,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// if int(initCtx.GlobalSeq) == (runenv.IntParam("bridge") + 1) {
-	// 	_, err = syncclient.Publish(ctx, testkit.BridgeTotalTopic, runenv.TestGroupInstanceCount)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
-
 	err = <-syncclient.MustBarrier(ctx, testkit.AppStartedState, runenv.IntParam("validator")).C
 	if err != nil {
 		return err
