@@ -28,5 +28,6 @@ func SyncNodes(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
+	runenv.RecordSuccess()
 	return nil
 }

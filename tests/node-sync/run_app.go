@@ -18,7 +18,7 @@ import (
 )
 
 func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -30,7 +30,6 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			// Latency:   100 * time.Millisecond,
 			Bandwidth: 5 << 26, // 320Mib
 		},
 		CallbackState: "network-configured",
@@ -197,24 +196,6 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("publishing app-validator address")
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return err
-	}
-
-	_, err = syncclient.Publish(
-		ctx,
-		testkit.AppNodeTopic,
-		&testkit.AppNodeInfo{
-			ID: int(initCtx.GlobalSeq),
-			IP: ip,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
 	runenv.RecordMessage("starting........")
 
 	err = changeConfig(configPath)
@@ -222,7 +203,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	if initCtx.GlobalSeq <= 1 {
+	if initCtx.GlobalSeq <= int64(runenv.IntParam("persistent-peers")) {
 		nodeId, err := cmd.GetNodeId(home)
 		if err != nil {
 			return err
@@ -238,30 +219,30 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		if err != nil {
 			return err
 		}
-	} else {
-		valCh := make(chan *appkit.ValidatorNode)
-		sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
-		if err != nil {
-			return err
-		}
+	}
 
-		var persPeers []string
-		for i := 0; i < runenv.IntParam("validator"); i++ {
-			select {
-			case err = <-sub.Done():
-				if err != nil {
-					return err
-				}
-			case val := <-valCh:
-				runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
-				if !val.IP.Equal(config.IPv4.IP) {
-					persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
-				}
+	valCh := make(chan *appkit.ValidatorNode)
+	sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+	if err != nil {
+		return err
+	}
 
-				err = appkit.AddPersistentPeers(configPath, persPeers)
-				if err != nil {
-					return err
-				}
+	var persPeers []string
+	for i := 0; i < runenv.IntParam("validator"); i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case val := <-valCh:
+			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+			if !val.IP.Equal(config.IPv4.IP) {
+				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+			}
+
+			err = appkit.AddPersistentPeers(configPath, persPeers)
+			if err != nil {
+				return err
 			}
 		}
 	}
@@ -272,7 +253,20 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// RPC is also being initialized...
 	time.Sleep(1 * time.Minute)
 
-	_, err = syncclient.SignalEntry(ctx, testkit.AppStartedState)
+	runenv.RecordMessage("publishing app-validator address")
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	if err != nil {
+		return err
+	}
+
+	_, err = syncclient.Publish(
+		ctx,
+		testkit.AppNodeTopic,
+		&testkit.AppNodeInfo{
+			ID: int(initCtx.GlobalSeq),
+			IP: ip,
+		},
+	)
 	if err != nil {
 		return err
 	}

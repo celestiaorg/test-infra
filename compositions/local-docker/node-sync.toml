@@ -12,6 +12,7 @@
 
 [global.run.test_params]
   validator = "3"
+  persistent-peers = "3"
   bridge = "3"
   full = "3"
   light = "3"

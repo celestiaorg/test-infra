@@ -51,35 +51,29 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	err = <-syncclient.MustBarrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge")).C
-	if err != nil {
-		return err
-	}
-
-	bridgeCh := make(chan *testkit.BridgeNodeInfo)
+	bridgeCh := make(chan *testkit.BridgeNodeInfo, runenv.IntParam("bridge")) //4
 	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
 	if err != nil {
 		return err
 	}
 
 	bridgeNode, err := func(total int) (*testkit.BridgeNodeInfo, error) {
-		for i := 0; i < total; i++ {
+		for {
 			select {
 			case err = <-sub.Done():
 				if err != nil {
 					return nil, err
 				}
+			case <-ctx.Done():
+				return nil,
+					fmt.Errorf("no bridge address has been sent to this light node to connect to")
 			case bridge := <-bridgeCh:
-				//we receive bridgeIDs that contain the ID of bridge and the total amount of bridges
-				//we need to assign light nodes 30/30/30 per each bridge
-				id := int(initCtx.GlobalSeq) - runenv.IntParam("light") - runenv.IntParam("full")
-				if id%total == bridge.ID%total {
+				runenv.RecordMessage("Received Bridge ID = %d", bridge.ID)
+				if (int(initCtx.GlobalSeq) % total) == (bridge.ID % total) {
 					return bridge, nil
 				}
 			}
 		}
-		return nil,
-			fmt.Errorf("no bridge address has been sent to this light node to connect to")
 	}(runenv.IntParam("bridge"))
 
 	if err != nil {
