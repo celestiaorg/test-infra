@@ -31,7 +31,6 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			// Latency:   100 * time.Millisecond,
 			Bandwidth: 4 << 26, // 256Mib
 		},
 		CallbackState: "network-configured",
@@ -57,11 +56,6 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cmd := appkit.New()
 
 	nodeId, err := cmd.GetNodeId(home)
-	if err != nil {
-		return err
-	}
-
-	err = <-syncclient.MustBarrier(ctx, testkit.FinalGenesisState, 1).C
 	if err != nil {
 		return err
 	}
@@ -104,10 +98,9 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode(home, "info")
 
 	// // wait for a new block to be produced
-	time.Sleep(10 * time.Minute)
+	time.Sleep(1 * time.Minute)
 
 	runenv.RecordSuccess()
-	// }
 
 	return nil
 }

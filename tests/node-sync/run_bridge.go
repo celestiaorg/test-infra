@@ -14,6 +14,7 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"github.com/testground/sdk-go/sync"
 )
 
 func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -155,4 +156,28 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	return nil
+}
+
+func GetBridgeNode(ctx context.Context, syncclient sync.Client, id int64, amountOfBridges int) (*testkit.BridgeNodeInfo, error) {
+	bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
+	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return nil,
+					fmt.Errorf("no bridge address has been sent to this light node to connect to")
+			}
+		case bridge := <-bridgeCh:
+			fmt.Printf("Received Bridge ID = %d", bridge.ID)
+			if (int(id) % amountOfBridges) == (bridge.ID % amountOfBridges) {
+				return bridge, nil
+			}
+		}
+	}
+
 }

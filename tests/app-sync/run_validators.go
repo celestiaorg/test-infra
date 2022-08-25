@@ -31,10 +31,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			// Latency: 100 * time.Millisecond,
-			// Bandwidth: 4 << 26, // 256Mib
 			Bandwidth: 5 << 26, // 320Mib
-			// Bandwidth: 4 << 27, // 512Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,

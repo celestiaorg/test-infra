@@ -51,31 +51,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeCh := make(chan *testkit.BridgeNodeInfo, runenv.IntParam("bridge"))
-	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
-	if err != nil {
-		return err
-	}
-
-	bridgeNode, err := func(total int) (*testkit.BridgeNodeInfo, error) {
-		for {
-			select {
-			case err = <-sub.Done():
-				if err != nil {
-					return nil, err
-				}
-			case <-ctx.Done():
-				return nil,
-					fmt.Errorf("no bridge address has been sent to this light node to connect to")
-			case bridge := <-bridgeCh:
-				runenv.RecordMessage("Received Bridge ID = %d", bridge.ID)
-				if (int(initCtx.GlobalSeq) % total) == (bridge.ID % total) {
-					return bridge, nil
-				}
-			}
-		}
-	}(runenv.IntParam("bridge"))
-
+	bridgeNode, err := GetBridgeNode(ctx, syncclient, initCtx.GlobalSeq, runenv.IntParam("bridge"))
 	if err != nil {
 		return err
 	}

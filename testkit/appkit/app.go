@@ -106,33 +106,33 @@ func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, chainId, home st
 	ak.Cmd.SetArgs([]string{
 		"tx", "payment", "payForData", fmt.Sprint(msg),
 		"--from", accAdr, "-b", "block", "-y", "--gas", "1000000000",
-		"--fees", "100000000000utia", //15
+		"--fees", "100000000000utia",
 		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
 	})
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func getResultBlockResponse(uri string) (coretypes.ResultBlock, error) {
+func getResultBlockResponse(uri string) (*coretypes.ResultBlock, error) {
 	resp, err := http.Get(uri)
 	if err != nil {
-		return coretypes.ResultBlock{}, err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return coretypes.ResultBlock{}, err
+		return nil, err
 	}
 
 	var rpcResponse types.RPCResponse
 	if err := rpcResponse.UnmarshalJSON(body); err != nil {
-		return coretypes.ResultBlock{}, err
+		return nil, err
 	}
 
-	var resBlock coretypes.ResultBlock
+	var resBlock *coretypes.ResultBlock
 	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
-		return coretypes.ResultBlock{}, err
+		return nil, err
 	}
 
 	return resBlock, nil
@@ -182,9 +182,12 @@ func updateConfig(path, key string, value interface{}) error {
 }
 
 func AddSeedPeers(path string, peers []string) error {
-	var peersStr bytes.Buffer
-	var port int = 26656
-	var separator string = ","
+	var (
+		peersStr  bytes.Buffer
+		port      int    = 26656
+		separator string = ","
+	)
+
 	for k, peer := range peers {
 		if k == (len(peers) - 1) {
 			separator = ""
