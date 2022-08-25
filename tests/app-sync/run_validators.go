@@ -1,4 +1,4 @@
-package main
+package appsync
 
 import (
 	"context"
@@ -18,21 +18,12 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-// This test-case is a 101 on how Celestia-App only should be started.
-// In this test-case, we are testing the following scenario:
-// 1. Every instance can create an account
-// 2. The orchestrator(described more below) funds the account at genesis
-//    and sends the initial genesis.json to the rest of the validators' set
-// 3. After receiving the initial genesis.json, validators are signing the
-//    genesis transaction(gentx)
-// 4. Validators collects all genesis transactions
-// 5. The chain is started
-func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
 
-	client := initCtx.SyncClient
-	netclient := network.NewClient(client, runenv)
+	syncclient := initCtx.SyncClient
+	netclient := network.NewClient(syncclient, runenv)
 
 	netclient.MustWaitNetworkInitialized(ctx)
 
@@ -40,8 +31,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Latency:   100 * time.Millisecond,
-			Bandwidth: 1 << 20, // 1Mib
+			Bandwidth: 5 << 26, // 320Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
@@ -60,7 +50,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(home)
 
 	cmd := appkit.New()
@@ -71,7 +61,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = client.Publish(ctx, testkit.AccountAddressTopic, accAddr)
+	_, err = syncclient.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
 		return err
 	}
@@ -84,13 +74,13 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	const chainId string = "tia-test"
 	if initCtx.GlobalSeq == 1 {
 		accAddrCh := make(chan string)
-		_, err = client.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
+		_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 		if err != nil {
 			return err
 		}
 
 		var accounts []string
-		for i := 0; i < runenv.TestInstanceCount; i++ {
+		for i := 0; i < runenv.TestGroupInstanceCount; i++ {
 			addr := <-accAddrCh
 			runenv.RecordMessage("Received address: %s", addr)
 			accounts = append(accounts, addr)
@@ -104,7 +94,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		for _, v := range accounts {
-			_, err := cmd.AddGenAccount(v, "1000000000000000utia", home)
+			_, err := cmd.AddGenAccount(v, "100000000000000000utia", home)
 			if err != nil {
 				return err
 			}
@@ -120,7 +110,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, err = client.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
+		_, err = syncclient.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
 		if err != nil {
 			return err
 		}
@@ -128,7 +118,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
 	} else {
 		initGenCh := make(chan string)
-		sub, err := client.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
+		sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
 		if err != nil {
 			return err
 		}
@@ -167,7 +157,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, err = client.Publish(ctx, testkit.GenesisTxTopic, string(bt))
+		_, err = syncclient.Publish(ctx, testkit.GenesisTxTopic, string(bt))
 		if err != nil {
 			return err
 		}
@@ -175,7 +165,7 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	genTxCh := make(chan string)
-	sub, err := client.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
 	if err != nil {
 		return err
 	}
@@ -202,92 +192,119 @@ func initVal(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	configPath := filepath.Join(home, "config", "config.toml")
-	err = appkit.ChangeNodeMode(configPath, "validator")
+
+	if initCtx.GlobalSeq <= 10 {
+		nodeId, err := cmd.GetNodeId(home)
+		if err != nil {
+			return err
+		}
+
+		_, err = syncclient.Publish(
+			ctx,
+			testkit.ValidatorPeerTopic,
+			&appkit.ValidatorNode{
+				PubKey: nodeId,
+				IP:     config.IPv4.IP},
+		)
+		if err != nil {
+			return err
+		}
+	} else {
+		valCh := make(chan *appkit.ValidatorNode)
+		sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+		if err != nil {
+			return err
+		}
+
+		var persPeers []string
+		for i := 0; i < 10; i++ {
+			select {
+			case err = <-sub.Done():
+				if err != nil {
+					return err
+				}
+			case val := <-valCh:
+				runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+				if !val.IP.Equal(config.IPv4.IP) {
+					persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+				}
+
+				err = appkit.AddPersistentPeers(configPath, persPeers)
+				if err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	err = appkit.ChangeConfigParam(configPath, "p2p", "external_address", fmt.Sprintf("%s:26656", config.IPv4.IP.To4().String()))
 	if err != nil {
 		return err
 	}
-
 	runenv.RecordMessage("starting........")
 
-	nodeId, err := cmd.GetNodeId(home)
+	err = changeConfig(configPath)
 	if err != nil {
 		return err
 	}
-	_, err = client.Publish(
-		ctx,
-		testkit.ValidatorPeerTopic,
-		&appkit.ValidatorNode{
-			PubKey: nodeId,
-			IP:     config.IPv4.IP},
-	)
-	if err != nil {
-		return err
-	}
+	go cmd.StartNode(home, "info")
 
-	valCh := make(chan *appkit.ValidatorNode)
-	sub, err = client.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
-	if err != nil {
-		return err
-	}
-
-	var persPeers []string
-	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
-		select {
-		case err = <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case val := <-valCh:
-			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
-			if !val.IP.Equal(config.IPv4.IP) {
-				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
-			}
-		}
-	}
-
-	err = appkit.AddPersistentPeers(configPath, persPeers)
-	if err != nil {
-		return err
-	}
-
-	go cmd.StartNode(home)
-
-	// wait for a new block to be produced
-	// as well as waiting for the rest server to spin up
+	// // wait for a new block to be produced
 	time.Sleep(1 * time.Minute)
 
-	blockHeight := 2
-	bh, err := appkit.GetBlockHashByHeight(net.ParseIP("127.0.0.1"), blockHeight)
-	if err != nil {
-		return err
+	// If all 3 validators submit pfd - it will take too long to produce a new block
+	for i := 0; i < 10; i++ {
+		runenv.RecordMessage("Submitting PFD with 90k bytes random data")
+		err = cmd.PayForData(
+			accAddr,
+			50000,
+			"test",
+			chainId,
+			home,
+		)
+
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
+		}
+		go func() {
+			s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+			if err != nil {
+				runenv.RecordMessage("err in last size call, %s", err.Error())
+			}
+
+			runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
+		}()
 	}
 
-	runenv.RecordMessage(bh)
+	time.Sleep(30 * time.Second)
+	runenv.RecordSuccess()
 
-	_, err = client.Publish(ctx, testkit.BlockHashTopic, bh)
-	if err != nil {
-		return err
+	return nil
+}
+
+func changeConfig(path string) error {
+	cfg := map[string]map[string]string{
+		"consensus": {
+			"timeout_propose":   "3s",
+			"timeout_prevote":   "1s",
+			"timeout_precommit": "1s",
+			"timeout_commit":    "30s",
+		},
+		"rpc": {
+			"timeout_broadcast_tx_commit": "90s",
+			"max_body_bytes":              "1000000",
+			"max_header_bytes":            "1048576",
+		},
 	}
 
-	blockHashCh := make(chan string)
-	sub, err = client.Subscribe(ctx, testkit.BlockHashTopic, blockHashCh)
-	if err != nil {
-		return err
-	}
-
-	for i := 0; i < runenv.TestInstanceCount; i++ {
-		select {
-		case err := <-sub.Done():
+	for i, j := range cfg {
+		for k, v := range j {
+			err := appkit.ChangeConfigParam(path, i, k, v)
 			if err != nil {
 				return err
 			}
-		case blockHash := <-blockHashCh:
-			runenv.RecordMessage(blockHash)
-			if bh != blockHash {
-				return fmt.Errorf("hashes for block#%d differs", blockHeight)
-			}
 		}
 	}
-	runenv.RecordSuccess()
 	return nil
 }

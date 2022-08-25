@@ -1,23 +1,30 @@
 [metadata]
-  name = "app-validator"
+  name = "app-and-node"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "init-val"
-  total_instances = 20
+  case = "node-sync"
+  total_instances = 15
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
 
+[global.run.test_params]
+  validator = "3"
+  persistent-peers = "3"
+  bridge = "4"
+  full = "4"
+  light = "4"
+
 [[groups]]
-  id = "validators"
+  id = "instance"
   builder = "docker:generic"
   [groups.resources]
-    memory = ""
-    cpu = ""
+    memory = "6Gi"
+    cpu = "4"
   [groups.instances]
-    count = 20
+    count = 15
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"

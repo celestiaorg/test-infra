@@ -3,7 +3,6 @@ package nodekit
 import (
 	"fmt"
 	"net"
-	"os"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/node"
@@ -30,7 +29,6 @@ func NewNode(path string, tp node.Type, IP net.IP, trustedHash string, options .
 }
 
 func SetLoggersLevel(lvl string) error {
-	os.Setenv("GOLOG_OUTPUT", "stdout")
 	level, err := logging.LevelFromString(lvl)
 	if err != nil {
 		return err

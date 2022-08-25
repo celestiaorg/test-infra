@@ -1,4 +1,4 @@
-package synctest
+package nodesync
 
 import (
 	"context"
@@ -18,7 +18,7 @@ import (
 )
 
 func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -30,8 +30,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Latency:   100 * time.Millisecond,
-			Bandwidth: 1 << 20, // 1Mib
+			Bandwidth: 5 << 26, // 320Mib
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
@@ -50,7 +49,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(home)
 
 	cmd := appkit.New()
@@ -72,7 +71,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// execute the `add-genesis-account` command and send back to the rest
 	// of the validators to set the initial genesis.json
 	const chainId string = "tia-test"
-	if initCtx.GroupSeq == 1 {
+	if initCtx.GlobalSeq == 1 {
 		accAddrCh := make(chan string)
 		_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 		if err != nil {
@@ -80,7 +79,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		var accounts []string
-		for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+		for i := 0; i < runenv.IntParam("validator"); i++ {
 			addr := <-accAddrCh
 			runenv.RecordMessage("Received address: %s", addr)
 			accounts = append(accounts, addr)
@@ -170,7 +169,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	for i := 0; i < runenv.TestGroupInstanceCount; i++ {
+	for i := 0; i < runenv.IntParam("validator"); i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
@@ -192,15 +191,67 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	configPath := filepath.Join(home, "config", "config.toml")
-	err = appkit.ChangeNodeMode(configPath, "validator")
-	if err != nil {
-		return err
-	}
-
 	err = appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
 	if err != nil {
 		return err
 	}
+
+	runenv.RecordMessage("starting........")
+
+	err = changeConfig(configPath)
+	if err != nil {
+		return err
+	}
+
+	if initCtx.GlobalSeq <= int64(runenv.IntParam("persistent-peers")) {
+		nodeId, err := cmd.GetNodeId(home)
+		if err != nil {
+			return err
+		}
+
+		_, err = syncclient.Publish(
+			ctx,
+			testkit.ValidatorPeerTopic,
+			&appkit.ValidatorNode{
+				PubKey: nodeId,
+				IP:     config.IPv4.IP},
+		)
+		if err != nil {
+			return err
+		}
+	}
+
+	valCh := make(chan *appkit.ValidatorNode)
+	sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+	if err != nil {
+		return err
+	}
+
+	var persPeers []string
+	for i := 0; i < runenv.IntParam("validator"); i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case val := <-valCh:
+			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+			if !val.IP.Equal(config.IPv4.IP) {
+				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
+			}
+
+			err = appkit.AddPersistentPeers(configPath, persPeers)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	go cmd.StartNode(home, "info")
+
+	// wait for a new block to be produced
+	// RPC is also being initialized...
+	time.Sleep(1 * time.Minute)
 
 	runenv.RecordMessage("publishing app-validator address")
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
@@ -212,7 +263,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		ctx,
 		testkit.AppNodeTopic,
 		&testkit.AppNodeInfo{
-			ID: int(initCtx.GroupSeq),
+			ID: int(initCtx.GlobalSeq),
 			IP: ip,
 		},
 	)
@@ -220,21 +271,36 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("starting........")
-	go cmd.StartNode(home)
-
-	// wait for a new block to be produced
-	// RPC is also being initialized...
-	time.Sleep(30 * time.Second)
-
-	_, err = syncclient.SignalEntry(ctx, testkit.AppStartedState)
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {
 		return err
 	}
 
-	// testableInstances are full and light nodes. We are multiplying app's
-	// by 2 as we have ratio on 1 app per 1 bridge node
-	testableInstances := runenv.TestInstanceCount - (runenv.TestGroupInstanceCount * 2)
-	err = <-syncclient.MustBarrier(ctx, testkit.FinishState, testableInstances).C
-	return err
+	return nil
+}
+
+func changeConfig(path string) error {
+	cfg := map[string]map[string]string{
+		"consensus": {
+			"timeout_propose":   "3s",
+			"timeout_prevote":   "1s",
+			"timeout_precommit": "1s",
+			"timeout_commit":    "25s",
+		},
+		"rpc": {
+			"timeout_broadcast_tx_commit": "90s",
+			"max_body_bytes":              "1000000",
+			"max_header_bytes":            "1048576",
+		},
+	}
+
+	for i, j := range cfg {
+		for k, v := range j {
+			err := appkit.ChangeConfigParam(path, i, k, v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

@@ -12,13 +12,12 @@ import (
 
 	"github.com/celestiaorg/celestia-app/app"
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
+	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
-	"github.com/tendermint/tendermint/rpc/coretypes"
+	coretypes "github.com/tendermint/tendermint/rpc/core/types"
 	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
-
-	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
 )
 
 type ValidatorNode struct {
@@ -93,41 +92,75 @@ func (ak *AppKit) GetNodeId(home string) (string, error) {
 	return ak.execCmd([]string{"tendermint", "show-node-id", "--home", home})
 }
 
-func (ak *AppKit) StartNode(home string) error {
+func (ak *AppKit) StartNode(home, loglvl string) error {
 	ak.Cmd.ResetFlags()
 
 	ak.Cmd.SetErr(os.Stdout)
-	ak.Cmd.SetArgs([]string{"start", "--home", home, "--log_level", "info"})
+	ak.Cmd.SetArgs([]string{"start", "--home", home, "--log_level", loglvl, "--log_format", "plain"})
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
-	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
+func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, chainId, home string) error {
+	ak.Cmd.ResetFlags()
+	ak.Cmd.SetArgs([]string{
+		"tx", "payment", "payForData", fmt.Sprint(msg),
+		"--from", accAdr, "-b", "block", "-y", "--gas", "1000000000",
+		"--fees", "100000000000utia",
+		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
+	})
+
+	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
+}
+
+func getResultBlockResponse(uri string) (*coretypes.ResultBlock, error) {
 	resp, err := http.Get(uri)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer resp.Body.Close()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	var rpcResponse types.RPCResponse
 	if err := rpcResponse.UnmarshalJSON(body); err != nil {
-		return "", err
+		return nil, err
 	}
 
-	var resBlock coretypes.ResultBlock
+	var resBlock *coretypes.ResultBlock
 	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
+		return nil, err
+	}
+
+	return resBlock, nil
+}
+
+func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
+	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
+
+	resBlock, err := getResultBlockResponse(uri)
+	if err != nil {
 		return "", err
 	}
 
 	return resBlock.BlockID.Hash.String(), nil
 }
 
-func updateConfig(path, key, value string) error {
+func GetLatestsBlockSize(ip net.IP) (int, error) {
+	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
+
+	resBlock, err := getResultBlockResponse(uri)
+	if err != nil {
+		return 0, err
+	}
+
+	return resBlock.Block.Size(), nil
+}
+
+func updateConfig(path, key string, value interface{}) error {
 	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
 	if err != nil {
 		return err
@@ -148,6 +181,22 @@ func updateConfig(path, key, value string) error {
 	return nil
 }
 
+func AddSeedPeers(path string, peers []string) error {
+	var (
+		peersStr  bytes.Buffer
+		port      int    = 26656
+		separator string = ","
+	)
+
+	for k, peer := range peers {
+		if k == (len(peers) - 1) {
+			separator = ""
+		}
+		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
+	}
+	return updateConfig(path, "p2p.seeds", peersStr.String())
+}
+
 // AddPersistentPeers modifies the respective field in the config.toml
 // to allow the peer to always connect to a set of defined peers
 func AddPersistentPeers(path string, peers []string) error {
@@ -160,18 +209,14 @@ func AddPersistentPeers(path string, peers []string) error {
 		}
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
-
-	return updateConfig(path, "p2p.persistent-peers", peersStr.String())
-}
-
-// ChangeNodeMode changes the mode type in config.toml of the app to either be:
-// a) Full - Downloads the block but not produces any new ones
-// b) Validator
-// c) Seed - Only crawls the p2p network to find and share peers with each other
-func ChangeNodeMode(path string, mode string) error {
-	return updateConfig(path, "mode", mode)
+	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
 }
 
 func ChangeRPCServerAddress(path string, ip net.IP) error {
 	return updateConfig(path, "rpc.laddr", fmt.Sprintf("tcp://%s:26657", ip.To4().String()))
+}
+
+func ChangeConfigParam(path, section, mode string, value interface{}) error {
+	field := fmt.Sprintf("%s.%s", section, mode)
+	return updateConfig(path, field, value)
 }
