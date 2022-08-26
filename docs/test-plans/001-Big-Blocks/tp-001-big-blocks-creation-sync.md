@@ -9,10 +9,6 @@
   - [Exit Conditions](#exit-conditions)
   - [Test Environment](#test-environment)
   - [Notes](#notes)
-      - [E2E: Celestia Network Tests](#e2e-celestia-network-tests)
-      - [DASing with different max block sizes](#dasing-with-different-max-block-sizes)
-      - [(\*) - Considering that we have 30 seconds block time and we want to test on the span of 500 blocks, the test run will be around 4 hours](#---considering-that-we-have-30-seconds-block-time-and-we-want-to-test-on-the-span-of-500-blocks-the-test-run-will-be-around-4-hours)
-      - [(\*\*) - We make an assumption that all wallets have more then enough money to cover all the costs of submitting txs](#---we-make-an-assumption-that-all-wallets-have-more-then-enough-money-to-cover-all-the-costs-of-submitting-txs)
   - [Test-Cases](#test-cases)
 
 ## Introduction
@@ -64,13 +60,13 @@ The motivation behind this plan is to test how our stack(celestia-core/celestia-
 
 ## Notes
 
-#### [E2E: Celestia Network Tests](https://github.com/celestiaorg/celestia-node/issues/7)
+[E2E: Celestia Network Tests](https://github.com/celestiaorg/celestia-node/issues/7)
 
-#### [DASing with different max block sizes](https://github.com/celestiaorg/celestia-node/issues/266)
+[DASing with different max block sizes](https://github.com/celestiaorg/celestia-node/issues/266)
 
-#### (\*) - Considering that we have 30 seconds block time and we want to test on the span of 500 blocks, the test run will be around 4 hours
+(\*) - Considering that we have 30 seconds block time and we want to test on the span of 500 blocks, the test run will be around 4 hours
 
-#### (\*\*) - We make an assumption that all wallets have more then enough money to cover all the costs of submitting txs
+(\*\*) - We make an assumption that all wallets have more then enough money to cover all the costs of submitting txs
 
 ## Test-Cases
 
