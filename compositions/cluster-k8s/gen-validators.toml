@@ -11,6 +11,8 @@
   disable_metrics = false
 
 [global.run.test_params]
+  latency = "0"
+  bandwidth = "320Mib"
   persistent-peers = "10"
 
 [[groups]]

@@ -9,6 +9,7 @@ import (
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"github.com/celestiaorg/test-infra/tests/common"
 
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
@@ -31,7 +32,8 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Bandwidth: 4 << 26, // 256Mib
+			Latency:   time.Duration(runenv.IntParam("latency")),
+			Bandwidth: common.GetBandwidthValue(runenv.StringParam("bandwidth")),
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,

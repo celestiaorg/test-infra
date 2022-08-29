@@ -8,6 +8,7 @@ import (
 	"github.com/celestiaorg/celestia-node/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
+	"github.com/celestiaorg/test-infra/tests/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -31,8 +32,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			// Latency:   100 * time.Millisecond,
-			Bandwidth: 5 << 26, // 320Mib
+			Latency:   time.Duration(runenv.IntParam("latency")),
+			Bandwidth: common.GetBandwidthValue(runenv.StringParam("bandwidth")),
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,
