@@ -1,4 +1,4 @@
-# Test-Case #005 - DA nodes are DASing past headers faster then validators produce new ones
+# Test-Case #004 - Full and Light nodes are syncing past headers faster then validators produce new ones
 
 ## Pre-Requisites:
 
@@ -38,9 +38,11 @@
    2. `J` milliseconds of network latency
 2. Receives the trusted genesis hash and ip from Bridge Nodes
 3. Waits until `N` amount of block has been produced by the chain
-4. Starts DASing the chain afterwards
-5. Checks that it can:
+4. Starts syncing the chain afterwards
+5. Light checks that it can:
    1. DASes the past headers faster then new blocks are produced (\*)
+6. Full checks that it can:
+   1. Sync the past headers faster then new blocks are produced
 
 ## Data Set:
 

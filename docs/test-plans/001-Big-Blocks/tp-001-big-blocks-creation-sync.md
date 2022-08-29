@@ -75,10 +75,10 @@ The motivation behind this plan is to test how our stack(celestia-core/celestia-
 
 [Test-Case #002 - DA nodes are in sync with validators’ ](test-cases/tc-002-da-sync.md)
 
-[Test-Case #003 - DA nodes are syncing past headers faster then validators produce new ones](test-cases/tc-003-da-sync-past.md)
+[Test-Case #003 - Full nodes are syncing past headers faster then validators produce new ones](test-cases/tc-003-full-sync-past.md)
 
-[Test-Case #004 - DASing of the latest header is faster then the block production time](test-cases/tc-004-das-current.md)
+[Test-Case #004 - Full and Light nodes are syncing past headers faster then validators produce new ones](test-cases/tc-004-full-light-past.md)
 
-[Test-Case #005 - DA nodes are DASing past headers faster then validators produce new ones](test-cases/tc-005-das-past.md)
+[Test-Case #005 - Light nodes are DASing past headers faster then validators produce new ones](test-cases/tc-005-light-past.md)
 
 [Test-Case #006 - All DA nodes can submit data ](test-cases/tc-006-da-node-pfd.md)

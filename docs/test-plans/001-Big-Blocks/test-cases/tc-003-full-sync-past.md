@@ -1,4 +1,4 @@
-# Test-Case #003 - DA nodes are syncing past headers faster then validators produce new ones
+# Test-Case #003 - Full nodes are syncing past headers faster then validators produce new ones
 
 ## Pre-Requisites:
 
@@ -31,7 +31,16 @@
 4. Check that it is synced
 5. Broadcasts new blocks to the DA network
 
-## Steps for each of DA Full / Light nodes:
+## Steps for each of the DA Light nodes:
+
+1. Setups network with:
+   1. `I` mb of bandwidth
+   2. `J` milliseconds of network latency
+2. Receives the trusted genesis hash and ip from Bridge Nodes
+3. Starts syncing the chain
+4. Check that it is synced
+
+## Steps for each of DA Full nodes:
 
 1. Setups network with:
    1. `I` mb of bandwidth

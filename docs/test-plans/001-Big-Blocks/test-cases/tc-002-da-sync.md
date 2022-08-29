@@ -28,7 +28,8 @@
    2. `J` milliseconds of network latency
 2. Bridge nodes connect to respective Validators
 3. Full / Light nodes connect to Bridge Nodes
-4. Check that the latest received height is the same as for the validators
+4. Starts syncing the chain
+5. Checks that the latest received height is the same as for the validators
 
 ## Data Set:
 
