@@ -14,6 +14,8 @@
 ## Introduction
 
 The motivation behind this plan is to test how our stack(celestia-core/celestia-app/celestia-node) can withstand the max peak usage of the network from submitting data into our DA/Consensus Layer.
+In addition, this plan is covering cases where we will have different implementations of the stack(i.e. celestia-core/celestia-app/celestia-node are developed in Rust, etc.) and the plan should 
+be applied for them, too as we are having for current implementation(Go)
 
 ## In-Scope
 
@@ -25,6 +27,7 @@ The motivation behind this plan is to test how our stack(celestia-core/celestia-
   - Bridge / Full / Light
 - Network Latencies / Chaos
 - Chain up to 500 blocks (\*)
+- Implementation of either of the stack in different language
 
 ## Out-of-Scope
 
