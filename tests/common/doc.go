@@ -13,3 +13,4 @@ operating with the validator
 appcmd, err := common.BuildValidator(ctx, runenv, initCtx)
 appcmd.PayForData(...)
 */
+package common
