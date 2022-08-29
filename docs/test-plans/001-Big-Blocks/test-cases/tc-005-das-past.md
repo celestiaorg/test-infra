@@ -8,7 +8,7 @@
 4. Validators’ set is not changing during test execution
    1. All validators are created during genesis
 5. DA Nodes amount is not changing during the test execution
-   1. We gracefully add DA Nodes as the first block is produced
+   1. We add DA Nodes as the first block is produced
 
 ## Steps for each of the validators:
 
@@ -41,7 +41,6 @@
 4. Starts DASing the chain afterwards
 5. Checks that it can:
    1. DASes the past headers faster then new blocks are produced (\*)
-   2. DASes the current header in parallel
 
 ## Data Set:
 

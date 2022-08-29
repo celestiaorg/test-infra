@@ -23,11 +23,12 @@ The motivation behind this plan is to test how our stack(celestia-core/celestia-
   - 40/100 validators’ set
 - Celestia Node Instances
   - Bridge / Full / Light
+- Network Latencies / Chaos
+- Chain up to 500 blocks (\*)
 
 ## Out-of-Scope
 
 - Optimint submitting data using public api or any other way
-- Syncing from a long-live chain(i.e. more then 500 block)(\*)
 - Malicious behaviour from the validators’ set
 - Withhelding the data
 - Losing/Restoring connection between peers
