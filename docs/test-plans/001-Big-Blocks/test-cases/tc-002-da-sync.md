@@ -1,4 +1,4 @@
-# Test-Case #002 - DA nodes are in sync with validators’
+# Test-Case #2 - DA nodes are in sync with validators
 
 ## Pre-Requisites:
 
