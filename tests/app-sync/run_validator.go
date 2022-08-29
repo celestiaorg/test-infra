@@ -1,18 +1,20 @@
-package nodesync
+package appsync
 
 import (
 	"context"
+	"net"
 	"time"
 
-	"github.com/celestiaorg/test-infra/testkit"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/tests/common"
+
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -51,32 +53,36 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("starting........")
 	go appcmd.StartNode("info")
 
-	// wait for a new block to be produced
-	// RPC is also being initialized...
+	// // wait for a new block to be produced
 	time.Sleep(1 * time.Minute)
 
-	runenv.RecordMessage("publishing app-validator address")
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return err
+	// If all 3 validators submit pfd - it will take too long to produce a new block
+	for i := 0; i < 10; i++ {
+		runenv.RecordMessage("Submitting PFD with 90k bytes random data")
+		err = appcmd.PayForData(
+			appcmd.AccountAddress,
+			50000,
+			"test",
+			appcmd.ChainId,
+			appcmd.GetHomePath(),
+		)
+
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
+		}
+		go func() {
+			s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+			if err != nil {
+				runenv.RecordMessage("err in last size call, %s", err.Error())
+			}
+
+			runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
+		}()
 	}
 
-	_, err = syncclient.Publish(
-		ctx,
-		testkit.AppNodeTopic,
-		&testkit.AppNodeInfo{
-			ID: int(initCtx.GlobalSeq),
-			IP: ip,
-		},
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
-	if err != nil {
-		return err
-	}
+	time.Sleep(30 * time.Second)
+	runenv.RecordSuccess()
 
 	return nil
 }

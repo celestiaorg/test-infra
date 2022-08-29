@@ -31,7 +31,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			// Latency:   100 * time.Millisecond,
 			Bandwidth: 5 << 26, // 320Mib
 		},
 		CallbackState: "network-configured",
