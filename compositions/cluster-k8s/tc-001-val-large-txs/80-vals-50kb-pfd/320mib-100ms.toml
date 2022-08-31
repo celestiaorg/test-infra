@@ -1,20 +1,21 @@
 [metadata]
-  name = "app-validator"
+  name = "001-val-large-txs-80-set"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "init-val"
+  case = "001-val-large-txs"
   total_instances = 80
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
 
 [global.run.test_params]
-  latency = "0"
+  latency = "100"
   bandwidth = "320Mib"
-  validator = "80"
   persistent-peers = "10"
+  submit-times = "10"
+  msg-size = "50000"
 
 [[groups]]
   id = "validators"

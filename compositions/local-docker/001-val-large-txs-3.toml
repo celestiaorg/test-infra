@@ -1,10 +1,10 @@
 [metadata]
-  name = "app-validator"
+  name = "001-val-large-txs"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "init-val"
+  case = "001-val-large-txs"
   total_instances = 3
   builder = "docker:generic"
   runner = "local:docker"

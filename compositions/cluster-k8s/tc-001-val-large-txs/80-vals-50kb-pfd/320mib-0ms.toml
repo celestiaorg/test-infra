@@ -1,0 +1,37 @@
+[metadata]
+  name = "001-val-large-txs-80-set"
+  author = "Bidon15"
+
+[global]
+  plan = "celestia"
+  case = "001-val-large-txs"
+  total_instances = 80
+  builder = "docker:generic"
+  runner = "cluster:k8s"
+  disable_metrics = false
+
+[global.run.test_params]
+  latency = "0"
+  bandwidth = "320Mib"
+  validator = "80"
+  persistent-peers = "10"
+  submit-times = "10"
+  msg-size = "50000"
+
+[[groups]]
+  id = "validators"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "4Gi"
+    cpu = "3"
+  [groups.instances]
+    count = 80
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.18.3"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.18"
+  [groups.build]
+  [groups.run]
+    artifact = ""
