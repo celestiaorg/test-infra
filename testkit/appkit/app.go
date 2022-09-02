@@ -33,10 +33,11 @@ type AppKit struct {
 	Cmd            *cobra.Command
 }
 
-func New(path string) *AppKit {
+func New(path, chainId string) *AppKit {
 	return &AppKit{
-		home: path,
-		Cmd:  appcmd.NewRootCmd(),
+		home:    path,
+		ChainId: chainId,
+		Cmd:     appcmd.NewRootCmd(),
 	}
 }
 
@@ -72,9 +73,8 @@ func (ak *AppKit) GetHomePath() string {
 	return ak.home
 }
 
-func (ak *AppKit) InitChain(moniker string, chainId string) (string, error) {
-	ak.ChainId = chainId
-	return ak.execCmd([]string{"init", moniker, "--chain-id", chainId, "--home", ak.home})
+func (ak *AppKit) InitChain(moniker string) (string, error) {
+	return ak.execCmd([]string{"init", moniker, "--chain-id", ak.ChainId, "--home", ak.home})
 }
 
 func (ak *AppKit) CreateKey(name string, krbackend string, krpath string) (string, error) {
@@ -110,13 +110,13 @@ func (ak *AppKit) StartNode(loglvl string) error {
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, chainId, krpath string) error {
+func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, krpath string) error {
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
 		"tx", "payment", "payForData", fmt.Sprint(msg),
 		"--from", accAdr, "-b", "block", "-y", "--gas", "1000000000",
 		"--fees", "100000000000utia",
-		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", ak.home, "--keyring-dir", krpath,
+		"--keyring-backend", krbackend, "--chain-id", ak.ChainId, "--home", ak.home, "--keyring-dir", krpath,
 	})
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)

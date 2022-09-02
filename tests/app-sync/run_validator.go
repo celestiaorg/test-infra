@@ -63,7 +63,6 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			appcmd.AccountAddress,
 			50000,
 			"test",
-			appcmd.ChainId,
 			appcmd.GetHomePath(),
 		)
 
