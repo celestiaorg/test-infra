@@ -9,6 +9,7 @@ import (
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
+	"github.com/celestiaorg/test-infra/tests/common"
 	"github.com/libp2p/go-libp2p-core/host"
 	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/testground/sdk-go/network"
@@ -35,7 +36,8 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		Network: "default",
 		Enable:  true,
 		Default: network.LinkShape{
-			Bandwidth: 5 << 26, // 320Mib
+			Latency:   time.Duration(runenv.IntParam("latency")),
+			Bandwidth: common.GetBandwidthValue(runenv.StringParam("bandwidth")),
 		},
 		CallbackState: "network-configured",
 		RoutingPolicy: network.AllowAll,

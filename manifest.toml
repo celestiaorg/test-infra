@@ -20,6 +20,8 @@ enabled = true
 name = "init-val"
 instances = { min = 1, max = 100, default = 3 }
     [testcases.params]
+    latency = { type = "int", default = 0}
+    bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
 
@@ -27,6 +29,8 @@ instances = { min = 1, max = 100, default = 3 }
 name = "node-sync"
 instances = { min = 4, max = 100, default = 12 }
     [testcases.params]
+    latency = { type = "int", default = 0}
+    bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
     bridge = { type = "int", default = 3}

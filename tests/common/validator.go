@@ -24,6 +24,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	const chainId string = "tia-test"
 	cmd := appkit.New(home, chainId)
 
+
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GlobalSeq)
 	accAddr, err := cmd.CreateKey(keyringName, "test", home)
 	if err != nil {
