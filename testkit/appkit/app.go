@@ -73,7 +73,7 @@ func (ak *AppKit) GetHomePath() string {
 }
 
 func (ak *AppKit) InitChain(moniker string, chainId string) (string, error) {
-	ak.AccountAddress = chainId
+	ak.ChainId = chainId
 	return ak.execCmd([]string{"init", moniker, "--chain-id", chainId, "--home", ak.home})
 }
 
