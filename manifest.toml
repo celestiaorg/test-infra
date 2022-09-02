@@ -22,6 +22,7 @@ instances = { min = 1, max = 100, default = 3 }
     [testcases.params]
     latency = { type = "int", default = 0}
     bandwidth = { type = "string", default = "256Mib"}
+    validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
 
 [[testcases]]

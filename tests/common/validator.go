@@ -21,7 +21,9 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appkit.New(home)
+	const chainId string = "tia-test"
+	cmd := appkit.New(home, chainId)
+
 
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GlobalSeq)
 	accAddr, err := cmd.CreateKey(keyringName, "test", home)
@@ -40,7 +42,6 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	// Orchestrator is receiving all accounts by subscription, to then
 	// execute the `add-genesis-account` command and send back to the rest
 	// of the validators to set the initial genesis.json
-	const chainId string = "tia-test"
 	if initCtx.GlobalSeq == 1 {
 		accAddrCh := make(chan string)
 		_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
@@ -57,7 +58,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 
 		moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
 
-		_, err = cmd.InitChain(moniker, chainId)
+		_, err = cmd.InitChain(moniker)
 		if err != nil {
 			return nil, err
 		}
@@ -105,7 +106,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
-	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", chainId, home)
+	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", home)
 	if err != nil {
 		return nil, err
 	}

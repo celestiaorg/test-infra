@@ -64,22 +64,19 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			appcmd.AccountAddress,
 			50000,
 			"test",
-			appcmd.ChainId,
 			appcmd.GetHomePath(),
 		)
-
 		if err != nil {
 			runenv.RecordFailure(err)
 			return err
 		}
-		go func(i int) {
-			s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
-			if err != nil {
-				runenv.RecordMessage("err in last size call, %s", err.Error())
-			}
 
-			runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
-		}(i)
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		if err != nil {
+			runenv.RecordMessage("err in last size call, %s", err.Error())
+		}
+
+		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
 	}
 
 	time.Sleep(30 * time.Second)
