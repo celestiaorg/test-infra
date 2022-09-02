@@ -53,7 +53,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appkit.New(home)
+	cmd := appkit.New(home, "tia-test")
 
 	nodeId, err := cmd.GetNodeId()
 	if err != nil {

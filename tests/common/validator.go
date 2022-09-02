@@ -57,7 +57,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 
 		moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
 
-		_, err = cmd.InitChain(moniker, chainId)
+		_, err = cmd.InitChain(moniker)
 		if err != nil {
 			return nil, err
 		}
@@ -105,7 +105,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
-	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", chainId, home)
+	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", home)
 	if err != nil {
 		return nil, err
 	}

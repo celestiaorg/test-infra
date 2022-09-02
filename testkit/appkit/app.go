@@ -77,7 +77,7 @@ func (ak *AppKit) InitChain(moniker string) (string, error) {
 	return ak.execCmd([]string{"init", moniker, "--chain-id", ak.ChainId, "--home", ak.home})
 }
 
-func (ak *AppKit) CreateKey(name string, krbackend string, krpath string) (string, error) {
+func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
 	_, err := ak.execCmd([]string{"keys", "add", name, "--keyring-backend", krbackend, "--home", ak.home, "--keyring-dir", krpath})
 	if err != nil {
 		return "", err
@@ -85,12 +85,12 @@ func (ak *AppKit) CreateKey(name string, krbackend string, krpath string) (strin
 	return ak.execCmd([]string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", ak.home, "--keyring-dir", krpath})
 }
 
-func (ak *AppKit) AddGenAccount(addr string, amount string) (string, error) {
+func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
 	return ak.execCmd([]string{"add-genesis-account", addr, amount, "--home", ak.home})
 }
 
-func (ak *AppKit) SignGenTx(accName string, amount string, krbackend string, chainId string, krpath string) (string, error) {
-	return ak.execCmd([]string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", chainId, "--home", ak.home, "--keyring-dir", krpath})
+func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, error) {
+	return ak.execCmd([]string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", ak.ChainId, "--home", ak.home, "--keyring-dir", krpath})
 }
 
 func (ak *AppKit) CollectGenTxs() (string, error) {
