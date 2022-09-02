@@ -10,6 +10,10 @@
   runner = "cluster:k8s"
   disable_metrics = false
 
+[global.run.test_params]
+  validator = "80"
+  persistent-peers = "10"
+
 [[groups]]
   id = "validators"
   builder = "docker:generic"

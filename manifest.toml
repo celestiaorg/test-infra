@@ -19,6 +19,9 @@ enabled = true
 [[testcases]]
 name = "init-val"
 instances = { min = 1, max = 100, default = 3 }
+    [testcases.params]
+    validator = { type = "int", default = 3}
+    persistent-peers = { type = "int", default = 3}
 
 [[testcases]]
 name = "node-sync"

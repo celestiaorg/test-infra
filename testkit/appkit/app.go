@@ -26,13 +26,18 @@ type ValidatorNode struct {
 }
 
 type AppKit struct {
-	m   sync.Mutex
-	Cmd *cobra.Command
+	m              sync.Mutex
+	home           string
+	AccountAddress string
+	ChainId        string
+	Cmd            *cobra.Command
 }
 
-func New() *AppKit {
+func New(path, chainId string) *AppKit {
 	return &AppKit{
-		Cmd: appcmd.NewRootCmd(),
+		home:    path,
+		ChainId: chainId,
+		Cmd:     appcmd.NewRootCmd(),
 	}
 }
 
@@ -64,50 +69,54 @@ func (ak *AppKit) execCmd(args []string) (output string, err error) {
 	return output, nil
 }
 
-func (ak *AppKit) InitChain(moniker string, chainId string, home string) (string, error) {
-	return ak.execCmd([]string{"init", moniker, "--chain-id", chainId, "--home", home})
+func (ak *AppKit) GetHomePath() string {
+	return ak.home
 }
 
-func (ak *AppKit) CreateKey(name string, krbackend string, home string) (string, error) {
-	_, err := ak.execCmd([]string{"keys", "add", name, "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
+func (ak *AppKit) InitChain(moniker string) (string, error) {
+	return ak.execCmd([]string{"init", moniker, "--chain-id", ak.ChainId, "--home", ak.home})
+}
+
+func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
+	_, err := ak.execCmd([]string{"keys", "add", name, "--keyring-backend", krbackend, "--home", ak.home, "--keyring-dir", krpath})
 	if err != nil {
 		return "", err
 	}
-	return ak.execCmd([]string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", home, "--keyring-dir", home})
+	return ak.execCmd([]string{"keys", "show", name, "-a", "--keyring-backend", krbackend, "--home", ak.home, "--keyring-dir", krpath})
 }
 
-func (ak *AppKit) AddGenAccount(addr string, amount string, home string) (string, error) {
-	return ak.execCmd([]string{"add-genesis-account", addr, amount, "--home", home})
+func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
+	return ak.execCmd([]string{"add-genesis-account", addr, amount, "--home", ak.home})
 }
 
-func (ak *AppKit) SignGenTx(accName string, amount string, krbackend string, chainId string, home string) (string, error) {
-	return ak.execCmd([]string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home})
+func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, error) {
+	return ak.execCmd([]string{"gentx", accName, amount, "--keyring-backend", krbackend, "--chain-id", ak.ChainId, "--home", ak.home, "--keyring-dir", krpath})
 }
 
-func (ak *AppKit) CollectGenTxs(home string) (string, error) {
-	return ak.execCmd([]string{"collect-gentxs", "--home", home})
+func (ak *AppKit) CollectGenTxs() (string, error) {
+	return ak.execCmd([]string{"collect-gentxs", "--home", ak.home})
 }
 
-func (ak *AppKit) GetNodeId(home string) (string, error) {
-	return ak.execCmd([]string{"tendermint", "show-node-id", "--home", home})
+func (ak *AppKit) GetNodeId() (string, error) {
+	return ak.execCmd([]string{"tendermint", "show-node-id", "--home", ak.home})
 }
 
-func (ak *AppKit) StartNode(home, loglvl string) error {
+func (ak *AppKit) StartNode(loglvl string) error {
 	ak.Cmd.ResetFlags()
 
 	ak.Cmd.SetErr(os.Stdout)
-	ak.Cmd.SetArgs([]string{"start", "--home", home, "--log_level", loglvl, "--log_format", "plain"})
+	ak.Cmd.SetArgs([]string{"start", "--home", ak.home, "--log_level", loglvl, "--log_format", "plain"})
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, chainId, home string) error {
+func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, krpath string) error {
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
 		"tx", "payment", "payForData", fmt.Sprint(msg),
 		"--from", accAdr, "-b", "block", "-y", "--gas", "1000000000",
 		"--fees", "100000000000utia",
-		"--keyring-backend", krbackend, "--chain-id", chainId, "--home", home, "--keyring-dir", home,
+		"--keyring-backend", krbackend, "--chain-id", ak.ChainId, "--home", ak.home, "--keyring-dir", krpath,
 	})
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)

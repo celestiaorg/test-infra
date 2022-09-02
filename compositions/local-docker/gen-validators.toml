@@ -10,6 +10,10 @@
   runner = "local:docker"
   disable_metrics = false
 
+[global.run.test_params]
+  validator = "3"
+  persistent-peers = "3"
+
 [[groups]]
   id = "validators"
   builder = "docker:generic"

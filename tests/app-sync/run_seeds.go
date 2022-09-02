@@ -53,9 +53,9 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appkit.New()
+	cmd := appkit.New(home, "tia-test")
 
-	nodeId, err := cmd.GetNodeId(home)
+	nodeId, err := cmd.GetNodeId()
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	go cmd.StartNode(home, "info")
+	go cmd.StartNode("info")
 
 	// // wait for a new block to be produced
 	time.Sleep(1 * time.Minute)
