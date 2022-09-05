@@ -8,9 +8,7 @@ import (
 
 // Test-Case #001 - Validators submit large txs
 // Description is in docs/test-plans/001-Big-Blocks/test-cases
-func ValSubmitLargeTxs(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	var err error
-
+func ValSubmitLargeTxs(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.TestGroupID {
 	case "validators":
 		err = appsync.RunValidator(runenv, initCtx)
