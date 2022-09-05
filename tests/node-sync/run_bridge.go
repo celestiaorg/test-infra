@@ -67,10 +67,8 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			select {
 			case err = <-sub.Done():
 				if err != nil {
-					return nil, err
+					return nil, fmt.Errorf("no app has been sent for this bridge to connect to remotely")
 				}
-			case <-ctx.Done():
-				return nil, fmt.Errorf("no app has been sent for this bridge to connect to remotely")
 			case appInfo := <-appInfoCh:
 				if (appInfo.ID % total) == (int(initCtx.GlobalSeq) % total) {
 					return appInfo, nil
@@ -110,12 +108,12 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(3))
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(2))
 	if err != nil {
 		return err
 	}
 
-	runenv.RecordMessage("Reached Block#3 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordMessage("Reached Block#2 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 
 	//create a new subscription to publish bridge's multiaddress to full/light nodes
 	addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
@@ -141,11 +139,15 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("Finished published bridgeID Addr %d", int(initCtx.GlobalSeq))
 
-	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(8))
+	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(13))
 	if err != nil {
 		return err
 	}
-	runenv.RecordMessage("Reached Block#8 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordMessage("Reached Block#13 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+
+	if nd.HeaderServ.IsSyncing() {
+		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
+	}
 
 	err = nd.Stop(ctx)
 	if err != nil {

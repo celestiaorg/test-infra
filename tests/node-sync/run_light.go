@@ -80,12 +80,15 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(6))
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(12))
 	if err != nil {
 		return err
 	}
+	runenv.RecordMessage("Reached Block#12 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 
-	runenv.RecordMessage("Reached Block#6 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	if nd.HeaderServ.IsSyncing() {
+		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
+	}
 
 	err = nd.Stop(ctx)
 	if err != nil {

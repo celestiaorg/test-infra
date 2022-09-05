@@ -57,7 +57,6 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	// // wait for a new block to be produced
 	time.Sleep(1 * time.Minute)
 
-	// If all 3 validators submit pfd - it will take too long to produce a new block
 	for i := 0; i < runenv.IntParam("submit-times"); i++ {
 		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
 		err = appcmd.PayForData(
