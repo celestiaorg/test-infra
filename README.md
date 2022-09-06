@@ -39,7 +39,7 @@ The repository is divided into 4 main directories:
 
 The order of directories above :point_up: is how the repo should be read
 if you want to get acquinted with test plans/cases design and their further implementations.
-Each of the directories contains its own `README.md`
+Each of the directories contains its own `README.md`.
 
 ## Test Execution
 
