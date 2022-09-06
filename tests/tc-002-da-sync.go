@@ -7,21 +7,22 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-func SyncNodes(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	var err error
-
+func SyncNodes(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	vn := runenv.IntParam("validator")
 	bn := runenv.IntParam("bridge")
 	fn := runenv.IntParam("full")
 	ln := runenv.IntParam("light")
 
-	if int(initCtx.GlobalSeq) <= vn {
+	// TODO(@Bidon15): how do we assign LN per BN with non-detirministic assignment of GlobalSeq
+	// due to roles and compositions
+	switch runenv.StringParam("role") {
+	case "validator":
 		err = nodesync.RunAppValidator(runenv, initCtx)
-	} else if int(initCtx.GlobalSeq) > vn && int(initCtx.GlobalSeq) <= (vn+bn) {
+	case "bridge":
 		err = nodesync.RunBridgeNode(runenv, initCtx)
-	} else if int(initCtx.GlobalSeq) > (vn+bn) && int(initCtx.GlobalSeq) <= (vn+bn+fn) {
+	case "full":
 		err = nodesync.RunFullNode(runenv, initCtx)
-	} else if int(initCtx.GlobalSeq) > (vn+bn+fn) && int(initCtx.GlobalSeq) <= (vn+bn+fn+ln) {
+	case "light":
 		err = nodesync.RunLightNode(runenv, initCtx)
 	}
 
