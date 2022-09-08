@@ -1,32 +1,32 @@
 [metadata]
-  name = "tc-002-da-sync-100-100-50-1000-set"
+  name = "tc-002-da-sync-3-3-3-3-set"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
   case = "tc-002-da-sync"
-  total_instances = 2250
+  total_instances = 12
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
 
 [global.run.test_params]
-  persistent-peers = "10"
+  persistent-peers = "3"
   submit-times = "10"
-  msg-size = "40000"
-  validator = "100"
-  bridge = "100"
-  full = "50"
-  light = "1000"
+  msg-size = "100000"
+  validator = "3"
+  bridge = "3"
+  full = "3"
+  light = "3"
 
 [[groups]]
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
+    memory = ""
+    cpu = ""
   [groups.instances]
-    count = 100
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"
@@ -36,18 +36,18 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "200"
-    bandwidth = "320Mib"
+    latency = "0"
+    bandwidth = "256Mib"
     role = "validator"
 
 [[groups]]
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
+    memory = ""
+    cpu = ""
   [groups.instances]
-    count = 100
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"
@@ -57,18 +57,18 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "200"
-    bandwidth = "320Mib"
+    latency = "0"
+    bandwidth = "256Mib"
     role = "bridge"
 
 [[groups]]
   id = "fulls"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
+    memory = ""
+    cpu = ""
   [groups.instances]
-    count = 50
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"
@@ -78,18 +78,18 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "200"
-    bandwidth = "320Mib"
+    latency = "0"
+    bandwidth = "256Mib"
     role = "full"
 
 [[groups]]
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "2"
+    memory = ""
+    cpu = ""
   [groups.instances]
-    count = 1000
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"
@@ -99,5 +99,5 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "200"
+    latency = "0"
     bandwidth = "100Mib"

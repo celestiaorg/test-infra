@@ -70,7 +70,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 					return nil, fmt.Errorf("no app has been sent for this bridge to connect to remotely")
 				}
 			case appInfo := <-appInfoCh:
-				if (appInfo.ID % total) == (int(initCtx.GlobalSeq) % total) {
+				if (appInfo.ID % total) == (int(initCtx.GroupSeq) % total) {
 					return appInfo, nil
 				}
 			}
@@ -121,14 +121,14 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GlobalSeq))
+	runenv.RecordMessage("Publishing bridgeID %d", int(initCtx.GroupSeq))
 	runenv.RecordMessage("Publishing bridgeID Addr %s", addrs[0].String())
 
 	_, err = syncclient.Publish(
 		ctx,
 		testkit.BridgeNodeTopic,
 		&testkit.BridgeNodeInfo{
-			ID:          int(initCtx.GlobalSeq),
+			ID:          int(initCtx.GroupSeq),
 			Maddr:       addrs[0].String(),
 			TrustedHash: h,
 		},
@@ -137,7 +137,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("Finished published bridgeID Addr %d", int(initCtx.GlobalSeq))
+	runenv.RecordMessage("Finished published bridgeID Addr %d", int(initCtx.GroupSeq))
 
 	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(13))
 	if err != nil {

@@ -68,7 +68,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		ctx,
 		testkit.AppNodeTopic,
 		&testkit.AppNodeInfo{
-			ID: int(initCtx.GlobalSeq),
+			ID: int(initCtx.GroupSeq),
 			IP: ip,
 		},
 	)

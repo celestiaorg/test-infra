@@ -52,7 +52,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeNode, err := GetBridgeNode(ctx, syncclient, initCtx.GlobalSeq, runenv.IntParam("bridge"))
+	bridgeNode, err := GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
 	if err != nil {
 		return err
 	}
