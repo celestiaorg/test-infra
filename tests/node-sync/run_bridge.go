@@ -139,11 +139,13 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("Finished published bridgeID Addr %d", int(initCtx.GroupSeq))
 
-	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(13))
+	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
 	}
-	runenv.RecordMessage("Reached Block#13 contains Hash: %s", eh.Commit.BlockID.Hash.String())
+	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
+		runenv.IntParam("block-height"),
+		eh.Commit.BlockID.Hash.String())
 
 	if nd.HeaderServ.IsSyncing() {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))

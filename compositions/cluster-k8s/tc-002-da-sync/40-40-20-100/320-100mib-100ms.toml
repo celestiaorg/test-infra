@@ -59,6 +59,7 @@
     [groups.run.test_params]
     latency = "100"
     bandwidth = "320Mib"
+    block-height = "13"
     role = "bridge"
 
 [[groups]]
@@ -80,6 +81,7 @@
     [groups.run.test_params]
     latency = "100"
     bandwidth = "320Mib"
+    block-height = "12"
     role = "full"
 
 [[groups]]
@@ -101,3 +103,5 @@
     [groups.run.test_params]
     latency = "100"
     bandwidth = "100Mib"
+    block-height = "12"
+    role = "light"

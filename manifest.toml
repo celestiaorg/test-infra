@@ -39,3 +39,4 @@ instances = { min = 4, max = 3000, default = 12 }
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
     role = { type = "string" }
+    block-height = { type = "int" default = 10}
