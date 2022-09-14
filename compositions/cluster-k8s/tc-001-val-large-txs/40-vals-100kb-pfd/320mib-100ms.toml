@@ -13,6 +13,7 @@
 [global.run.test_params]
   latency = "100"
   bandwidth = "320Mib"
+  validator = "40"
   persistent-peers = "10"
   submit-times = "10"
   msg-size = "100000"

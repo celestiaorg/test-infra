@@ -16,14 +16,14 @@
   validator = "80"
   persistent-peers = "10"
   submit-times = "10"
-  msg-size = "50000"
+  msg-size = "48000"
 
 [[groups]]
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
     memory = "4Gi"
-    cpu = "3"
+    cpu = "4"
   [groups.instances]
     count = 80
     percentage = 0.0
