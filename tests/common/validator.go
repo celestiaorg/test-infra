@@ -24,7 +24,6 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	const chainId string = "tia-test"
 	cmd := appkit.New(home, chainId)
 
-
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GlobalSeq)
 	accAddr, err := cmd.CreateKey(keyringName, "test", home)
 	if err != nil {
@@ -32,43 +31,35 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	}
 	cmd.AccountAddress = accAddr
 
-	_, err = syncclient.Publish(ctx, testkit.AccountAddressTopic, accAddr)
+	seq, err := syncclient.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
 		return nil, err
 	}
 
+	accAddrCh := make(chan string)
+	_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
+	if err != nil {
+		return nil, err
+	}
+
+	var accounts []string
+	for i := 0; i < runenv.IntParam("validator"); i++ {
+		addr := <-accAddrCh
+		accounts = append(accounts, addr)
+	}
+
+	moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
+
 	// Here we assign the first instance to be the orchestrator role
 	//
-	// Orchestrator is receiving all accounts by subscription, to then
-	// execute the `add-genesis-account` command and send back to the rest
-	// of the validators to set the initial genesis.json
-	if initCtx.GlobalSeq == 1 {
-		accAddrCh := make(chan string)
-		_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
-		if err != nil {
-			return nil, err
-		}
-
-		var accounts []string
-		for i := 0; i < runenv.IntParam("validator"); i++ {
-			addr := <-accAddrCh
-			runenv.RecordMessage("Received address: %s", addr)
-			accounts = append(accounts, addr)
-		}
-
-		moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
-
+	// Orchestrator is only initing the chain and sending the genesis.json
+	// to others, so the genesis time is the same everywhere
+	if seq == 1 {
 		_, err = cmd.InitChain(moniker)
 		if err != nil {
 			return nil, err
 		}
-
-		for _, v := range accounts {
-			_, err := cmd.AddGenAccount(v, "1000000000000000utia")
-			if err != nil {
-				return nil, err
-			}
-		}
+		runenv.RecordMessage("Chain initialised")
 
 		gen, err := os.Open(fmt.Sprintf("%s/config/genesis.json", home))
 		if err != nil {
@@ -106,6 +97,14 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		runenv.RecordMessage("Validator has received the initial genesis")
 	}
 
+	for _, v := range accounts {
+		_, err := cmd.AddGenAccount(v, "1000000000000000utia")
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	runenv.RecordMessage("Validator is signing its own GenTx")
 	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", home)
 	if err != nil {
 		return nil, err

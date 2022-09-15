@@ -17,13 +17,15 @@ enabled = true
 enabled = true
 
 [[testcases]]
-name = "init-val"
+name = "001-val-large-txs"
 instances = { min = 1, max = 100, default = 3 }
     [testcases.params]
     latency = { type = "int", default = 0}
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    submit-times = { type = "int", default = 4}
+    msg-size = { type = "int", default = 10000}
 
 [[testcases]]
 name = "node-sync"

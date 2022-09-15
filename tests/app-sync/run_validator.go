@@ -58,11 +58,11 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	time.Sleep(1 * time.Minute)
 
 	// If all 3 validators submit pfd - it will take too long to produce a new block
-	for i := 0; i < 10; i++ {
-		runenv.RecordMessage("Submitting PFD with 90k bytes random data")
+	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
 		err = appcmd.PayForData(
 			appcmd.AccountAddress,
-			50000,
+			runenv.IntParam("msg-size"),
 			"test",
 			appcmd.GetHomePath(),
 		)

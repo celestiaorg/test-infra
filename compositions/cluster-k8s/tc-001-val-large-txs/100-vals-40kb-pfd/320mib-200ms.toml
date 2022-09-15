@@ -1,29 +1,31 @@
 [metadata]
-  name = "app-validator"
+  name = "001-val-large-txs-100-set"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "init-val"
-  total_instances = 3
+  case = "001-val-large-txs"
+  total_instances = 100
   builder = "docker:generic"
-  runner = "local:docker"
+  runner = "cluster:k8s"
   disable_metrics = false
 
 [global.run.test_params]
-  latency = "0"
+  latency = "200"
   bandwidth = "320Mib"
-  validator = "3"
-  persistent-peers = "3"
+  validator = "100"
+  persistent-peers = "10"
+  submit-times = "10"
+  msg-size = "40000"
 
 [[groups]]
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
-    memory = ""
-    cpu = ""
+    memory = "4Gi"
+    cpu = "3"
   [groups.instances]
-    count = 3
+    count = 80
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.18.3"
