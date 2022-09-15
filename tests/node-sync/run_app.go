@@ -2,9 +2,11 @@ package nodesync
 
 import (
 	"context"
+	"net"
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/tests/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
@@ -66,12 +68,33 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		ctx,
 		testkit.AppNodeTopic,
 		&testkit.AppNodeInfo{
-			ID: int(initCtx.GlobalSeq),
+			ID: int(initCtx.GroupSeq),
 			IP: ip,
 		},
 	)
 	if err != nil {
 		return err
+	}
+
+	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
+		err = appcmd.PayForData(
+			appcmd.AccountAddress,
+			runenv.IntParam("msg-size"),
+			"test",
+			appcmd.GetHomePath(),
+		)
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
+		}
+
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		if err != nil {
+			runenv.RecordMessage("err in last size call, %s", err.Error())
+		}
+
+		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
 	}
 
 	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
