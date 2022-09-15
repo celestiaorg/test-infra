@@ -45,7 +45,6 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	var accounts []string
 	for i := 0; i < runenv.IntParam("validator"); i++ {
 		addr := <-accAddrCh
-		// runenv.RecordMessage("Received address: %s", addr)
 		accounts = append(accounts, addr)
 	}
 
