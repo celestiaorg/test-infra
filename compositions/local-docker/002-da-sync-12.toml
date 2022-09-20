@@ -7,7 +7,7 @@
   case = "002-da-sync"
   total_instances = 12
   builder = "docker:generic"
-  runner = "cluster:k8s"
+  runner = "local:docker"
   disable_metrics = false
 
 [global.run.test_params]
