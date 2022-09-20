@@ -18,13 +18,13 @@ import (
 func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*appkit.AppKit, error) {
 	syncclient := initCtx.SyncClient
 
-	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GlobalSeq)
+	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
 	const chainId string = "tia-test"
 	cmd := appkit.New(home, chainId)
 
-	keyringName := fmt.Sprintf("keyName-%d", initCtx.GlobalSeq)
+	keyringName := fmt.Sprintf("keyName-%d", initCtx.GroupSeq)
 	accAddr, err := cmd.CreateKey(keyringName, "test", home)
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		accounts = append(accounts, addr)
 	}
 
-	moniker := fmt.Sprintf("validator-%d", initCtx.GlobalSeq)
+	moniker := fmt.Sprintf("validator-%d", initCtx.GroupSeq)
 
 	// Here we assign the first instance to be the orchestrator role
 	//
@@ -176,7 +176,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	if initCtx.GlobalSeq <= int64(runenv.IntParam("persistent-peers")) {
+	if initCtx.GroupSeq <= int64(runenv.IntParam("persistent-peers")) {
 		nodeId, err := cmd.GetNodeId()
 		if err != nil {
 			return nil, err
