@@ -1,4 +1,4 @@
-package nodesync
+package syncpast
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
@@ -57,16 +57,24 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
+
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
 
+	// We wait until the bridge reaches a certain height and then start syncing the chain
+	b, err := syncclient.Barrier(ctx, testkit.PastBlocksGeneratedState, runenv.IntParam("bridge"))
+	berr := <-b.C
+	if err != nil || berr != nil {
+		return fmt.Errorf("error occured on barriering: err - %s, barrier err - %s", err, berr)
+	}
+
 	nd, err := nodekit.NewNode(
 		ndhome,
-		node.Light,
+		node.Full,
 		ip,
 		bridgeNode.TrustedHash,
 		node.WithTrustedPeers(bridgeNode.Maddr),
@@ -80,12 +88,12 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("submit-times")))
 	if err != nil {
 		return err
 	}
 	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
+		runenv.IntParam("submit-times"),
 		eh.Commit.BlockID.Hash.String())
 
 	if nd.HeaderServ.IsSyncing() {
@@ -96,6 +104,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err

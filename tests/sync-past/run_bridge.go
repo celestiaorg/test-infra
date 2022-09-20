@@ -1,11 +1,10 @@
-package nodesync
+package syncpast
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"
@@ -14,7 +13,7 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
@@ -52,54 +51,45 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeNode, err := common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
+	nd, err := common.BuildBridge(ctx, runenv, initCtx)
 	if err != nil {
 		return err
 	}
 
-	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
-	runenv.RecordMessage(ndhome)
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return err
-	}
-
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Light,
-		ip,
-		bridgeNode.TrustedHash,
-		node.WithTrustedPeers(bridgeNode.Maddr),
-	)
-	if err != nil {
-		return err
-	}
-
-	err = nd.Start(ctx)
-	if err != nil {
-		return err
-	}
-
+	// After reaching a dedicated block-height, we can signal other node types
+	// to start syncing the past
 	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
 	}
+
 	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
 	if nd.HeaderServ.IsSyncing() {
-		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
+		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
+	}
+
+	_, err = syncclient.SignalEntry(ctx, testkit.PastBlocksGeneratedState)
+	if err != nil {
+		return err
+	}
+
+	_, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("submit-times")-1))
+	if err != nil {
+		return err
 	}
 
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}
+
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}
 
-	return err
+	return nil
 }
