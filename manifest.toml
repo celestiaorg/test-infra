@@ -47,6 +47,7 @@ instances = { min = 4, max = 3000, default = 12 }
 name = "003-full-sync-past"
 instances = { min = 4, max = 3000, default = 12 }
     [testcases.params]
+    execution-time = { type = "int" }
     latency = { type = "int", default = 0}
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}

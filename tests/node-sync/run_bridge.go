@@ -14,7 +14,10 @@ import (
 )
 
 func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Minute*time.Duration(runenv.IntParam("execution-time")),
+	)
 	defer cancel()
 
 	err := nodekit.SetLoggersLevel("INFO")
