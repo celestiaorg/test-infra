@@ -55,7 +55,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("starting........")
-	go appcmd.StartNode("info")
+	go appcmd.StartNode("error")
 
 	// wait for a new block to be produced
 	// RPC is also being initialized...
