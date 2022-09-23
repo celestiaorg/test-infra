@@ -6,8 +6,8 @@ runner = "local:docker"
 
 [builders."docker:generic"]
 enabled = true
-build_base_image = "golang:1.18.3"
-go_version = "1.18"
+build_base_image = "golang:1.19.1"
+go_version = "1.19"
 enable_go_build_cache = true
 
 [runners."local:docker"]
@@ -20,6 +20,7 @@ enabled = true
 name = "001-val-large-txs"
 instances = { min = 1, max = 100, default = 3 }
     [testcases.params]
+    execution-time = { type = "int" }
     latency = { type = "int", default = 0}
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
@@ -28,16 +29,35 @@ instances = { min = 1, max = 100, default = 3 }
     msg-size = { type = "int", default = 10000}
 
 [[testcases]]
-name = "tc-002-da-sync"
+name = "002-da-sync"
 instances = { min = 4, max = 3000, default = 12 }
     [testcases.params]
+    execution-time = { type = "int" }
     latency = { type = "int", default = 0}
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    submit-times = { type = "int", default = 4}
+    msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
 
+[[testcases]]
+name = "003-full-sync-past"
+instances = { min = 4, max = 3000, default = 12 }
+    [testcases.params]
+    execution-time = { type = "int" }
+    latency = { type = "int", default = 0}
+    bandwidth = { type = "string", default = "256Mib"}
+    validator = { type = "int", default = 3}
+    persistent-peers = { type = "int", default = 3}
+    submit-times = { type = "int", default = 4}
+    msg-size = { type = "int", default = 10000}
+    bridge = { type = "int", default = 3}
+    full = { type = "int", default = 3}
+    light = { type = "int", default = 3}
+    block-height = { type = "int" }
+    role = { type = "string" }

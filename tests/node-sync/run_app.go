@@ -14,7 +14,10 @@ import (
 )
 
 func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+	ctx, cancel := context.WithTimeout(
+		context.Background(),
+		time.Minute*time.Duration(runenv.IntParam("execution-time")),
+	)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -52,7 +55,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("starting........")
-	go appcmd.StartNode("info")
+	go appcmd.StartNode("error")
 
 	// wait for a new block to be produced
 	// RPC is also being initialized...

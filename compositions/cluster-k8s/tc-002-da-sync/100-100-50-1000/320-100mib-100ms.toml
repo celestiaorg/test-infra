@@ -1,18 +1,19 @@
 [metadata]
-  name = "tc-002-da-sync-100-100-50-1000-set"
+  name = "002-da-sync-100-100-50-1000-set"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "tc-002-da-sync"
+  case = "002-da-sync"
   total_instances = 2250
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
 
 [global.run.test_params]
+  execution-time = "10"
   persistent-peers = "10"
-  submit-times = "10"
+  submit-times = "12"
   msg-size = "40000"
   validator = "100"
   bridge = "100"
@@ -59,7 +60,7 @@
     [groups.run.test_params]
     latency = "100"
     bandwidth = "320Mib"
-    block-height = "13"
+    block-height = "11"
     role = "bridge"
 
 [[groups]]
@@ -81,7 +82,7 @@
     [groups.run.test_params]
     latency = "100"
     bandwidth = "320Mib"
-    block-height = "12"
+    block-height = "10"
     role = "full"
 
 [[groups]]
@@ -103,5 +104,5 @@
     [groups.run.test_params]
     latency = "100"
     bandwidth = "100Mib"
-    block-height = "12"
+    block-height = "10"
     role = "light"

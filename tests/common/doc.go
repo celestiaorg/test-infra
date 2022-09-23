@@ -20,5 +20,16 @@ Default: network.LinkShape{
 
 appcmd, err := common.BuildValidator(ctx, runenv, initCtx)
 appcmd.PayForData(...)
+
+In order to eliminate the boilerplate code of creating a bridge node,
+please use `common.BuildBridge`. This Func does:
+- Listens to all available validators
+- Connects to the validator (match is done using group sequence)
+- Sends the genesis hash to the topic
+- - As well as it's multiaddress
+- Returns the node pointer itself
+
+nd, err := common.BuildBridge(ctx, runenv, initCtx)
+nd.Stop()
 */
 package common

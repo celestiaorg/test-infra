@@ -40,7 +40,8 @@ var (
 
 // FinishState should be signaled by those, againts which we are testing
 var (
-	AppStartedState    = sync.State("app-started")
-	BridgeStartedState = sync.State("bridge-started")
-	FinishState        = sync.State("test-finished")
+	AppStartedState          = sync.State("app-started")
+	BridgeStartedState       = sync.State("bridge-started")
+	PastBlocksGeneratedState = sync.State("past-blocks-generated")
+	FinishState              = sync.State("test-finished")
 )

@@ -6,8 +6,9 @@ import (
 )
 
 var testcases = map[string]interface{}{
-	"001-val-large-txs": run.InitializedTestCaseFn(tests.ValSubmitLargeTxs),
-	"node-sync":         run.InitializedTestCaseFn(tests.SyncNodes),
+	"001-val-large-txs":  run.InitializedTestCaseFn(tests.ValSubmitLargeTxs),
+	"002-da-sync":        run.InitializedTestCaseFn(tests.SyncNodes),
+	"003-full-sync-past": run.InitializedTestCaseFn(tests.FullSyncPast),
 }
 
 func main() {
