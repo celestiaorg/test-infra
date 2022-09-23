@@ -65,7 +65,8 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		return nil, err
 	}
 
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h,
+	cfg := nodekit.NewConfig(node.Bridge, ip, []string{}, h)
+	nd, err := nodekit.NewNode(ndhome, node.Bridge, cfg,
 		coremodule.WithClient(coreclient),
 	)
 	if err != nil {

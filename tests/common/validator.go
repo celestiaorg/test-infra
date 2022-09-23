@@ -3,7 +3,7 @@ package common
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -66,7 +66,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 			return nil, err
 		}
 
-		bt, err := ioutil.ReadAll(gen)
+		bt, err := io.ReadAll(gen)
 		if err != nil {
 			return nil, err
 		}
@@ -121,7 +121,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 			return nil, err
 		}
 
-		bt, err := ioutil.ReadAll(gentx)
+		bt, err := io.ReadAll(gentx)
 		if err != nil {
 			return nil, err
 		}
@@ -147,7 +147,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 			}
 		case genTx := <-genTxCh:
 			if !strings.Contains(genTx, accAddr) {
-				err := ioutil.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(genTx), 0777)
+				err := os.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(genTx), 0777)
 				if err != nil {
 					return nil, err
 				}
