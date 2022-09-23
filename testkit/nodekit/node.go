@@ -13,9 +13,10 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewNode(path string, tp node.Type, IP net.IP, trustedHash string, options ...fx.Option) (*node.Node, error) {
-	cfg := nodebuilder.DefaultConfig()
+func NewNode(path string, tp node.Type, IP net.IP, trustedHash string, options ...fx.Option) (*nodebuilder.Node, error) {
+	cfg := nodebuilder.DefaultConfig(tp)
 	cfg.P2P.ListenAddresses = []string{fmt.Sprintf("/ip4/%s/tcp/2121", IP)}
+	cfg.Header.TrustedHash = trustedHash
 
 	err := nodebuilder.Init(*cfg, path, tp)
 	if err != nil {
@@ -26,7 +27,7 @@ func NewNode(path string, tp node.Type, IP net.IP, trustedHash string, options .
 		return nil, err
 	}
 
-	options = append([]fx.Option{nodebuilder.WithNetwork(params.Private), nodebuilder.WithTrustedHash(trustedHash)}, options...)
+	options = append([]fx.Option{nodebuilder.WithNetwork(params.Private)}, options...)
 	return nodebuilder.New(tp, store, options...)
 }
 
