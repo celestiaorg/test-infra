@@ -4,9 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/celestiaorg/celestia-node/core"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
-	coremodule "github.com/celestiaorg/celestia-node/nodebuilder/core"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
@@ -60,15 +58,11 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		return nil, err
 	}
 
-	coreclient, err := core.NewRemote(appNode.IP.To4().String(), "26657")
-	if err != nil {
-		return nil, err
-	}
-
 	cfg := nodekit.NewConfig(node.Bridge, ip, []string{}, h)
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, cfg,
-		coremodule.WithClient(coreclient),
-	)
+	cfg.Core.IP = appNode.IP.To4().String()
+	cfg.Core.RPCPort = "26657"
+
+	nd, err := nodekit.NewNode(ndhome, node.Bridge, cfg)
 	if err != nil {
 		return nil, err
 	}
