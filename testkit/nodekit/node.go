@@ -5,7 +5,7 @@ import (
 	"net"
 
 	"github.com/celestiaorg/celestia-node/logs"
-	"github.com/celestiaorg/celestia-node/node"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/celestia-node/params"
 	logging "github.com/ipfs/go-log/v2"
 )

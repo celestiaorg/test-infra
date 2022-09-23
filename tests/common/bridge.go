@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/celestiaorg/celestia-node/node"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
