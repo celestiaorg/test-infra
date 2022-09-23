@@ -30,10 +30,10 @@
     count = 100
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.18.3"
+    build_base_image = "golang:1.19.1"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.18"
+    go_version = "1.19"
   [groups.build]
   [groups.run]
     [groups.run.test_params]
@@ -51,10 +51,10 @@
     count = 100
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.18.3"
+    build_base_image = "golang:1.19.1"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.18"
+    go_version = "1.19"
   [groups.build]
   [groups.run]
     [groups.run.test_params]
@@ -73,10 +73,10 @@
     count = 50
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.18.3"
+    build_base_image = "golang:1.19.1"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.18"
+    go_version = "1.19"
   [groups.build]
   [groups.run]
     [groups.run.test_params]
@@ -95,10 +95,10 @@
     count = 1000
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.18.3"
+    build_base_image = "golang:1.19.1"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.18"
+    go_version = "1.19"
   [groups.build]
   [groups.run]
     [groups.run.test_params]
