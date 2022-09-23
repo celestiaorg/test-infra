@@ -59,7 +59,11 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		return nil, err
 	}
 
-	coreclient := core.NewRemote(appNode.IP.To4().String(), "26657")
+	coreclient, err := core.NewRemote(appNode.IP.To4().String(), "26657")
+	if err != nil {
+		return nil, err
+	}
+
 	nd, err := nodekit.NewNode(ndhome, node.Bridge, ip, h,
 		coremodule.WithClient(coreclient),
 	)
