@@ -87,8 +87,6 @@ github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v0.3.0/go.mod h1:tPaiy8S5bQ
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78/go.mod h1:LmzpDX56iTiv29bbRTIsUNlaFfuhWRQBWjQdVyAevI8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-autorest v11.1.2+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
-github.com/Bidon15/celestia-node v0.4.5-dirty h1:WzZ7NzKWdq/AYSUgXyVdEjm2MXm2VPVZSbXw/XmaV0s=
-github.com/Bidon15/celestia-node v0.4.5-dirty/go.mod h1:LfuGhWgoSdmZ4W4y2oceCNwec15io/dCd+xx/Q/fOs8=
 github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0 h1:rpLt48XTOb+xu4HfXXKSzeI3ZaGnaHnNwrGP08S06Hs=
 github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0/go.mod h1:OXRC0p460CFKl77uQZWY/8p5uZmDrNum7BmVZDupq0Q=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
@@ -221,6 +219,8 @@ github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOC
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/celestiaorg/celestia-core v1.3.3-tm-v0.34.20 h1:XspZtkoIfJ68TCVOOGWkI4W7taQFJLLqSu6GME5RbqU=
 github.com/celestiaorg/celestia-core v1.3.3-tm-v0.34.20/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
+github.com/celestiaorg/celestia-node v0.3.2-0.20220927120802-81c63db9b6a8 h1:bTtfoYwO18bfRQfLnI3EUn9WiLWbMYVlqDl8lXaZ6Xk=
+github.com/celestiaorg/celestia-node v0.3.2-0.20220927120802-81c63db9b6a8/go.mod h1:LfuGhWgoSdmZ4W4y2oceCNwec15io/dCd+xx/Q/fOs8=
 github.com/celestiaorg/go-leopard v0.1.0 h1:28z2EkvKJIez5J9CEaiiUEC+OxalRLtTGJJ1oScfE1g=
 github.com/celestiaorg/go-leopard v0.1.0/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
