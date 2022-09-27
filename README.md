@@ -44,7 +44,7 @@ Each of the directories contains its own `README.md`.
 
 ```bash
 cd test-infra
-testground plan --import . --name celestia
+testground plan import --from . --name celestia
 
 # This command should be executed in the 1st terminal
 testground daemon
