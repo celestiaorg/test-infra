@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/node"
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"
@@ -75,12 +75,12 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return fmt.Errorf("error occured on barriering: err - %s, barrier err - %s", err, berr)
 	}
 
+	trustedPeers := []string{bridgeNode.Maddr}
+	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
-		ip,
-		bridgeNode.TrustedHash,
-		node.WithTrustedPeers(bridgeNode.Maddr),
+		cfg,
 	)
 	if err != nil {
 		return err

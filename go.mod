@@ -5,7 +5,7 @@ go 1.19
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.4.1-dirty-app
-	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.4.1-dirty
+	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.4.5-dirty
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-log/v2 => github.com/Bidon15/go-log/v2 v2.5.2
@@ -26,8 +26,9 @@ require (
 )
 
 require (
-	github.com/celestiaorg/celestia-node v0.3.1
+	github.com/celestiaorg/celestia-node v0.3.2-0.20220923084512-cec6a2d65358
 	github.com/tendermint/tendermint v0.35.4
+	go.uber.org/fx v1.18.1
 )
 
 require (
@@ -274,7 +275,6 @@ require (
 	go.opentelemetry.io/otel/trace v1.10.0 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/dig v1.15.0 // indirect
-	go.uber.org/fx v1.18.1 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
