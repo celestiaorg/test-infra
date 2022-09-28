@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/das"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -76,10 +77,10 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	trustedPeers := []string{bridgeNode.Maddr}
-	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
 	nd, err := nodekit.NewNode(
 		ndhome,
-		node.Full,
+		node.Light,
 		cfg,
 	)
 	if err != nil {
@@ -108,12 +109,10 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	if st.CatchUpDone {
-		if st.SampledChainHead < uint64(runenv.IntParam("block-height")) {
-			runenv.RecordFailure(fmt.Errorf("light node is still dasing the past headers of the chain"))
-		}
-	} else {
-		runenv.RecordFailure(fmt.Errorf("light node is still catching up the chain"))
+	bh := uint64(runenv.IntParam("block-height"))
+
+	if !checkDaserStatus(st, bh) {
+		return fmt.Errorf("light node is still dasing past headers")
 	}
 
 	err = nd.Stop(ctx)
@@ -127,4 +126,20 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	return err
+}
+
+func checkDaserStatus(st das.SamplingStats, bh uint64) bool {
+	timeout := time.After(1 * time.Second)
+	ticker := time.NewTicker(100 * time.Millisecond)
+
+	for {
+		select {
+		case <-timeout:
+			return false
+		case <-ticker.C:
+			if st.CatchupHead >= bh && st.SampledChainHead >= bh {
+				return true
+			}
+		}
+	}
 }
