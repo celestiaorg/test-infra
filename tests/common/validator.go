@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
@@ -31,6 +32,9 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	}
 	cmd.AccountAddress = accAddr
 
+	// we need this dirty-hack to check the k8s cluster has
+	// the time to ramp up all the instances
+	time.Sleep(30 * time.Second)
 	seq, err := syncclient.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
 		return nil, err
@@ -229,10 +233,10 @@ func changeConfig(path string) error {
 			"timeout_propose":   "3s",
 			"timeout_prevote":   "1s",
 			"timeout_precommit": "1s",
-			"timeout_commit":    "25s",
+			"timeout_commit":    "15s",
 		},
 		"rpc": {
-			"timeout_broadcast_tx_commit": "90s",
+			"timeout_broadcast_tx_commit": "30s",
 			"max_body_bytes":              "1000000",
 			"max_header_bytes":            "1048576",
 		},

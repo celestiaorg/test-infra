@@ -22,7 +22,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -104,14 +104,9 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
 	}
 
-	st, err := nd.DASer.SamplingStats(ctx)
-	if err != nil {
-		return err
-	}
-
 	bh := uint64(runenv.IntParam("block-height"))
 
-	if !checkDaserStatus(st, bh) {
+	if !checkDaserStatus(ctx, nd.DASer, bh) {
 		return fmt.Errorf("light node is still dasing past headers")
 	}
 
@@ -128,16 +123,20 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	return err
 }
 
-func checkDaserStatus(st das.SamplingStats, bh uint64) bool {
-	timeout := time.After(1 * time.Second)
+func checkDaserStatus(ctx context.Context, daser *das.DASer, bh uint64) bool {
+	timeout := time.After(2 * time.Second)
 	ticker := time.NewTicker(100 * time.Millisecond)
 
 	for {
+		st, err := daser.SamplingStats(ctx)
+		if err != nil {
+			return false
+		}
 		select {
 		case <-timeout:
 			return false
 		case <-ticker.C:
-			if st.CatchupHead >= bh && st.SampledChainHead >= bh {
+			if st.CatchUpDone && st.CatchupHead >= bh && st.SampledChainHead >= bh {
 				return true
 			}
 		}
