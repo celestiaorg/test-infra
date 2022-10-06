@@ -36,6 +36,7 @@ var (
 	BridgeTotalTopic = sync.NewTopic("bridge-amount", 0)
 	AppNodeTopic     = sync.NewTopic("app-info", &AppNodeInfo{})
 	BridgeNodeTopic  = sync.NewTopic("bridge-info", &BridgeNodeInfo{})
+	FundAccountTopic = sync.NewTopic("account-addr", "")
 )
 
 // FinishState should be signaled by those, againts which we are testing
@@ -43,5 +44,6 @@ var (
 	AppStartedState          = sync.State("app-started")
 	BridgeStartedState       = sync.State("bridge-started")
 	PastBlocksGeneratedState = sync.State("past-blocks-generated")
+	AccountsFundedState      = sync.State("accounts-funded")
 	FinishState              = sync.State("test-finished")
 )
