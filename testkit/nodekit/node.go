@@ -16,7 +16,12 @@ import (
 	"go.uber.org/fx"
 )
 
-func NewConfig(tp node.Type, IP net.IP, trustedPeers []string, trustedHash string) *nodebuilder.Config {
+func NewConfig(
+	tp node.Type,
+	IP net.IP,
+	trustedPeers []string,
+	trustedHash string,
+) *nodebuilder.Config {
 	cfg := nodebuilder.DefaultConfig(tp)
 	cfg.P2P.ListenAddresses = []string{fmt.Sprintf("/ip4/%s/tcp/2121", IP)}
 	cfg.Header.TrustedPeers = trustedPeers
@@ -25,7 +30,12 @@ func NewConfig(tp node.Type, IP net.IP, trustedPeers []string, trustedHash strin
 	return cfg
 }
 
-func NewNode(path string, tp node.Type, cfg *nodebuilder.Config, options ...fx.Option) (*nodebuilder.Node, error) {
+func NewNode(
+	path string,
+	tp node.Type,
+	cfg *nodebuilder.Config,
+	options ...fx.Option,
+) (*nodebuilder.Node, error) {
 	// This is necessary to ensure that the account addresses are correctly prefixed
 	// as in the celestia application.
 	sdkcfg := sdk.GetConfig()
