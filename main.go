@@ -11,6 +11,7 @@ var testcases = map[string]interface{}{
 	"003-full-sync-past":  run.InitializedTestCaseFn(tests.FullSyncPast),
 	"004-full-light-past": run.InitializedTestCaseFn(tests.FullLightSyncPast),
 	"005-light-das-past":  run.InitializedTestCaseFn(tests.LightDasPast),
+	"pfd" : run.InitializedTestCaseFn(tests.SubmitPFDandGSBN),
 }
 
 func main() {

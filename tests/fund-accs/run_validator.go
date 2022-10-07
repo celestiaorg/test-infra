@@ -78,20 +78,22 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	accsCh := make(chan string, runenv.TestInstanceCount-runenv.IntParam("validator"))
+	accsCh := make(chan string, runenv.IntParam("bridge"))
+	runenv.RecordMessage("========SUBSCRIBING TO START FUNDING==============")
 	sub, err := syncclient.Subscribe(ctx, testkit.FundAccountTopic, accsCh)
 	if err != nil {
 		return err
 	}
 
 	var fundAccs []string
-	for i := 0; i < (runenv.TestInstanceCount - runenv.IntParam("validator")); i++ {
+	for i := 0; i < runenv.IntParam("bridge"); i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
 				return err
 			}
 		case account := <-accsCh:
+			runenv.RecordMessage(account)
 			fundAccs = append(fundAccs, account)
 		}
 	}

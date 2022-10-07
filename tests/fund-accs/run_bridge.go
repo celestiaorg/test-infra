@@ -59,17 +59,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
-	if err != nil {
-		return err
-	}
-	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
-		eh.Commit.BlockID.Hash.String())
-
-	if nd.HeaderServ.IsSyncing() {
-		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
-	}
+	
 
 	addr, err := nd.StateServ.AccountAddress(ctx)
 	if err != nil {
@@ -85,6 +75,18 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	if err != nil {
 		return err
+	}
+
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
+	if err != nil {
+		return err
+	}
+	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
+		runenv.IntParam("block-height"),
+		eh.Commit.BlockID.Hash.String())
+
+	if nd.HeaderServ.IsSyncing() {
+		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
 
 	bal, err := nd.StateServ.Balance(ctx)

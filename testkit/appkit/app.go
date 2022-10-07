@@ -185,8 +185,8 @@ func (ak *AppKit) StartNode(loglvl string) error {
 func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddrs ...string) error {
 	args := []string{"tx", "bank", "multi-send", accAdr}
 	args = append(args, accAddrs...)
-	args = append(args,
-		wrapFlag(flags.FlagBroadcastMode), wrapFlag(flags.BroadcastBlock),
+	args = append(args, amount,
+		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),
 		wrapFlag(flags.FlagGas), "1000000",
 		wrapFlag(flags.FlagFees), "100000utia",
@@ -211,7 +211,7 @@ func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, krpath string) e
 	ak.Cmd.SetArgs([]string{
 		"tx", "payment", "payForData", fmt.Sprint(msg),
 		wrapFlag(flags.FlagFrom), accAdr,
-		wrapFlag(flags.FlagBroadcastMode), wrapFlag(flags.BroadcastBlock),
+		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),
 		wrapFlag(flags.FlagGas), "1000000000",
 		wrapFlag(flags.FlagFees), "100000000000utia",
