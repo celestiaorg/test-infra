@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"
@@ -13,7 +14,7 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
@@ -54,7 +55,36 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	nd, err := common.BuildBridge(ctx, runenv, initCtx)
+	bridgeNode, err := common.GetBridgeNode(
+		ctx,
+		syncclient,
+		initCtx.GroupSeq,
+		runenv.IntParam("bridge"),
+	)
+	if err != nil {
+		return err
+	}
+
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
+	runenv.RecordMessage(ndhome)
+
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	if err != nil {
+		return err
+	}
+
+	trustedPeers := []string{bridgeNode.Maddr}
+	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+	nd, err := nodekit.NewNode(
+		ndhome,
+		node.Full,
+		cfg,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = nd.Start(ctx)
 	if err != nil {
 		return err
 	}
@@ -84,7 +114,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		eh.Commit.BlockID.Hash.String())
 
 	if nd.HeaderServ.IsSyncing() {
-		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
+		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 
 	bal, err := nd.StateServ.Balance(ctx)
@@ -92,10 +122,10 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 	if bal.IsZero() {
-		return fmt.Errorf("bridge has no money in the bank")
+		return fmt.Errorf("full has no money in the bank")
 	}
 
-	runenv.RecordMessage("bridge -> %d has this %s balance", initCtx.GroupSeq, bal.String())
+	runenv.RecordMessage("full -> %d has this %s balance", initCtx.GroupSeq, bal.String())
 
 	err = nd.Stop(ctx)
 	if err != nil {
@@ -107,5 +137,5 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	return nil
+	return err
 }

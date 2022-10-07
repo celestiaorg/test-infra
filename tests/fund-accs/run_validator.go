@@ -85,8 +85,9 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	total := runenv.TestInstanceCount - runenv.IntParam("validator")
 	var fundAccs []string
-	for i := 0; i < runenv.IntParam("bridge"); i++ {
+	for i := 0; i < total; i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {

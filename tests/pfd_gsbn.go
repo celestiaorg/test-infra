@@ -14,10 +14,10 @@ func SubmitPFDandGSBN(runenv *runtime.RunEnv, initCtx *run.InitContext) (err err
 		err = fundaccounts.RunAppValidator(runenv, initCtx)
 	case "bridge":
 		err = fundaccounts.RunBridgeNode(runenv, initCtx)
-		// case "full":
-		// 	err = nodesync.RunFullNode(runenv, initCtx)
-		// case "light":
-		// 	err = syncpast.RunLightNode(runenv, initCtx)
+	case "full":
+		err = fundaccounts.RunFullNode(runenv, initCtx)
+	case "light":
+		err = fundaccounts.RunLightNode(runenv, initCtx)
 	}
 
 	if err != nil {

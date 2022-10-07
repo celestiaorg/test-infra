@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "pfd"
-  total_instances = 6
+  total_instances = 8
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
@@ -17,8 +17,8 @@
   msg-size = "100000"
   validator = "3"
   bridge = "3"
-  full = "0"
-  light = "0"
+  full = "1"
+  light = "1"
 
 [[groups]]
   id = "validators"
@@ -62,3 +62,47 @@
     bandwidth = "256Mib"
     block-height = "5"
     role = "bridge"
+
+[[groups]]
+  id = "fulls"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "0"
+    bandwidth = "256Mib"
+    block-height = "5"
+    role = "full"
+
+[[groups]]
+  id = "lights"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "0"
+    bandwidth = "256Mib"
+    block-height = "5"
+    role = "light"
