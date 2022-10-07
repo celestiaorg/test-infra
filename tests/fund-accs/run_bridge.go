@@ -95,6 +95,8 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return fmt.Errorf("no money in the bank")
 	}
 
+	runenv.RecordMessage("bridge -> %d has this %s balance", initCtx.GroupSeq, bal.String())
+
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
