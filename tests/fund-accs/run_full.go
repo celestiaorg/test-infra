@@ -55,6 +55,12 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	// we need to get the validator's ip in info for grpc connection for pfd & gsbn
+	appNode, err := common.GetValidatorInfo(ctx, syncclient, runenv.IntParam("validator"), int(initCtx.GroupSeq))
+	if err != nil {
+		return err
+	}
+
 	bridgeNode, err := common.GetBridgeNode(
 		ctx,
 		syncclient,
@@ -75,6 +81,9 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	trustedPeers := []string{bridgeNode.Maddr}
 	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+	cfg.Core.IP = appNode.IP.To4().String()
+	cfg.Core.GRPCPort = "9090"
+
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
