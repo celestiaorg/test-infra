@@ -81,6 +81,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	trustedPeers := []string{bridgeNode.Maddr}
 	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
 	cfg.Core.IP = appNode.IP.To4().String()
+	cfg.Core.RPCPort = "26657"
 	cfg.Core.GRPCPort = "9090"
 
 	nd, err := nodekit.NewNode(

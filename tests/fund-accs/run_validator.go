@@ -78,8 +78,8 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	accsCh := make(chan string, runenv.IntParam("bridge"))
-	runenv.RecordMessage("========SUBSCRIBING TO START FUNDING==============")
+	accsCh := make(chan string)
+	runenv.RecordMessage("start funding celestia-node accounts")
 	sub, err := syncclient.Subscribe(ctx, testkit.FundAccountTopic, accsCh)
 	if err != nil {
 		return err
