@@ -11,28 +11,30 @@
   - [Test-Cases](#test-cases)
 
 ## Introduction
-
-The motivation behind this plan is to test how our node implementations (celestia-node) behaves at max peak usage when participating in Data Availability Sampling.
-
+The goal of this test plan is to benchmark our Full and Bridge Node implementation against X amount of light nodes to measure performance at peak usage when participating in Data Availability Sampling.
 
 ## In-Scope
-
-- Max 4 MB block size
 - Celestia Node Instances
   - Bridge / Full / Light
-- Network Latencies / Chaos
-- DASing Latest Head
+- Max 4 MB block size
+- Max Share Size: 128
+- Network Latencies between 60 and 300ms
+- DASing will concern both:
+  - Latest HEAD
+  - a few random sampling ranges
 
 ## Out-of-Scope
 
 - Eclipse Attacks
-- and Network Outages
+- Network Outages
 - Withholding Data Attacks
 - Bad Erasure Coding Attacks
 
 ## Entry Conditions
 
-- Bridge or Full Node must have enough of blocks up to any height (height 1 is also acceptable) to have a latest head to DAS
+- Bridge or Full Node must have enough of blocks up to any height depending on the test case.
+  - For latest HEAD test cases, a height of 1 is acceptable
+  - For sampling ranges test cases, at least a minimum of height=50
 
 ## Exit Conditions
 
@@ -51,9 +53,9 @@ The motivation behind this plan is to test how our node implementations (celesti
 
 [E2E: Celestia Network Tests](https://github.com/celestiaorg/celestia-node/issues/7)
 
-[DASing with different max block sizes](https://github.com/celestiaorg/test-infra/issues/83)
+[Benchmarking Full And Bridge Nodes against X Light Nodes]](https://github.com/celestiaorg/test-infra/issues/83)
 
 
 ## Test-Cases
 
-[Test-Case #001 - Light Nodes Must Finish DASing before Block Time](test-cases/tc-001-ln-finish-das-before-block-time.md)
+[Test-Case #001 - Light Nodes Must Finish DASing before Block Time](test-cases/tc-001-x-light-finish-das-before-block-time.md)

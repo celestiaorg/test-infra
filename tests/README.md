@@ -1,6 +1,6 @@
 # Tests
 
-Each `*.go` follows the naming of the test-case in `docs/test-plan/test-plan-id/*`. 
+Each `id-*.go` follows the naming of the test-case in `docs/test-plan/id-test-plan/*`. 
 
 In order to not clutter the test-file with different participants' steps, each dedicated directory is created to 
 maintain steps of each types of participants. 
