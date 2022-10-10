@@ -23,7 +23,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	const chainId string = "tia-test"
+	const chainId string = "private"
 	cmd := appkit.New(home, chainId)
 
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GroupSeq)

@@ -2,11 +2,11 @@ package fundaccounts
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-	"github.com/celestiaorg/nmt/namespace"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"
@@ -138,13 +138,15 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("full -> %d has this %s balance", initCtx.GroupSeq, bal.String())
 
-	nid := namespace.ID("0c204d39600fddd3")
+	nid, _ := hex.DecodeString("0c204d39600fddd3")
 	data := []byte("f1f20ca8007e910a3bf8b2e61da0f26bca07ef78717a6ea54165f5")
-	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 60000)
+	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 70000)
 	if err != nil {
 		return err
 	}
 
+	runenv.RecordMessage("code reponse is %d", tx.Code)
+	runenv.RecordMessage(tx.RawLog)
 	if tx.Code != 0 {
 		return fmt.Errorf("failed pfd")
 	}
