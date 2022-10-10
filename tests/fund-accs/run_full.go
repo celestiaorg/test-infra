@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+	"github.com/celestiaorg/nmt/namespace"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"
@@ -136,6 +137,17 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("full -> %d has this %s balance", initCtx.GroupSeq, bal.String())
+
+	nid := namespace.ID("123456")
+	data := []byte("123456")
+	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 60000)
+	if err != nil {
+		return err
+	}
+
+	if tx.Code != 0 {
+		return fmt.Errorf("failed pfd")
+	}
 
 	err = nd.Stop(ctx)
 	if err != nil {
