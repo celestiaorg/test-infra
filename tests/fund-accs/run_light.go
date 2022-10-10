@@ -137,8 +137,8 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("light -> %d has this %s balance", initCtx.GroupSeq, bal.String())
 
-	nid := namespace.ID("123456")
-	data := []byte("123456")
+	nid := namespace.ID("0c204d39600fddd3")
+	data := []byte("f1f20ca8007e910a3bf8b2e61da0f26bca07ef78717a6ea54165f5")
 	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 60000)
 	if err != nil {
 		return err

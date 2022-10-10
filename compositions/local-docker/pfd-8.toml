@@ -60,7 +60,7 @@
     [groups.run.test_params]
     latency = "0"
     bandwidth = "256Mib"
-    block-height = "5"
+    block-height = "8"
     role = "bridge"
 
 [[groups]]
