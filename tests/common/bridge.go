@@ -19,27 +19,7 @@ import (
 func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
 	syncclient := initCtx.SyncClient
 
-	appInfoCh := make(chan *testkit.AppNodeInfo, runenv.IntParam("validator"))
-	sub, err := syncclient.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
-	if err != nil {
-		return nil, err
-	}
-
-	appNode, err := func(total int) (*testkit.AppNodeInfo, error) {
-		for {
-			select {
-			case err = <-sub.Done():
-				if err != nil {
-					return nil, fmt.Errorf("no app has been sent for this bridge to connect to remotely")
-				}
-			case appInfo := <-appInfoCh:
-				if (appInfo.ID % total) == (int(initCtx.GroupSeq) % total) {
-					return appInfo, nil
-				}
-			}
-		}
-	}(runenv.IntParam("validator"))
-
+	appNode, err := GetValidatorInfo(ctx, syncclient, runenv.IntParam("validator"), int(initCtx.GroupSeq))
 	if err != nil {
 		return nil, err
 	}

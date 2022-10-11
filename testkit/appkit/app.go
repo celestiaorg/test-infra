@@ -182,12 +182,36 @@ func (ak *AppKit) StartNode(loglvl string) error {
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
+func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddrs ...string) error {
+	args := []string{"tx", "bank", "multi-send", accAdr}
+	args = append(args, accAddrs...)
+	args = append(args, amount,
+		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
+		wrapFlag(flags.FlagSkipConfirmation),
+		wrapFlag(flags.FlagGas), "1000000",
+		wrapFlag(flags.FlagFees), "100000utia",
+		wrapFlag(flags.FlagKeyringBackend),
+		krbackend,
+		wrapFlag(flags.FlagChainID),
+		ak.ChainId,
+		wrapFlag(flags.FlagHome),
+		ak.home,
+		wrapFlag(flags.FlagKeyringDir),
+		krpath,
+	)
+
+	ak.Cmd.ResetFlags()
+	ak.Cmd.SetArgs(args)
+
+	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
+}
+
 func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, krpath string) error {
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
 		"tx", "payment", "payForData", fmt.Sprint(msg),
 		wrapFlag(flags.FlagFrom), accAdr,
-		wrapFlag(flags.FlagBroadcastMode), wrapFlag(flags.BroadcastBlock),
+		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),
 		wrapFlag(flags.FlagGas), "1000000000",
 		wrapFlag(flags.FlagFees), "100000000000utia",

@@ -14,6 +14,7 @@ import (
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"github.com/testground/sdk-go/sync"
 )
 
 func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*appkit.AppKit, error) {
@@ -22,7 +23,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	const chainId string = "tia-test"
+	const chainId string = "private"
 	cmd := appkit.New(home, chainId)
 
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GroupSeq)
@@ -251,4 +252,25 @@ func changeConfig(path string) error {
 		}
 	}
 	return nil
+}
+
+func GetValidatorInfo(ctx context.Context, syncclient sync.Client, valAmount, id int) (*testkit.AppNodeInfo, error) {
+	appInfoCh := make(chan *testkit.AppNodeInfo, valAmount)
+	sub, err := syncclient.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
+	if err != nil {
+		return nil, err
+	}
+
+	for {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return nil, fmt.Errorf("no app has been sent for this node to connect to remotely")
+			}
+		case appInfo := <-appInfoCh:
+			if (appInfo.ID % valAmount) == (id % valAmount) {
+				return appInfo, nil
+			}
+		}
+	}
 }
