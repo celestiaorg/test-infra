@@ -7,10 +7,6 @@ import (
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-<<<<<<< HEAD
-=======
-	"encoding/hex"
->>>>>>> feat: introduction to pfd funcitonality in tg
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"

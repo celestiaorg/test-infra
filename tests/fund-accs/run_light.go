@@ -5,12 +5,8 @@ import (
 	"encoding/hex"
 	"fmt"
 	"time"
-	"encoding/hex"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-<<<<<<< HEAD
-=======
-	// "github.com/celestiaorg/nmt/namespace"
->>>>>>> feat: introduction to pfd funcitonality in tg
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"

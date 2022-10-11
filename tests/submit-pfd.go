@@ -7,8 +7,8 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-// TODO(@Bidon15): Description
-func SubmitPFDandGSBN(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
+// TODO(@Bidon15): Will be change once we have #85 is finished
+func SubmitPFD(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
 	case "validator":
 		err = fundaccounts.RunAppValidator(runenv, initCtx)
