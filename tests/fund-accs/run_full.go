@@ -7,6 +7,10 @@ import (
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
+<<<<<<< HEAD
+=======
+	"encoding/hex"
+>>>>>>> feat: introduction to pfd funcitonality in tg
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"
@@ -140,15 +144,17 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	nid, _ := hex.DecodeString("0c204d39600fddd3")
 	data := []byte("f1f20ca8007e910a3bf8b2e61da0f26bca07ef78717a6ea54165f5")
-	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 70000)
-	if err != nil {
-		return err
-	}
+	for i := 0; i < 10; i++ {
+		tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 70000)
+		if err != nil {
+			return err
+		}
 
-	runenv.RecordMessage("code reponse is %d", tx.Code)
-	runenv.RecordMessage(tx.RawLog)
-	if tx.Code != 0 {
-		return fmt.Errorf("failed pfd")
+		runenv.RecordMessage("code reponse is %d", tx.Code)
+		runenv.RecordMessage(tx.RawLog)
+		if tx.Code != 0 {
+			return fmt.Errorf("failed pfd")
+		}
 	}
 
 	err = nd.Stop(ctx)
