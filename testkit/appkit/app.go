@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -134,11 +135,20 @@ func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
 }
 
 func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, error) {
+	ethAddress, err := teststaking.RandomEthAddress()
+	if err != nil {
+		return nil, err
+	}
+
 	return ak.execCmd(
 		[]string{
 			"gentx",
 			accName,
 			amount,
+			wrapFlag(flags.FlagOrchestratorAddress),
+			ak.AccountAddress,
+			wrapFlag(flags.FlagEthereumAddress),
+			ethAddress.String(),
 			wrapFlag(flags.FlagKeyringBackend),
 			krbackend,
 			wrapFlag(flags.FlagChainID),
