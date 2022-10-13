@@ -3,7 +3,7 @@ package appkit
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -64,7 +64,7 @@ func (ak *AppKit) execCmd(args []string) (output string, err error) {
 	}
 
 	w.Close()
-	outStr, err := ioutil.ReadAll(r)
+	outStr, err := io.ReadAll(r)
 	if err != nil {
 		return "", err
 	}
@@ -245,7 +245,7 @@ func getResultBlockResponse(uri string) (*coretypes.ResultBlock, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
