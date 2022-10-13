@@ -89,8 +89,8 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOEl
 github.com/Azure/go-autorest v11.1.2+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
 github.com/Bidon15/celestia-node v0.5.0-dirty h1:MnvBpIXcCc3KdlP4shdBFxMU9Aq2D8fGj6eUrlnGVJw=
 github.com/Bidon15/celestia-node v0.5.0-dirty/go.mod h1:Ldq93J3/adRViBdj3NZlpvhNdGwVdhS0v+tMMXqizj4=
-github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0 h1:rpLt48XTOb+xu4HfXXKSzeI3ZaGnaHnNwrGP08S06Hs=
-github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0/go.mod h1:OXRC0p460CFKl77uQZWY/8p5uZmDrNum7BmVZDupq0Q=
+github.com/Bidon15/cosmos-sdk v1.3.0-dirty-sdk-v0.46.0 h1:3Fl2VpvQmPSvQvU7fZqwb9dAKO0+HFIChsv4sOulgOo=
+github.com/Bidon15/cosmos-sdk v1.3.0-dirty-sdk-v0.46.0/go.mod h1:ByQ2rOrZs7s2OnPfeaiTMC8IOlcrT195xIRPgevydCI=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
 github.com/Bidon15/go-log/v2 v2.5.2/go.mod h1:TMD+iYDL/QBjspKUN0Ypxpr2IMAz3uGUAsbCeClDQ+4=
 github.com/Bidon15/lazyledger-app v1.5.0-dirty h1:qekVzogsula/9Y3cDeXZn5MDNIsIRdVU4RRw71rQZHc=
@@ -327,6 +327,8 @@ github.com/cosmos/cosmos-sdk/api v0.1.0/go.mod h1:CupqQBskAOiTXO1XDZ/wrtWzN/wTxU
 github.com/cosmos/go-bip39 v0.0.0-20180819234021-555e2067c45d/go.mod h1:tSxLoYXyBmiFeKpvmq4dzayMdCjCnu8uqmCysIGBT2Y=
 github.com/cosmos/go-bip39 v1.0.0 h1:pcomnQdrdH22njcAatO0yWojsUnCO3y2tNoV1cb6hHY=
 github.com/cosmos/go-bip39 v1.0.0/go.mod h1:RNJv0H/pOIVgxw6KS7QeX2a0Uo0aKUlfhZ4xuwvCdJw=
+github.com/cosmos/gogoproto v1.4.2 h1:UeGRcmFW41l0G0MiefWhkPEVEwvu78SZsHBvI78dAYw=
+github.com/cosmos/gogoproto v1.4.2/go.mod h1:cLxOsn1ljAHSV527CHOtaIP91kK6cCrZETRBrkzItWU=
 github.com/cosmos/gorocksdb v1.2.0 h1:d0l3jJG8M4hBouIZq0mDUHZ+zjOx044J3nGRskwTb4Y=
 github.com/cosmos/gorocksdb v1.2.0/go.mod h1:aaKvKItm514hKfNJpUJXnnOWeBnk2GL4+Qw9NHizILw=
 github.com/cosmos/iavl v0.19.0 h1:sgyrjqOkycXiN7Tuupuo4QAldKFg7Sipyfeg/IL7cps=
