@@ -28,16 +28,16 @@
 4. Starts syncing the chain
 5. Generates PFD with
    1. `X` kb of random data
-   2. `Y` amount of namespace id
+   2. `Y` namespace ids
    3. `Z` times
 6. Gets shares by namespace id
 7. Checks that data is the same as in step 5
 
 ## Data Set:
 
-| Number of Validators / Bridges / Fulls / Lights <br /> `I` |                                Bandwidth / Latency per v/b/f/l <br /> `J`                                | KB of random data <br /> `X` | Amount of namespace id <br /> `Y` | Times <br/> `Z` |
-| :--------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: | :--------------------------: | :-------------------------------: | :-------------: |
-|                     40 / 40 / 20 / 100                     | 1. 256(v/b/f)-100(l)MiB / 0ms <br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms |              4               |                 1                 |       10        |
-|                     40 / 40 / 20 / 100                     | 1. 256(v/b/f)-100(l)MiB / 0ms <br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms |              4               |              random               |       10        |
-|                   100 / 100 / 50 / 1000                    | 1. 320(v/b/f)-100(l)MiB / 0ms<br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms  |              2               |                 1                 |       10        |
-|                   100 / 100 / 50 / 1000                    | 1. 320(v/b/f)-100(l)MiB / 0ms<br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms  |              2               |              random               |       10        |
+| Number of Validators / Bridges / Fulls / Lights <br /> `I` |                                Bandwidth / Latency per v/b/f/l <br /> `J`                                | KB of random data <br /> `X` | Namespace ids <br /> `Y` | Times <br/> `Z` |
+| :--------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: | :--------------------------: |:------------------------:| :-------------: |
+|                     40 / 40 / 20 / 100                     | 1. 256(v/b/f)-100(l)MiB / 0ms <br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms |              4               |            1             |       10        |
+|                     40 / 40 / 20 / 100                     | 1. 256(v/b/f)-100(l)MiB / 0ms <br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms |              4               |          random          |       10        |
+|                   100 / 100 / 50 / 1000                    | 1. 320(v/b/f)-100(l)MiB / 0ms<br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms  |              2               |            1             |       10        |
+|                   100 / 100 / 50 / 1000                    | 1. 320(v/b/f)-100(l)MiB / 0ms<br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms  |              2               |          random          |       10        |
