@@ -31,7 +31,7 @@ This plan is an extension plan of [TP#001 - Big Blocks](../001-Big-Blocks/tp-001
 
 ## Out-of-Scope
 
-- Optimint submitting data using public api or any other way
+- Rollmint submitting data using public api or any other way
 - Negative cases(i.e. pfd with insufficient balances)
 - Losing/Restoring connection between peers
 - Gas fees for submitting data(\*)
