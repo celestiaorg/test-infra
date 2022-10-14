@@ -74,6 +74,6 @@ This plan is an extension plan of [TP#001 - Big Blocks](../001-Big-Blocks/tp-001
 
 ## Test-Cases
 
-Bridge Node can submit N Amount PFDs -> Full / Light Node can get shares by namespace
-Full Node can submit N Amount PFDs -> Bridge / Light Node can get shares by namespace
-Light Node can submit N Amount PFDs -> 
+[# Test-Case #001 - DA Nodes can submit pfds](test-cases/tc-001-da-nodes-pfd.md)
+[# Test-Case #002 - DA Nodes can get shares by namespace](test-cases/tc-002-da-nodes-gsbn.md)
+[# Test-Case #003 - Full Nodes post pfd and Light get them by namespace id](test-cases/tc-003-full-pfd-light-gsbn.md)
