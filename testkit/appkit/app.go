@@ -3,7 +3,7 @@ package appkit
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -63,7 +64,7 @@ func (ak *AppKit) execCmd(args []string) (output string, err error) {
 	}
 
 	w.Close()
-	outStr, err := ioutil.ReadAll(r)
+	outStr, err := io.ReadAll(r)
 	if err != nil {
 		return "", err
 	}
@@ -134,11 +135,20 @@ func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
 }
 
 func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, error) {
+	ethAddress, err := teststaking.RandomEthAddress()
+	if err != nil {
+		return "", err
+	}
+
 	return ak.execCmd(
 		[]string{
 			"gentx",
 			accName,
 			amount,
+			wrapFlag(flags.FlagOrchestratorAddress),
+			ak.AccountAddress,
+			wrapFlag(flags.FlagEthereumAddress),
+			ethAddress.String(),
 			wrapFlag(flags.FlagKeyringBackend),
 			krbackend,
 			wrapFlag(flags.FlagChainID),
@@ -235,7 +245,7 @@ func getResultBlockResponse(uri string) (*coretypes.ResultBlock, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
