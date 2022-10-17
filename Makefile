@@ -106,6 +106,8 @@ tg-start:
 tg-create-testplan: check-name-arg
 	TESTGROUND_HOME=${DIR_FULLPATH} testground plan create --plan=${NAME}
 	@rm -rf ./data ./sdks
+	@mkdir ./docs/test-plans/${NAME}
+	@cp ./docs/test-plans/tp-template.md ./docs/test-plans/${NAME}/${NAME}.md
 .PHONY: tg-create-testplan
 
 ## tg-import-testplan Import testplan to TESTGROUND_HOME

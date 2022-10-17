@@ -1,24 +1,18 @@
-module github.com/celestiaorg/test-infra
+module github.com/celestiaorg/test-infra/plans/001-big-blocks
 
 go 1.19
 
-require (
-	github.com/celestiaorg/celestia-node v0.3.2-0.20220927120802-81c63db9b6a8
-	github.com/celestiaorg/test-infra/plans/001-big-blocks v0.0.0
-	github.com/celestiaorg/test-infra/testkit v0.0.0-20221017170342-2f62dad4c2a
-)
+require github.com/celestiaorg/test-infra/testkit v0.0.0-20221017170342-2f62dad4c2a2
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.4.1-dirty-app
-	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.4.8-dirty
-	github.com/celestiaorg/test-infra/plans/001-big-blocks v0.0.0 => ./
-	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.2.0-dirty-sdk-v0.46.0
+	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.5.0-dirty-app
+	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.3.0-dirty-sdk-v0.46.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-log/v2 => github.com/Bidon15/go-log/v2 v2.5.2
 	github.com/ipfs/go-verifcid => github.com/celestiaorg/go-verifcid v0.0.1-lazypatch
 	github.com/libp2p/go-libp2p-pubsub v0.7.0 => github.com/celestiaorg/go-libp2p-pubsub v0.6.2-0.20220812132010-46b2a019f2f2
-	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.3.3-tm-v0.34.20
+	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20
 )
 
 require (
@@ -32,6 +26,8 @@ require (
 	github.com/testground/sdk-go v0.3.0
 )
 
+require github.com/celestiaorg/celestia-node v0.4.0
+
 require (
 	cloud.google.com/go v0.104.0 // indirect
 	cloud.google.com/go/compute v1.10.0 // indirect
@@ -42,6 +38,7 @@ require (
 	github.com/99designs/keyring v1.2.1 // indirect
 	github.com/BurntSushi/toml v1.2.0 // indirect
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d // indirect
+	github.com/StackExchange/wmi v1.2.1 // indirect
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/avast/retry-go v3.0.0+incompatible // indirect
@@ -51,11 +48,12 @@ require (
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.22.1 // indirect
-	github.com/btcsuite/btcd/btcec/v2 v2.2.1 // indirect
+	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/celestiaorg/go-leopard v0.1.1 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.1.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/nmt v0.10.0 // indirect
+	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.6.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
@@ -70,6 +68,7 @@ require (
 	github.com/cosmos/cosmos-proto v1.0.0-alpha8 // indirect
 	github.com/cosmos/cosmos-sdk/api v0.1.0 // indirect
 	github.com/cosmos/go-bip39 v1.0.0 // indirect
+	github.com/cosmos/gogoproto v1.4.2 // indirect
 	github.com/cosmos/gorocksdb v1.2.0 // indirect
 	github.com/cosmos/iavl v0.19.0 // indirect
 	github.com/cosmos/ledger-cosmos-go v0.11.1 // indirect
@@ -79,6 +78,7 @@ require (
 	github.com/danieljoos/wincred v1.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/davidlazar/go-crypto v0.0.0-20200604182044-b73af7476f6c // indirect
+	github.com/deckarep/golang-set v1.8.0 // indirect
 	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0 // indirect
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect
@@ -88,6 +88,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1-0.20200219035652-afde56e7acac // indirect
 	github.com/dvsekhvalnov/jose2go v1.5.0 // indirect
 	github.com/elastic/gosigar v0.14.2 // indirect
+	github.com/ethereum/go-ethereum v1.10.21 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
@@ -99,6 +100,9 @@ require (
 	github.com/go-logfmt/logfmt v0.5.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/go-ole/go-ole v1.2.6 // indirect
+	github.com/go-playground/validator/v10 v10.4.1 // indirect
+	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20210107165309-348f09dbbbc0 // indirect
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2 // indirect
 	github.com/godbus/dbus/v5 v5.1.0 // indirect
@@ -178,7 +182,7 @@ require (
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
 	github.com/libp2p/go-cidranger v1.1.0 // indirect
 	github.com/libp2p/go-eventbus v0.2.1 // indirect
-	github.com/libp2p/go-flow-metrics v0.1.0 // indirect
+	github.com/libp2p/go-flow-metrics v0.0.3 // indirect
 	github.com/libp2p/go-libp2p v0.21.0 // indirect
 	github.com/libp2p/go-libp2p-asn-util v0.2.0 // indirect
 	github.com/libp2p/go-libp2p-kad-dht v0.17.0 // indirect
@@ -187,12 +191,12 @@ require (
 	github.com/libp2p/go-libp2p-peerstore v0.7.1 // indirect
 	github.com/libp2p/go-libp2p-pubsub v0.7.0 // indirect
 	github.com/libp2p/go-libp2p-record v0.1.3 // indirect
-	github.com/libp2p/go-libp2p-resource-manager v0.5.3 // indirect
+	github.com/libp2p/go-libp2p-resource-manager v0.5.1 // indirect
 	github.com/libp2p/go-libp2p-routing-helpers v0.2.3 // indirect
 	github.com/libp2p/go-msgio v0.2.0 // indirect
 	github.com/libp2p/go-nat v0.1.0 // indirect
 	github.com/libp2p/go-netroute v0.2.0 // indirect
-	github.com/libp2p/go-openssl v0.1.0 // indirect
+	github.com/libp2p/go-openssl v0.0.7 // indirect
 	github.com/libp2p/go-reuseport v0.2.0 // indirect
 	github.com/libp2p/go-yamux/v3 v3.1.2 // indirect
 	github.com/lucas-clemente/quic-go v0.28.0 // indirect
@@ -204,7 +208,6 @@ require (
 	github.com/marten-seemann/tcp v0.0.0-20210406111302-dfbc87cc63fd // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect
-	github.com/mattn/go-pointer v0.0.1 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
 	github.com/miekg/dns v1.1.50 // indirect
 	github.com/mikioh/tcpinfo v0.0.0-20190314235526-30a79bb1804b // indirect
@@ -229,6 +232,7 @@ require (
 	github.com/multiformats/go-varint v0.0.6 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/onsi/ginkgo v1.16.5 // indirect
+	github.com/opencontainers/runc v1.1.0 // indirect
 	github.com/opencontainers/runtime-spec v1.0.3-0.20210326190908-1c3f411f0417 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pbnjay/memory v0.0.0-20210728143218-7b4eea64cf58 // indirect
@@ -247,9 +251,11 @@ require (
 	github.com/raulk/go-watchdog v1.3.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/regen-network/cosmos-proto v0.3.1 // indirect
+	github.com/rjeczalik/notify v0.9.1 // indirect
 	github.com/rs/cors v1.8.2 // indirect
 	github.com/rs/zerolog v1.28.0 // indirect
 	github.com/sasha-s/go-deadlock v0.3.1 // indirect
+	github.com/shirou/gopsutil v3.21.6+incompatible // indirect
 	github.com/spacemonkeygo/spacelog v0.0.0-20180420211403-2296661a0572 // indirect
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/spf13/afero v1.9.2 // indirect
@@ -266,6 +272,8 @@ require (
 	github.com/tendermint/tm-db v0.6.7 // indirect
 	github.com/testground/sync-service v0.1.0 // indirect
 	github.com/testground/testground v0.5.3 // indirect
+	github.com/tklauser/go-sysconf v0.3.10 // indirect
+	github.com/tklauser/numcpus v0.4.0 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/vivint/infectious v0.0.0-20200605153912-25a574ae18a3 // indirect
 	github.com/whyrusleeping/cbor-gen v0.0.0-20200123233031-1cdf64d27158 // indirect
@@ -304,6 +312,7 @@ require (
 	google.golang.org/grpc v1.50.1 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
+	gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
