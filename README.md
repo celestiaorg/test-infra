@@ -43,7 +43,7 @@ For test plans, each test plan resides in its own directory under `plans/TP_NAME
 
 Note that `testkit` is shared between all test plans, and acts a separate golang module. At the moment, all test plans are using the following testkit version:
 ```
-github.com/celestiaorg/test-infra/testkit v0.0.0-20221017155704-154d2db4e490
+github.com/celestiaorg/test-infra/testkit v0.0.0-20221017170342-2f62dad4c2a
 ```
 
 if you make any changes to `testkit` make sure to commit and retrieve the commit hash, and then retrieve the go module version by running:

@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/celestiaorg/celestia-node v0.3.2-0.20220927120802-81c63db9b6a8
 	github.com/celestiaorg/test-infra/plans/001-big-blocks v0.0.0
-	github.com/celestiaorg/test-infra/testkit v0.0.0-20221017155704-154d2db4e490
+	github.com/celestiaorg/test-infra/testkit v0.0.0-20221017170342-2f62dad4c2a
 )
 
 replace (
