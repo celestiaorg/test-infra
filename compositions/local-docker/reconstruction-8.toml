@@ -1,0 +1,108 @@
+[metadata]
+  name = "reconstruction"
+  author = "Bidon15"
+
+[global]
+  plan = "celestia"
+  case = "reconstruction"
+  total_instances = 8
+  builder = "docker:generic"
+  runner = "local:docker"
+  disable_metrics = false
+
+[global.run.test_params]
+  execution-time = "30"
+  persistent-peers = "3"
+  submit-times = "21"
+  msg-size = "50000"
+  validator = "3"
+  bridge = "3"
+  full = "1"
+  light = "1"
+
+[[groups]]
+  id = "validators"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "0"
+    bandwidth = "256Mib"
+    role = "validator"
+
+[[groups]]
+  id = "bridges"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "0"
+    bandwidth = "256Mib"
+    block-height = "20"
+    role = "bridge"
+
+[[groups]]
+  id = "fulls"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "0"
+    bandwidth = "256Mib"
+    block-height = "5"
+    role = "full"
+
+[[groups]]
+  id = "lights"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "0"
+    bandwidth = "256Mib"
+    block-height = "5"
+    role = "light"

@@ -31,11 +31,17 @@ type BridgeNodeInfo struct {
 	TrustedHash string
 }
 
+type FullNodeInfo struct {
+	ID    int
+	Maddr string
+}
+
 // These topics are used around Celestia Bridge/Full/Light instances
 var (
 	BridgeTotalTopic = sync.NewTopic("bridge-amount", 0)
 	AppNodeTopic     = sync.NewTopic("app-info", &AppNodeInfo{})
 	BridgeNodeTopic  = sync.NewTopic("bridge-info", &BridgeNodeInfo{})
+	FullNodeTopic    = sync.NewTopic("full-info", &FullNodeInfo{})
 	FundAccountTopic = sync.NewTopic("account-addr", "")
 )
 
