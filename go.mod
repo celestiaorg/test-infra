@@ -5,7 +5,6 @@ go 1.19
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.5.0-dirty-app
-	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.5.0-dirty
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.3.0-dirty-sdk-v0.46.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-log/v2 => github.com/Bidon15/go-log/v2 v2.5.2
@@ -16,17 +15,17 @@ replace (
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
-	github.com/celestiaorg/celestia-app v0.7.0-rc5.0.20221013001953-3d648a95918f
+	github.com/celestiaorg/celestia-app v0.7.0
 	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p-core v0.19.1
-	github.com/spf13/cobra v1.5.0
+	github.com/spf13/cobra v1.6.0
 	github.com/spf13/viper v1.12.0
 	github.com/testground/sdk-go v0.3.0
 )
 
 require (
-	github.com/celestiaorg/celestia-node v0.3.2-0.20220927120802-81c63db9b6a8
+	github.com/celestiaorg/celestia-node v0.4.0
 	github.com/tendermint/tendermint v0.35.4
 	go.uber.org/fx v1.18.2
 )
@@ -142,7 +141,7 @@ require (
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/huin/goupnp v1.0.3 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
 	github.com/ipfs/go-bitswap v0.8.0 // indirect
