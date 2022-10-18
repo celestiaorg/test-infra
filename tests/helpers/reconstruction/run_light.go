@@ -9,6 +9,7 @@ import (
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/libp2p/go-libp2p-core/peer"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -61,7 +62,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	fullNode, err := func(ctx context.Context, syncclient sync.Client, total int) (fulls []*testkit.FullNodeInfo, err error) {
+	fullNodes, err := func(ctx context.Context, syncclient sync.Client, total int) (fulls []*testkit.FullNodeInfo, err error) {
 		fullCh := make(chan *testkit.FullNodeInfo, total)
 		sub, err := syncclient.Subscribe(ctx, testkit.FullNodeTopic, fullCh)
 		if err != nil {
@@ -85,6 +86,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	trustedPeers, bannedPeersIds := getPeers(int(initCtx.GroupSeq), runenv.TestGroupInstanceCount, fullNodes)
 
 	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
 	runenv.RecordMessage(ndhome)
@@ -93,9 +95,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	trustedPeers := []string{bridgeNode.Maddr, fullNode[0].Maddr}
-	runenv.RecordMessage("Bridge Address -> %s",bridgeNode.Maddr)
-	runenv.RecordMessage("Full Address -> %s",fullNode[0].Maddr)
 	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
 	nd, err := nodekit.NewNode(
 		ndhome,
@@ -104,6 +103,10 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	if err != nil {
 		return err
+	}
+
+	for _, v := range bannedPeersIds {
+		nd.ConnGater.BlockPeer(v)
 	}
 
 	err = nd.Start(ctx)
@@ -145,4 +148,19 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	return err
+}
+
+func getPeers(groupId int, total int, fullNodes []*testkit.FullNodeInfo) (tp []string, bp []peer.ID) {
+	split := int(total / len(fullNodes))
+	for _, v := range fullNodes {
+		if groupId <= split*v.ID {
+			tp = append(tp, v.Maddr)
+		} else if groupId > split*len(fullNodes) {
+			tp = append(tp, v.Maddr)
+		} else {
+			id, _ := peer.AddrInfoFromString(v.Maddr)
+			bp = append(bp, id.ID)
+		}
+	}
+	return tp, bp
 }

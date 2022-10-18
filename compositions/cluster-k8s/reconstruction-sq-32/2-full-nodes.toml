@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "reconstruction"
-  total_instances = 361
+  total_instances = 362
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -17,7 +17,7 @@
   msg-size = "10000"
   validator = "5"
   bridge = "5"
-  full = "1"
+  full = "2"
   light = "350"
 
 [[groups]]
@@ -67,10 +67,10 @@
   id = "fulls"
   builder = "docker:generic"
  [groups.resources]
-    memory = "256Gi"
-    cpu = "37000m"
+    memory = "128Gi"
+    cpu = "16000m"
   [groups.instances]
-    count = 1
+    count = 2
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -80,7 +80,7 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "0"
+    latency = "50"
     bandwidth = "256Mib"
     block-height = "5"
     role = "full"
@@ -102,7 +102,7 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "0"
+    latency = "50"
     bandwidth = "256Mib"
     block-height = "5"
     role = "light"
