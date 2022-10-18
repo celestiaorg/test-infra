@@ -5,20 +5,20 @@
 [global]
   plan = "celestia"
   case = "reconstruction"
-  total_instances = 8
+  total_instances = 12
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
 
 [global.run.test_params]
-  execution-time = "30"
+  execution-time = "10"
   persistent-peers = "3"
   submit-times = "21"
-  msg-size = "50000"
+  msg-size = "10"
   validator = "3"
   bridge = "3"
   full = "1"
-  light = "1"
+  light = "5"
 
 [[groups]]
   id = "validators"
@@ -92,7 +92,7 @@
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 1
+    count = 5
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

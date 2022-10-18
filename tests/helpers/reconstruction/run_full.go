@@ -58,6 +58,17 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+<<<<<<< Updated upstream
+=======
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
+	runenv.RecordMessage(ndhome)
+
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	if err != nil {
+		return err
+	}
+
+>>>>>>> Stashed changes
 	runenv.RecordMessage("Getting briges")
 	bridgeNodes, err := func(ctx context.Context, syncclient sync.Client, amountOfBridges int) (bridges []*testkit.BridgeNodeInfo, err error) {
 		bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
@@ -84,13 +95,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
-	runenv.RecordMessage(ndhome)
-
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return err
-	}
 
 	trustedPeers := func(bridges []*testkit.BridgeNodeInfo) []string {
 		var peers []string
@@ -157,6 +161,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			runenv.RecordMessage("blocked maddr %s", v.Maddr)
 		}
 	}
+
 
 	runenv.RecordMessage("FullNode %d is trying to reconstruct the block", int(initCtx.GroupSeq))
 	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("submit-times")-2))

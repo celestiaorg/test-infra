@@ -1,9 +1,8 @@
-package tests
+package blockrecon
 
 import (
-	nodesync "github.com/celestiaorg/test-infra/tests/node-sync"
-	"github.com/celestiaorg/test-infra/tests/reconstruction"
-
+	nodesync "github.com/celestiaorg/test-infra/tests/helpers/node-sync"
+	reconstruction "github.com/celestiaorg/test-infra/tests/helpers/reconstruction"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )

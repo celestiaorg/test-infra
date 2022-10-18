@@ -85,6 +85,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+
 	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
 	runenv.RecordMessage(ndhome)
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
@@ -93,6 +94,8 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	trustedPeers := []string{bridgeNode.Maddr, fullNode[0].Maddr}
+	runenv.RecordMessage("Bridge Address -> %s",bridgeNode.Maddr)
+	runenv.RecordMessage("Full Address -> %s",fullNode[0].Maddr)
 	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
 	nd, err := nodekit.NewNode(
 		ndhome,
