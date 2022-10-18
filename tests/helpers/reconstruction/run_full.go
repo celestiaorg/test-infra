@@ -58,8 +58,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-<<<<<<< Updated upstream
-=======
 	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
 
@@ -68,7 +66,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
->>>>>>> Stashed changes
 	runenv.RecordMessage("Getting briges")
 	bridgeNodes, err := func(ctx context.Context, syncclient sync.Client, amountOfBridges int) (bridges []*testkit.BridgeNodeInfo, err error) {
 		bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
