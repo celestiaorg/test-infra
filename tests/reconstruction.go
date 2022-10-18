@@ -14,7 +14,7 @@ func BlockReconstruction(runenv *runtime.RunEnv, initCtx *run.InitContext) (err 
 	case "validator":
 		err = nodesync.RunAppValidator(runenv, initCtx)
 	case "bridge":
-		err = nodesync.RunBridgeNode(runenv, initCtx)
+		err = reconstruction.RunBridgeNode(runenv, initCtx)
 	case "full":
 		err = reconstruction.RunFullNode(runenv, initCtx)
 	case "light":

@@ -3,8 +3,6 @@ package reconstruction
 import (
 	"context"
 	"fmt"
-	"net"
-	"strings"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -60,6 +58,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	runenv.RecordMessage("Getting briges")
 	bridgeNodes, err := func(ctx context.Context, syncclient sync.Client, amountOfBridges int) (bridges []*testkit.BridgeNodeInfo, err error) {
 		bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
 		sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
@@ -67,7 +66,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return nil, err
 		}
 
-		for {
+		for i := 0; i < amountOfBridges; i++ {
 			select {
 			case err = <-sub.Done():
 				if err != nil {
@@ -78,6 +77,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				bridges = append(bridges, bridge)
 			}
 		}
+		return bridges, nil
 
 	}(ctx, syncclient, runenv.IntParam("bridge"))
 	if err != nil {
@@ -151,12 +151,15 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("Blacklisting bridge IPs for FullNode %d", int(initCtx.GroupSeq))
 
 	for _, v := range bridgeNodes {
-		ip := strings.Split(v.Maddr, "/")[2]
-		nd.ConnGater.BlockAddr(net.ParseIP(ip))
+		id, _ := peer.AddrInfoFromString(v.Maddr)
+		nd.ConnGater.BlockPeer(id.ID)
+		if !nd.ConnGater.InterceptPeerDial(id.ID) {
+			runenv.RecordMessage("blocked maddr %s", v.Maddr)
+		}
 	}
 
 	runenv.RecordMessage("FullNode %d is trying to reconstruct the block", int(initCtx.GroupSeq))
-	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("submit-times")-1))
+	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("submit-times")-2))
 	if err != nil {
 		return err
 	}
