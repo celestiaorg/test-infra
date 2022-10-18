@@ -70,8 +70,8 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 
 	_, err = syncclient.Publish(
 		ctx,
-		sdk.BridgeNodeTopic,
-		&sdk.BridgeNodeInfo{
+		testkit.BridgeNodeTopic,
+		&testkit.BridgeNodeInfo{
 			ID:          int(initCtx.GroupSeq),
 			Maddr:       addrs[0].String(),
 			TrustedHash: h,
@@ -86,9 +86,9 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	return nd, nil
 }
 
-func GetBridgeNode(ctx context.Context, syncclient sync.Client, id int64, amountOfBridges int) (*sdk.BridgeNodeInfo, error) {
-	bridgeCh := make(chan *sdk.BridgeNodeInfo, amountOfBridges)
-	sub, err := syncclient.Subscribe(ctx, sdk.BridgeNodeTopic, bridgeCh)
+func GetBridgeNode(ctx context.Context, syncclient sync.Client, id int64, amountOfBridges int) (*testkit.BridgeNodeInfo, error) {
+	bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
+	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
 	if err != nil {
 		return nil, err
 	}

@@ -101,7 +101,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = syncclient.SignalEntry(ctx, sdk.FinishState)
+	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}

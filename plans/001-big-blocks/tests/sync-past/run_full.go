@@ -69,7 +69,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	// We wait until the bridge reaches a certain height and then start syncing the chain
-	b, err := syncclient.Barrier(ctx, sdk.PastBlocksGeneratedState, runenv.IntParam("bridge"))
+	b, err := syncclient.Barrier(ctx, testkit.PastBlocksGeneratedState, runenv.IntParam("bridge"))
 	berr := <-b.C
 	if err != nil || berr != nil {
 		return fmt.Errorf("error occured on barriering: err - %s, barrier err - %s", err, berr)
@@ -108,7 +108,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = syncclient.SignalEntry(ctx, sdk.FinishState)
+	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}

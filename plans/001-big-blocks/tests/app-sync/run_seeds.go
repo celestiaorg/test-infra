@@ -63,7 +63,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	initGenCh := make(chan string)
-	sub, err := syncclient.Subscribe(ctx, sdk.InitialGenenesisTopic, initGenCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
 	if err != nil {
 		return err
 	}
@@ -88,7 +88,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	_, err = syncclient.Publish(
 		ctx,
-		sdk.ValidatorPeerTopic,
+		testkit.ValidatorPeerTopic,
 		&appkit.ValidatorNode{
 			PubKey: nodeId,
 			IP:     config.IPv4.IP},

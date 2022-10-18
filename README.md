@@ -46,9 +46,10 @@ Each of the directories contains its own `README.md`.
 
 For test plans, each test plan resides in its own directory under `plans/TP_NAME` and acts as separate golang module with its own `manifest.toml` and `Dockerfile`.
 
+### Testkit caveats 
 Note that `testkit` is shared between all test plans, and acts a separate golang module. At the moment, all test plans are using the following testkit version:
 ```
-github.com/celestiaorg/test-infra/testkit v0.0.0-20221017170342-2f62dad4c2a2
+github.com/celestiaorg/test-infra/testkit v0.0.0-20221018104638-5c8877bc6a02
 ```
 
 if you make any changes to `testkit` make sure to commit and retrieve the commit hash, and then retrieve the go module version by running:

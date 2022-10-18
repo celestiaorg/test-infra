@@ -36,13 +36,13 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	// we need this dirty-hack to check the k8s cluster has
 	// the time to ramp up all the instances
 	time.Sleep(30 * time.Second)
-	seq, err := syncclient.Publish(ctx, sdk.AccountAddressTopic, accAddr)
+	seq, err := syncclient.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
 		return nil, err
 	}
 
 	accAddrCh := make(chan string)
-	_, err = syncclient.Subscribe(ctx, sdk.AccountAddressTopic, accAddrCh)
+	_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +76,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 			return nil, err
 		}
 
-		_, err = syncclient.Publish(ctx, sdk.InitialGenenesisTopic, string(bt))
+		_, err = syncclient.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
 		if err != nil {
 			return nil, err
 		}
@@ -84,7 +84,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
 	} else {
 		initGenCh := make(chan string)
-		sub, err := syncclient.Subscribe(ctx, sdk.InitialGenenesisTopic, initGenCh)
+		sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
 		if err != nil {
 			return nil, err
 		}
@@ -131,7 +131,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 			return nil, err
 		}
 
-		_, err = syncclient.Publish(ctx, sdk.GenesisTxTopic, string(bt))
+		_, err = syncclient.Publish(ctx, testkit.GenesisTxTopic, string(bt))
 		if err != nil {
 			return nil, err
 		}
@@ -139,7 +139,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	}
 
 	genTxCh := make(chan string)
-	sub, err := syncclient.Subscribe(ctx, sdk.GenesisTxTopic, genTxCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 
 		_, err = syncclient.Publish(
 			ctx,
-			sdk.ValidatorPeerTopic,
+			testkit.ValidatorPeerTopic,
 			&appkit.ValidatorNode{
 				PubKey: nodeId,
 				IP:     ip},
@@ -200,7 +200,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	}
 
 	valCh := make(chan *appkit.ValidatorNode)
-	sub, err = syncclient.Subscribe(ctx, sdk.ValidatorPeerTopic, valCh)
+	sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
 	if err != nil {
 		return nil, err
 	}
@@ -254,9 +254,9 @@ func changeConfig(path string) error {
 	return nil
 }
 
-func GetValidatorInfo(ctx context.Context, syncclient sync.Client, valAmount, id int) (*sdk.AppNodeInfo, error) {
-	appInfoCh := make(chan *sdk.AppNodeInfo, valAmount)
-	sub, err := syncclient.Subscribe(ctx, sdk.AppNodeTopic, appInfoCh)
+func GetValidatorInfo(ctx context.Context, syncclient sync.Client, valAmount, id int) (*testkit.AppNodeInfo, error) {
+	appInfoCh := make(chan *testkit.AppNodeInfo, valAmount)
+	sub, err := syncclient.Subscribe(ctx, testkit.AppNodeTopic, appInfoCh)
 	if err != nil {
 		return nil, err
 	}

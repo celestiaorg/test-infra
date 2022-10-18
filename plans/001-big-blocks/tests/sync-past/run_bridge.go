@@ -74,7 +74,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
 
-	_, err = syncclient.SignalEntry(ctx, sdk.PastBlocksGeneratedState)
+	_, err = syncclient.SignalEntry(ctx, testkit.PastBlocksGeneratedState)
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = syncclient.SignalEntry(ctx, sdk.FinishState)
+	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}

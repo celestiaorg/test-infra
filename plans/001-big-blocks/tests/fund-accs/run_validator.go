@@ -68,8 +68,8 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	_, err = syncclient.Publish(
 		ctx,
-		sdk.AppNodeTopic,
-		&sdk.AppNodeInfo{
+		testkit.AppNodeTopic,
+		&testkit.AppNodeInfo{
 			ID: int(initCtx.GroupSeq),
 			IP: ip,
 		},
@@ -80,7 +80,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	accsCh := make(chan string)
 	runenv.RecordMessage("start funding celestia-node accounts")
-	sub, err := syncclient.Subscribe(ctx, sdk.FundAccountTopic, accsCh)
+	sub, err := syncclient.Subscribe(ctx, testkit.FundAccountTopic, accsCh)
 	if err != nil {
 		return err
 	}
@@ -109,12 +109,12 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	_, err = syncclient.SignalEntry(ctx, sdk.AccountsFundedState)
+	_, err = syncclient.SignalEntry(ctx, testkit.AccountsFundedState)
 	if err != nil {
 		return err
 	}
 
-	_, err = syncclient.SignalAndWait(ctx, sdk.FinishState, runenv.TestInstanceCount)
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {
 		return err
 	}

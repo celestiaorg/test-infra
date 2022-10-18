@@ -69,8 +69,8 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	_, err = syncclient.Publish(
 		ctx,
-		sdk.AppNodeTopic,
-		&sdk.AppNodeInfo{
+		testkit.AppNodeTopic,
+		&testkit.AppNodeInfo{
 			ID: int(initCtx.GroupSeq),
 			IP: ip,
 		},
@@ -100,7 +100,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
 	}
 
-	_, err = syncclient.SignalAndWait(ctx, sdk.FinishState, runenv.TestInstanceCount)
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,7 @@ module github.com/celestiaorg/test-infra/plans/001-big-blocks
 
 go 1.19
 
-require github.com/celestiaorg/test-infra/testkit v0.0.0-20221017170342-2f62dad4c2a2
+require github.com/celestiaorg/test-infra/testkit v0.0.0-20221018104638-5c8877bc6a02
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76

@@ -38,7 +38,7 @@ func NewNode(
 ) (*nodebuilder.Node, error) {
 	// This is necessary to ensure that the account addresses are correctly prefixed
 	// as in the celestia application.
-	sdkcfg := sdk.GetConfig()
+	sdkcfg := testkit.GetConfig()
 	sdkcfg.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
 	sdkcfg.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
 	sdkcfg.Seal()
