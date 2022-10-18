@@ -101,6 +101,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	for _, v := range fullNode {
 		id, _ := peer.AddrInfoFromString(v.Maddr)
+		nd.Host.Network().ClosePeer(id.ID)
 		nd.ConnGater.BlockPeer(id.ID)
 		if !nd.ConnGater.InterceptPeerDial(id.ID) {
 			runenv.RecordMessage("blocked maddr %s", v.Maddr)

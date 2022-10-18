@@ -92,7 +92,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-
 	trustedPeers := func(bridges []*testkit.BridgeNodeInfo) []string {
 		var peers []string
 		for _, v := range bridges {
@@ -153,12 +152,12 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	for _, v := range bridgeNodes {
 		id, _ := peer.AddrInfoFromString(v.Maddr)
+		nd.Host.Network().ClosePeer(id.ID)
 		nd.ConnGater.BlockPeer(id.ID)
 		if !nd.ConnGater.InterceptPeerDial(id.ID) {
 			runenv.RecordMessage("blocked maddr %s", v.Maddr)
 		}
 	}
-
 
 	runenv.RecordMessage("FullNode %d is trying to reconstruct the block", int(initCtx.GroupSeq))
 	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("submit-times")-2))

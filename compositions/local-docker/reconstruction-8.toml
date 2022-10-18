@@ -14,7 +14,7 @@
   execution-time = "10"
   persistent-peers = "3"
   submit-times = "21"
-  msg-size = "10"
+  msg-size = "1"
   validator = "3"
   bridge = "3"
   full = "1"
@@ -60,7 +60,7 @@
     [groups.run.test_params]
     latency = "0"
     bandwidth = "256Mib"
-    block-height = "20"
+    block-height = "5"
     role = "bridge"
 
 [[groups]]
