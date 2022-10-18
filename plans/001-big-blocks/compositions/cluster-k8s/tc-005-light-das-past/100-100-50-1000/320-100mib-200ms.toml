@@ -3,7 +3,7 @@
   author = "Bidon15"
 
 [global]
-  plan = "celestia"
+  plan = "001-big-blocks"
   case = "005-light-das-past"
   total_instances = 2250
   builder = "docker:generic"
