@@ -1,33 +1,61 @@
-# Test Plan {Number}: {TITLE}
+# Test Plan #001: Big Blocks Creation/Sync
 
+- [Test Plan #001: Big Blocks Creation/Sync](#test-plan-001-big-blocks-creationsync)
+  - [Introduction](#introduction)
+  - [In-Scope](#in-scope)
+  - [Out-of-Scope](#out-of-scope)
+  - [Entry Conditions](#entry-conditions)
+  - [Exit Conditions](#exit-conditions)
+  - [Test Environment](#test-environment)
+  - [Notes](#notes)
+  - [Test-Cases](#test-cases)
 
 ## Introduction
-> This section is a brief description of features we are going to test. Usually the motivation/justification should be included here.
+The goal of this test plan is to benchmark our Full and Bridge Node implementation against X amount of light nodes to measure performance at peak usage when participating in Data Availability Sampling.
 
 ## In-Scope
-> This section is dependable on the introduction that you gave. If the list of features is quite vast, it's pretty obvious to describe how&what that is going to be used to test each of the feature. 
+- Celestia Node Instances
+  - Bridge / Full / Light
+- Max 4 MB block size
+- Max Share Size: 128
+- Network Latencies between 60 and 300ms
+- DASing will concern both:
+  - Latest HEAD
+  - a few random sampling ranges
 
 ## Out-of-Scope
-> This section describes what scenarios/approaches you are not going to test for the list of the features.
 
-## Risks
-> This section is meant to share some thoughts on what might go wrong with this plan due to factors
-that are not discovered now or could not be achieved now.
+- Eclipse Attacks
+- Network Outages
+- Withholding Data Attacks
+- Bad Erasure Coding Attacks
 
 ## Entry Conditions
-> This section contains conditions under which we know when to start execution of the test plan.
+
+- Bridge or Full Node must have enough of blocks up to any height depending on the test case.
+  - For latest HEAD test cases, a height of 1 is acceptable
+  - For sampling ranges test cases, at least a minimum of height=50
 
 ## Exit Conditions
-> This section contains conditions under which we know when to stop execution of the test plan
 
-## Timescales
-> This section contains estimations for completing the test plan
-
-## People
-> This section points who are going to participate in this test plan
+- All In-Scope testing has been done
+- No unresolved encountered Critical or High level defects
+- Medium to Low level defects are documented in respective repos
+- Test Report is presented
 
 ## Test Environment
-> This section stores information on tools and environment used to execute tests on
+
+- Testground
+- K8s cluster
+- Metrics' dashboards
 
 ## Notes
-> This section contains useful links for future readers to get more in-depth details on what is going on
+
+[E2E: Celestia Network Tests](https://github.com/celestiaorg/celestia-node/issues/7)
+
+[Benchmarking Full And Bridge Nodes against X Light Nodes]](https://github.com/celestiaorg/test-infra/issues/83)
+
+
+## Test-Cases
+
+[Test-Case #001 - Light Nodes Must Finish DASing before Block Time](test-cases/tc-001-x-light-finish-das-before-block-time.md)

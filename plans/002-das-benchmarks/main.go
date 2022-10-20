@@ -1,16 +1,15 @@
-// Welcome, testground plan writer!
-// If you are seeing this for the first time, check out our documentation!
-// https://app.gitbook.com/@protocol-labs/s/testground/
-
 package main
 
-import "github.com/ipfs/testground/sdk/runtime"
+import (
+	"github.com/celestiaorg/test-infra/plans/002-das-benchmarks/tests"
+	"github.com/testground/sdk-go/run"
+)
+
+var testcases = map[string]interface{}{
+	"001-lights-dasing-latest":   run.InitializedTestCaseFn(tests.LightsDasingLatest),
+}
 
 func main() {
-	runtime.Invoke(run)
+	run.InvokeMap(testcases)
 }
 
-func run(runenv *runtime.RunEnv) error {
-	runenv.RecordMessage("Hello, Testground!")
-	return nil
-}

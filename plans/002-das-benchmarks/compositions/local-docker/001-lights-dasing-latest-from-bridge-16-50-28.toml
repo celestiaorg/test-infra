@@ -1,48 +1,26 @@
 [metadata]
-  name = "006-light-das-latest-1-20-set"
+  name = "001-light-das-latest-16-50-28-set"
   author = "derrandz"
 
 [global]
-  plan = "celestia"
-  case = "006-light-das-latest"
-  total_instances = 12
+  plan = "002-das-benchmarks"
+  case = "001-lights-dasing-latest"
+  total_instances = 30
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
 
 [global.run.test_params]
-  execution-time = "30"
-  persistent-peers = "3"
-#  submit-times = "42"
+  execution-time = "4"
+  persistent-peers = "1"
+  submit-times = "10"
   msg-size = "100000"
-  full = "1"
-# or bridge = "1"
-  light = "20"
-
-# [[groups]]
-#  id = "bridges"
-#  builder = "docker:generic"
-#  [groups.resources]
-#    memory = ""
-#    cpu = ""
-#  [groups.instances]
-#    count = 1
-#    percentage = 0.0
-#  [groups.build_config]
-#    build_base_image = "golang:1.19.1"
-#    enable_go_build_cache = true
-#    enabled = true
-#    go_version = "1.19"
-#  [groups.build]
-#  [groups.run]
-#   [groups.run.test_params]
-#   latency = "0"
-#   bandwidth = "256Mib"
-#   block-height = "1"
-#   role = "bridge"
+  bridge = "1"
+  light = "28"
+  validator = "1"
 
 [[groups]]
-  id = "fulls"
+  id = "validators"
   builder = "docker:generic"
   [groups.resources]
     memory = ""
@@ -60,8 +38,29 @@
     [groups.run.test_params]
     latency = "0"
     bandwidth = "256Mib"
-    block-height = "40"
-    role = "full"
+    role = "validator"
+
+[[groups]]
+ id = "bridges"
+ builder = "docker:generic"
+ [groups.resources]
+   memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "0"
+    bandwidth = "256Mib"
+    block-height = "10"
+    role = "bridge"
 
 [[groups]]
   id = "lights"
@@ -70,7 +69,7 @@
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 20
+    count = 28
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -82,5 +81,5 @@
     [groups.run.test_params]
     latency = "0"
     bandwidth = "100Mib"
-    block-height = "40"
+    block-height = "9"
     role = "light"
