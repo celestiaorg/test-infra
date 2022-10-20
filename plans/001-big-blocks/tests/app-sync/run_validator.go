@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit/appkit"
-	"github.com/celestiaorg/test-infra/plans/001-big-blocks/tests/common"
+	"github.com/celestiaorg/test-infra/testkit/common"
 
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
