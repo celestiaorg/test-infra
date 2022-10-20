@@ -9,7 +9,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/plans/001-big-blocks/tests/common"
+	"github.com/celestiaorg/test-infra/testkit/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"

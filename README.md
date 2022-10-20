@@ -49,7 +49,7 @@ For test plans, each test plan resides in its own directory under `plans/TP_NAME
 ### Testkit caveats 
 Note that `testkit` is shared between all test plans, and acts a separate golang module. At the moment, all test plans are using the following testkit version:
 ```
-github.com/celestiaorg/test-infra/testkit v0.0.0-20221018104638-5c8877bc6a02
+github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406
 ```
 
 if you make any changes to `testkit` make sure to commit and retrieve the commit hash, and then retrieve the go module version by running:
@@ -66,6 +66,8 @@ $ make tg-create-testplan NAME=YOUR_DESIRED_TESTPLAN_NAME
 ```
 
 This will create a new go module with a `manifest.toml` under `./plans/YOUR_DESIRED_TESTPLAN_NAME` and a documentation folder  and file under `./docs/test-plans/YOUR_DESIRED_TESTPLAN_NAME/` to get you up to speed.
+
+> **Important**: Make sure to update the created `go.mod` under your test plan's new directory as it comes with default dummy values from testground. Namely, udpate the golang version as it comes with `go 1.14` by default and you module's name as it comes with `github.com/your/module/name`
 
 ## Test Execution
 

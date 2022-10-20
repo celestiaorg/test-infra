@@ -2,7 +2,7 @@ module github.com/celestiaorg/test-infra/plans/001-big-blocks
 
 go 1.19
 
-require github.com/celestiaorg/test-infra/testkit v0.0.0-20221018104638-5c8877bc6a02
+require github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
@@ -20,7 +20,7 @@ require (
 	github.com/celestiaorg/celestia-app v0.7.0 // indirect
 	github.com/cosmos/cosmos-sdk v0.46.2 // indirect
 	github.com/ipfs/go-log/v2 v2.5.1 // indirect
-	github.com/libp2p/go-libp2p-core v0.19.1
+	github.com/libp2p/go-libp2p-core v0.19.1 // indirect
 	github.com/spf13/cobra v1.6.0 // indirect
 	github.com/spf13/viper v1.13.0 // indirect
 	github.com/testground/sdk-go v0.3.0
