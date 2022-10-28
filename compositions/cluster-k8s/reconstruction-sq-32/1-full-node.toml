@@ -5,19 +5,19 @@
 [global]
   plan = "celestia"
   case = "reconstruction"
-  total_instances = 361
+  total_instances = 358
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
 
 [global.run.test_params]
-  execution-time = "20"
-  persistent-peers = "5"
-  submit-times = "21"
+  execution-time = "40"
+  persistent-peers = "3"
+  submit-times = "60"
   msg-size = "10000"
-  validator = "5"
-  bridge = "5"
-  full = "1"
+  validator = "3"
+  bridge = "3"
+  full = "2"
   light = "350"
 
 [[groups]]
@@ -25,9 +25,9 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "4Gi"
-    cpu = "3000m"
+    cpu = "2000m"
   [groups.instances]
-    count = 5
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -46,9 +46,9 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "4Gi"
-    cpu = "3000m"
+    cpu = "2000m"
   [groups.instances]
-    count = 5
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -67,10 +67,10 @@
   id = "fulls"
   builder = "docker:generic"
  [groups.resources]
-    memory = "256Gi"
-    cpu = "37000m"
+    memory = "16Gi"
+    cpu = "10"
   [groups.instances]
-    count = 1
+    count = 2
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -89,8 +89,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "1Gi"
-    cpu = "300m"
+    memory = "300Mi"
+    cpu = "1000m"
   [groups.instances]
     count = 350
     percentage = 0.0

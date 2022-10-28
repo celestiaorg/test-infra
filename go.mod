@@ -25,8 +25,8 @@ require (
 )
 
 require (
-	github.com/celestiaorg/celestia-node v0.4.0
-	github.com/tendermint/tendermint v0.35.4
+	github.com/Bidon15/celestia-node v0.5.0-slava
+	github.com/tendermint/tendermint v0.34.20
 	go.uber.org/fx v1.18.2
 )
 

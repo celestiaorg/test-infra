@@ -23,7 +23,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("INFO")
+	err := nodekit.SetLoggersLevel("DEBUG")
 	if err != nil {
 		return err
 	}
@@ -87,6 +87,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	trustedPeers, bannedPeersIds := getPeers(int(initCtx.GroupSeq), runenv.TestGroupInstanceCount, fullNodes)
+	trustedPeers = append(trustedPeers, bridgeNode.Maddr)
 
 	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
 	runenv.RecordMessage(ndhome)
