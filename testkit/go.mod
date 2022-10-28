@@ -15,13 +15,13 @@ replace (
 
 require (
 	github.com/celestiaorg/celestia-app v0.7.0
-	github.com/celestiaorg/celestia-node v0.4.0
-	github.com/cosmos/cosmos-sdk v0.46.2
+	github.com/celestiaorg/celestia-node v0.4.2-0.20221028203714-c4ad2778f994
+	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p-core v0.19.1
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/viper v1.13.0
-	github.com/tendermint/tendermint v0.35.9
+	github.com/tendermint/tendermint v0.34.20
 	github.com/testground/sdk-go v0.3.0
 	go.uber.org/fx v1.18.2
 )

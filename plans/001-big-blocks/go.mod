@@ -2,8 +2,6 @@ module github.com/celestiaorg/test-infra/plans/001-big-blocks
 
 go 1.19
 
-require github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406
-
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.5.0-dirty-app
@@ -18,7 +16,7 @@ replace (
 require (
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
 	github.com/celestiaorg/celestia-app v0.7.0 // indirect
-	github.com/cosmos/cosmos-sdk v0.46.2 // indirect
+	github.com/cosmos/cosmos-sdk v0.46.0 // indirect
 	github.com/ipfs/go-log/v2 v2.5.1 // indirect
 	github.com/libp2p/go-libp2p-core v0.19.1 // indirect
 	github.com/spf13/cobra v1.6.0 // indirect
@@ -26,7 +24,7 @@ require (
 	github.com/testground/sdk-go v0.3.0
 )
 
-require github.com/celestiaorg/celestia-node v0.4.0
+require github.com/celestiaorg/celestia-node v0.4.2-0.20221028203714-c4ad2778f994
 
 require (
 	cloud.google.com/go v0.104.0 // indirect
@@ -55,6 +53,8 @@ require (
 	github.com/celestiaorg/nmt v0.10.0 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.6.0 // indirect
+	github.com/celestiaorg/test-infra v0.0.0-20221028204004-6bc1cca8c56e // indirect
+	github.com/celestiaorg/test-infra/testkit v0.0.0-20221028204235-b3e7beabb71e // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -90,6 +90,7 @@ require (
 	github.com/elastic/gosigar v0.14.2 // indirect
 	github.com/ethereum/go-ethereum v1.10.21 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/filecoin-project/go-jsonrpc v0.1.8 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -167,6 +168,7 @@ require (
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/ipfs/go-peertaskqueue v0.7.0 // indirect
 	github.com/ipfs/go-verifcid v0.0.1 // indirect
+	github.com/ipld/go-car v0.5.0 // indirect
 	github.com/ipld/go-codec-dagpb v1.3.1 // indirect
 	github.com/ipld/go-ipld-prime v0.16.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
@@ -268,7 +270,7 @@ require (
 	github.com/tendermint/btcd v0.1.1 // indirect
 	github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 // indirect
 	github.com/tendermint/go-amino v0.16.0 // indirect
-	github.com/tendermint/tendermint v0.35.9 // indirect
+	github.com/tendermint/tendermint v0.34.20 // indirect
 	github.com/tendermint/tm-db v0.6.7 // indirect
 	github.com/testground/sync-service v0.1.0 // indirect
 	github.com/testground/testground v0.5.3 // indirect
