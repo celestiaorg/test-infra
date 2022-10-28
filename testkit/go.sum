@@ -256,6 +256,8 @@ github.com/celestiaorg/celestia-node v0.4.0 h1:xxExCC4l8YCgrk178QbhrHbhQXbCSTV6E
 github.com/celestiaorg/celestia-node v0.4.0/go.mod h1:tBXn+ddZHBj0925y7ydYDnVCsJuzP6PFW/i1c+Ewe9k=
 github.com/celestiaorg/celestia-node v0.4.2-0.20221028192948-6955feab214d h1:oYOsuwPHUDWewuuWs3x18z7UWkXKd40SkvI/LXpAvaQ=
 github.com/celestiaorg/celestia-node v0.4.2-0.20221028192948-6955feab214d/go.mod h1:T+Oe8I8MSTzXhLg3/5ZjxRNhEI7v1A0clPECWozK/98=
+github.com/celestiaorg/celestia-node v0.4.2-0.20221028203714-c4ad2778f994 h1:JNcml2fWxuFv6TOBixQ6m8ilV5Be0eY247EFvHIb6wc=
+github.com/celestiaorg/celestia-node v0.4.2-0.20221028203714-c4ad2778f994/go.mod h1:T+Oe8I8MSTzXhLg3/5ZjxRNhEI7v1A0clPECWozK/98=
 github.com/celestiaorg/go-leopard v0.1.0/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
 github.com/celestiaorg/go-leopard v0.1.1 h1:BustWqKRulKam5lAIT4VrgYKNBeTb+XVD1nP1l+A1pg=
 github.com/celestiaorg/go-leopard v0.1.1/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
