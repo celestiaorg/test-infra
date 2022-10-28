@@ -53,7 +53,8 @@ require (
 	github.com/celestiaorg/nmt v0.10.0 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.6.0 // indirect
-	github.com/celestiaorg/test-infra v0.0.0-20221028193838-683783009110 // indirect
+	github.com/celestiaorg/test-infra v0.0.0-20221028200744-e7da4d7d86a7 // indirect
+	github.com/celestiaorg/test-infra/testkit v0.0.0-20221028200744-e7da4d7d86a7 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -89,6 +90,7 @@ require (
 	github.com/elastic/gosigar v0.14.2 // indirect
 	github.com/ethereum/go-ethereum v1.10.21 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/filecoin-project/go-jsonrpc v0.1.8 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
@@ -166,6 +168,7 @@ require (
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/ipfs/go-peertaskqueue v0.7.0 // indirect
 	github.com/ipfs/go-verifcid v0.0.1 // indirect
+	github.com/ipld/go-car v0.5.0 // indirect
 	github.com/ipld/go-codec-dagpb v1.3.1 // indirect
 	github.com/ipld/go-ipld-prime v0.16.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
