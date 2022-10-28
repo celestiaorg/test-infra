@@ -82,6 +82,8 @@ ENV GOLOG_OUTPUT stdout
 COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
 
+RUN go get github.com/cespare/reflex
+RUN go get github.com/go-delve/delve/cmd/dlv@latest
 
-EXPOSE 9090 26657 26656 1317 26658
-ENTRYPOINT [ "/testplan"]
+EXPOSE 9090 26657 26656 1317 26658 9999
+CMD dlv exec . --continue --headless --accept-multiclient  --listen=:9999 --api-version=2
