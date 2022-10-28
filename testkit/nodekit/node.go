@@ -10,7 +10,7 @@ import (
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-	"github.com/celestiaorg/celestia-node/params"
+	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	logging "github.com/ipfs/go-log/v2"
 
 	"go.uber.org/fx"
@@ -52,7 +52,7 @@ func NewNode(
 		return nil, err
 	}
 
-	options = append([]fx.Option{nodebuilder.WithNetwork(params.Private)}, options...)
+	options = append([]fx.Option{nodebuilder.WithNetwork(p2p.Private)}, options...)
 	return nodebuilder.New(tp, store, options...)
 }
 
