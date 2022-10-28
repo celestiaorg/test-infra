@@ -176,6 +176,8 @@ github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20 h1:BqlcOQqL2UqdDTcdCtrOL
 github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
 github.com/celestiaorg/celestia-node v0.4.0 h1:xxExCC4l8YCgrk178QbhrHbhQXbCSTV6E4DdSw90K54=
 github.com/celestiaorg/celestia-node v0.4.0/go.mod h1:tBXn+ddZHBj0925y7ydYDnVCsJuzP6PFW/i1c+Ewe9k=
+github.com/celestiaorg/celestia-node v0.4.2-0.20221028192948-6955feab214d h1:oYOsuwPHUDWewuuWs3x18z7UWkXKd40SkvI/LXpAvaQ=
+github.com/celestiaorg/celestia-node v0.4.2-0.20221028192948-6955feab214d/go.mod h1:T+Oe8I8MSTzXhLg3/5ZjxRNhEI7v1A0clPECWozK/98=
 github.com/celestiaorg/go-leopard v0.1.1 h1:BustWqKRulKam5lAIT4VrgYKNBeTb+XVD1nP1l+A1pg=
 github.com/celestiaorg/go-leopard v0.1.1/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
@@ -192,6 +194,8 @@ github.com/celestiaorg/quantum-gravity-bridge v1.2.0 h1:l/LEEUP+x8MhhXB8rrWkyUVF
 github.com/celestiaorg/quantum-gravity-bridge v1.2.0/go.mod h1:6WOajINTDEUXpSj5UZzod16UZ96ZVB/rFNKyM+Mt1gI=
 github.com/celestiaorg/rsmt2d v0.6.0 h1:32Eq5t7lPNbhftPFFjxwCUeEjWg/yGgeMbshxnGw03c=
 github.com/celestiaorg/rsmt2d v0.6.0/go.mod h1:EZ+O2KdCq8xI7WFwjATLdhtMdrdClmAs2w7zENDr010=
+github.com/celestiaorg/test-infra v0.0.0-20221028193838-683783009110 h1:ATudsAOSz03PtiUtRHwRr5f0VK+P1K4G89qaKka5yp4=
+github.com/celestiaorg/test-infra v0.0.0-20221028193838-683783009110/go.mod h1:5V23smGkEmqotOlwMeAPHZzbTrhAltPPBY5VuBFSPSA=
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406 h1:2yl7mMRe67wRycbyI/wvVYSKDbDh441W2ddw112jTU0=
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406/go.mod h1:dqY1h5SWVvqGDvYrxkGQvv4987V/hHzux8YUZelBMrM=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
