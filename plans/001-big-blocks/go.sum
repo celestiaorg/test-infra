@@ -178,6 +178,7 @@ github.com/celestiaorg/celestia-node v0.4.0 h1:xxExCC4l8YCgrk178QbhrHbhQXbCSTV6E
 github.com/celestiaorg/celestia-node v0.4.0/go.mod h1:tBXn+ddZHBj0925y7ydYDnVCsJuzP6PFW/i1c+Ewe9k=
 github.com/celestiaorg/celestia-node v0.4.2-0.20221028192948-6955feab214d h1:oYOsuwPHUDWewuuWs3x18z7UWkXKd40SkvI/LXpAvaQ=
 github.com/celestiaorg/celestia-node v0.4.2-0.20221028192948-6955feab214d/go.mod h1:T+Oe8I8MSTzXhLg3/5ZjxRNhEI7v1A0clPECWozK/98=
+github.com/celestiaorg/celestia-node v0.4.2-0.20221028203714-c4ad2778f994/go.mod h1:T+Oe8I8MSTzXhLg3/5ZjxRNhEI7v1A0clPECWozK/98=
 github.com/celestiaorg/go-leopard v0.1.1 h1:BustWqKRulKam5lAIT4VrgYKNBeTb+XVD1nP1l+A1pg=
 github.com/celestiaorg/go-leopard v0.1.1/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
@@ -198,6 +199,8 @@ github.com/celestiaorg/test-infra v0.0.0-20221028193838-683783009110 h1:ATudsAOS
 github.com/celestiaorg/test-infra v0.0.0-20221028193838-683783009110/go.mod h1:5V23smGkEmqotOlwMeAPHZzbTrhAltPPBY5VuBFSPSA=
 github.com/celestiaorg/test-infra v0.0.0-20221028200744-e7da4d7d86a7 h1:HosFqiT3SNm4Ca11vlFdp1FCKVdQSxlcK+6gIJ3o4js=
 github.com/celestiaorg/test-infra v0.0.0-20221028200744-e7da4d7d86a7/go.mod h1:5V23smGkEmqotOlwMeAPHZzbTrhAltPPBY5VuBFSPSA=
+github.com/celestiaorg/test-infra v0.0.0-20221028204004-6bc1cca8c56e h1:UCvmn4vgeVvC2cI0fEfsrnn1qxnSoQA0UBaGWTPJmsg=
+github.com/celestiaorg/test-infra v0.0.0-20221028204004-6bc1cca8c56e/go.mod h1:5V23smGkEmqotOlwMeAPHZzbTrhAltPPBY5VuBFSPSA=
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406 h1:2yl7mMRe67wRycbyI/wvVYSKDbDh441W2ddw112jTU0=
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406/go.mod h1:dqY1h5SWVvqGDvYrxkGQvv4987V/hHzux8YUZelBMrM=
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221028194537-bded55d1c108 h1:tXvTTBU3jG0q+43TvrdRj3VGO/TDa1+FkYra4yX+6no=
@@ -206,6 +209,8 @@ github.com/celestiaorg/test-infra/testkit v0.0.0-20221028195730-21f2cfbf4c17 h1:
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221028195730-21f2cfbf4c17/go.mod h1:HJnE8RfGLNIMg3rRIL0Uy02ReeW4GW6tRW7lJ/+O4fU=
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221028200744-e7da4d7d86a7 h1:F8bCL/P1KM1ePbuLy5F508uuRNRi2rp6OnddnaZoLtY=
 github.com/celestiaorg/test-infra/testkit v0.0.0-20221028200744-e7da4d7d86a7/go.mod h1:HJnE8RfGLNIMg3rRIL0Uy02ReeW4GW6tRW7lJ/+O4fU=
+github.com/celestiaorg/test-infra/testkit v0.0.0-20221028204004-6bc1cca8c56e h1:jZpjglw+t5pgiIR/rZXSc0cMCH3YS43EX9qX2mjezrs=
+github.com/celestiaorg/test-infra/testkit v0.0.0-20221028204004-6bc1cca8c56e/go.mod h1:mKT+VN1UVpGt1fJOUW5GaYtB5yApxqsj+VTX1E7tk2M=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=

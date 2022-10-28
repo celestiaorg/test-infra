@@ -24,7 +24,7 @@ require (
 	github.com/testground/sdk-go v0.3.0
 )
 
-require github.com/celestiaorg/celestia-node v0.4.2-0.20221028192948-6955feab214d
+require github.com/celestiaorg/celestia-node v0.4.2-0.20221028203714-c4ad2778f994
 
 require (
 	cloud.google.com/go v0.104.0 // indirect
@@ -53,8 +53,8 @@ require (
 	github.com/celestiaorg/nmt v0.10.0 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.6.0 // indirect
-	github.com/celestiaorg/test-infra v0.0.0-20221028200744-e7da4d7d86a7 // indirect
-	github.com/celestiaorg/test-infra/testkit v0.0.0-20221028200744-e7da4d7d86a7 // indirect
+	github.com/celestiaorg/test-infra v0.0.0-20221028204004-6bc1cca8c56e // indirect
+	github.com/celestiaorg/test-infra/testkit v0.0.0-20221028204004-6bc1cca8c56e // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
