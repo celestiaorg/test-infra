@@ -54,7 +54,7 @@ require (
 	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.6.0 // indirect
 	github.com/celestiaorg/test-infra v0.0.0-20221028204004-6bc1cca8c56e // indirect
-	github.com/celestiaorg/test-infra/testkit v0.0.0-20221028204004-6bc1cca8c56e // indirect
+	github.com/celestiaorg/test-infra/testkit v0.0.0-20221028204235-b3e7beabb71e // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
