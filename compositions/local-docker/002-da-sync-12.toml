@@ -92,7 +92,7 @@
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 3
+    count = 1
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
