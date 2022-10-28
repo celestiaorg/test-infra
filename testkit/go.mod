@@ -16,7 +16,7 @@ replace (
 require (
 	github.com/celestiaorg/celestia-app v0.7.0
 	github.com/celestiaorg/celestia-node v0.4.0
-	github.com/cosmos/cosmos-sdk v0.46.2
+	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p-core v0.19.1
 	github.com/spf13/cobra v1.6.0
