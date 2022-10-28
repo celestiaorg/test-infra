@@ -26,9 +26,9 @@
 2. Bridge nodes connect to respective Validators
 3. Full / Light nodes connect to Bridge Nodes
 4. Starts syncing the chain
-5. Generates PFD wtih
+5. Generates PFD with
    1. `X` kb of random data
-   2. `Y` amount of namespace id
+   2. `Y` namespace ids
    3. `Z` times
 
 ## Data Set:

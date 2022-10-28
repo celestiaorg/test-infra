@@ -32,7 +32,7 @@
    2. `J` milliseconds of network latency
 2. Full nodes connect to Bridge Nodes
 3. Starts syncing the chain
-4. Generates PFD wtih
+4. Generates PFD with
    1. `X` kb of random data
    2. `Y` amount of namespace id
    3. `Z` times
