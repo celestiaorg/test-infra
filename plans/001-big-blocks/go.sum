@@ -192,8 +192,8 @@ github.com/celestiaorg/quantum-gravity-bridge v1.2.0 h1:l/LEEUP+x8MhhXB8rrWkyUVF
 github.com/celestiaorg/quantum-gravity-bridge v1.2.0/go.mod h1:6WOajINTDEUXpSj5UZzod16UZ96ZVB/rFNKyM+Mt1gI=
 github.com/celestiaorg/rsmt2d v0.6.0 h1:32Eq5t7lPNbhftPFFjxwCUeEjWg/yGgeMbshxnGw03c=
 github.com/celestiaorg/rsmt2d v0.6.0/go.mod h1:EZ+O2KdCq8xI7WFwjATLdhtMdrdClmAs2w7zENDr010=
-github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406 h1:2yl7mMRe67wRycbyI/wvVYSKDbDh441W2ddw112jTU0=
-github.com/celestiaorg/test-infra/testkit v0.0.0-20221020113323-2f2873f97406/go.mod h1:dqY1h5SWVvqGDvYrxkGQvv4987V/hHzux8YUZelBMrM=
+github.com/celestiaorg/test-infra/testkit v0.0.0-20221018104638-5c8877bc6a02 h1:VHRHdjvag1sjfjQREJmwiY+6SvDLukoOgvQwbdV3ONk=
+github.com/celestiaorg/test-infra/testkit v0.0.0-20221018104638-5c8877bc6a02/go.mod h1:dqY1h5SWVvqGDvYrxkGQvv4987V/hHzux8YUZelBMrM=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=

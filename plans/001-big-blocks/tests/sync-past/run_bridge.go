@@ -7,7 +7,7 @@ import (
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/testkit/common"
+	"github.com/celestiaorg/test-infra/plans/001-big-blocks/tests/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
