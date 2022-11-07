@@ -16,3 +16,4 @@
 # vendor/
 .vscode
 .idea
+logs
