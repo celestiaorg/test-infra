@@ -1,4 +1,4 @@
-package tests
+package bigblocks
 
 import (
 	appsync "github.com/celestiaorg/test-infra/tests/app-sync"

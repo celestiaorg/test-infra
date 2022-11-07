@@ -1,4 +1,4 @@
-package tests
+package bigblocks
 
 import (
 	nodesync "github.com/celestiaorg/test-infra/tests/node-sync"
