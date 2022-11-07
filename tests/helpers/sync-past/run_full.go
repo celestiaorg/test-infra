@@ -1,4 +1,4 @@
-package nodesync
+package syncpast
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -21,7 +21,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("INFO")
+	err := nodekit.SetLoggersLevel("DEBUG")
 	if err != nil {
 		return err
 	}
@@ -66,6 +66,13 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
+	}
+
+	// We wait until the bridge reaches a certain height and then start syncing the chain
+	b, err := syncclient.Barrier(ctx, testkit.PastBlocksGeneratedState, runenv.IntParam("bridge"))
+	berr := <-b.C
+	if err != nil || berr != nil {
+		return fmt.Errorf("error occured on barriering: err - %s, barrier err - %s", err, berr)
 	}
 
 	trustedPeers := []string{bridgeNode.Maddr}

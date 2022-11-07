@@ -1,7 +1,7 @@
 package tests
 
 import (
-	fundaccounts "github.com/celestiaorg/test-infra/tests/fund-accs"
+	fundaccounts "github.com/celestiaorg/test-infra/tests/helpers/fund-accs"
 
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"

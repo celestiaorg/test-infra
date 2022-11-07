@@ -2,28 +2,22 @@ package fundaccounts
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit"
-	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
+
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
 	)
 	defer cancel()
-
-	err := nodekit.SetLoggersLevel("INFO")
-	if err != nil {
-		return err
-	}
 
 	syncclient := initCtx.SyncClient
 	netclient := network.NewClient(syncclient, runenv)
@@ -49,60 +43,78 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
 
-	err = netclient.ConfigureNetwork(ctx, &config)
+	err := netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
 		return err
 	}
 
-	nd, err := common.BuildBridge(ctx, runenv, initCtx)
+	appcmd, err := common.BuildValidator(ctx, runenv, initCtx)
 	if err != nil {
 		return err
 	}
 
-	addr, err := nd.StateServ.AccountAddress(ctx)
+	runenv.RecordMessage("starting........")
+	go appcmd.StartNode("error")
+
+	// wait for a new block to be produced
+	// RPC is also being initialized...
+	time.Sleep(1 * time.Minute)
+
+	runenv.RecordMessage("publishing app-validator address")
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
 
-	_, err = syncclient.PublishAndWait(
+	_, err = syncclient.Publish(
 		ctx,
-		testkit.FundAccountTopic,
-		addr.String(),
-		testkit.AccountsFundedState,
-		runenv.IntParam("validator"),
+		testkit.AppNodeTopic,
+		&testkit.AppNodeInfo{
+			ID: int(initCtx.GroupSeq),
+			IP: ip,
+		},
 	)
 	if err != nil {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
-	if err != nil {
-		return err
-	}
-	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
-		eh.Commit.BlockID.Hash.String())
-
-	if nd.HeaderServ.IsSyncing() {
-		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
-	}
-
-	bal, err := nd.StateServ.Balance(ctx)
-	if err != nil {
-		return err
-	}
-	if bal.IsZero() {
-		return fmt.Errorf("bridge has no money in the bank")
-	}
-
-	runenv.RecordMessage("bridge -> %d has this %s balance", initCtx.GroupSeq, bal.String())
-
-	err = nd.Stop(ctx)
+	accsCh := make(chan string)
+	runenv.RecordMessage("start funding celestia-node accounts")
+	sub, err := syncclient.Subscribe(ctx, testkit.FundAccountTopic, accsCh)
 	if err != nil {
 		return err
 	}
 
-	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
+	total := runenv.TestInstanceCount - runenv.IntParam("validator")
+	var fundAccs []string
+	for i := 0; i < total; i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case account := <-accsCh:
+			runenv.RecordMessage(account)
+			fundAccs = append(fundAccs, account)
+		}
+	}
+
+	err = appcmd.FundAccounts(
+		appcmd.AccountAddress,
+		"10000000utia",
+		"test",
+		appcmd.GetHomePath(),
+		fundAccs...)
+	if err != nil {
+		return err
+	}
+
+	_, err = syncclient.SignalEntry(ctx, testkit.AccountsFundedState)
+	if err != nil {
+		return err
+	}
+
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {
 		return err
 	}

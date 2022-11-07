@@ -5,16 +5,15 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
@@ -55,30 +54,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeNode, err := common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
-	if err != nil {
-		return err
-	}
-
-	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
-	runenv.RecordMessage(ndhome)
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return err
-	}
-
-	trustedPeers := []string{bridgeNode.Maddr}
-	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Light,
-		cfg,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = nd.Start(ctx)
+	nd, err := common.BuildBridge(ctx, runenv, initCtx)
 	if err != nil {
 		return err
 	}
@@ -92,17 +68,18 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		eh.Commit.BlockID.Hash.String())
 
 	if nd.HeaderServ.IsSyncing() {
-		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
+		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
 
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}
+
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
 	}
 
-	return err
+	return nil
 }

@@ -1,15 +1,14 @@
-package fundaccounts
+package nodesync
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -22,7 +21,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -56,18 +55,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// we need to get the validator's ip in info for grpc connection for pfd & gsbn
-	appNode, err := common.GetValidatorInfo(ctx, syncclient, runenv.IntParam("validator"), int(initCtx.GroupSeq))
-	if err != nil {
-		return err
-	}
-
-	bridgeNode, err := common.GetBridgeNode(
-		ctx,
-		syncclient,
-		initCtx.GroupSeq,
-		runenv.IntParam("bridge"),
-	)
+	bridgeNode, err := common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
 	if err != nil {
 		return err
 	}
@@ -81,10 +69,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	trustedPeers := []string{bridgeNode.Maddr}
 	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
-	cfg.Core.IP = appNode.IP.To4().String()
-	cfg.Core.RPCPort = "26657"
-	cfg.Core.GRPCPort = "9090"
-
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Light,
@@ -99,22 +83,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	addr, err := nd.StateServ.AccountAddress(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = syncclient.PublishAndWait(
-		ctx,
-		testkit.FundAccountTopic,
-		addr.String(),
-		testkit.AccountsFundedState,
-		runenv.IntParam("validator"),
-	)
-	if err != nil {
-		return err
-	}
-
 	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
@@ -125,31 +93,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	if nd.HeaderServ.IsSyncing() {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
-	}
-
-	bal, err := nd.StateServ.Balance(ctx)
-	if err != nil {
-		return err
-	}
-	if bal.IsZero() {
-		return fmt.Errorf("light has no money in the bank")
-	}
-
-	runenv.RecordMessage("light -> %d has this %s balance", initCtx.GroupSeq, bal.String())
-
-	nid, _ := hex.DecodeString("52fdfc072182654f")
-	data := []byte("163f5f0f9a62037c4d7bbb0407d1e2c64981855ad8681d0d86d1e91e00167939cb6694d2c422acd208a0072939487f")
-	for i := 0; i < 10; i++ {
-		tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 70000)
-		if err != nil {
-			return err
-		}
-
-		runenv.RecordMessage("code reponse is %d", tx.Code)
-		runenv.RecordMessage(tx.RawLog)
-		if tx.Code != 0 {
-			return fmt.Errorf("failed pfd")
-		}
 	}
 
 	err = nd.Stop(ctx)

@@ -1,9 +1,8 @@
 package bigblocks
 
 import (
-	nodesync "github.com/celestiaorg/test-infra/tests/node-sync"
-	syncpast "github.com/celestiaorg/test-infra/tests/sync-past"
-
+	nodesync "github.com/celestiaorg/test-infra/tests/helpers/node-sync"
+	syncpast "github.com/celestiaorg/test-infra/tests/helpers/sync-past"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )

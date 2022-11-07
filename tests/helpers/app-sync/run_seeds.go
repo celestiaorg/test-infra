@@ -9,7 +9,7 @@ import (
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"

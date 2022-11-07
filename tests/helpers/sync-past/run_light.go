@@ -5,23 +5,24 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/das"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -60,7 +61,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
+	ndhome := fmt.Sprintf("/.celestia-light-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
 
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
@@ -76,10 +77,10 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	trustedPeers := []string{bridgeNode.Maddr}
-	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
 	nd, err := nodekit.NewNode(
 		ndhome,
-		node.Full,
+		node.Light,
 		cfg,
 	)
 	if err != nil {
@@ -100,7 +101,13 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		eh.Commit.BlockID.Hash.String())
 
 	if nd.HeaderServ.IsSyncing() {
-		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
+		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
+	}
+
+	bh := uint64(runenv.IntParam("block-height"))
+
+	if !checkDaserStatus(ctx, nd.DASer, bh) {
+		return fmt.Errorf("light node is still dasing past headers")
 	}
 
 	err = nd.Stop(ctx)
@@ -114,4 +121,24 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	return err
+}
+
+func checkDaserStatus(ctx context.Context, daser *das.DASer, bh uint64) bool {
+	timeout := time.After(2 * time.Second)
+	ticker := time.NewTicker(100 * time.Millisecond)
+
+	for {
+		st, err := daser.SamplingStats(ctx)
+		if err != nil {
+			return false
+		}
+		select {
+		case <-timeout:
+			return false
+		case <-ticker.C:
+			if st.CatchUpDone && st.CatchupHead >= bh && st.SampledChainHead >= bh {
+				return true
+			}
+		}
+	}
 }

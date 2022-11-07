@@ -1,21 +1,21 @@
-package syncpast
+package fundaccounts
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/das"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
@@ -56,12 +56,23 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeNode, err := common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
+	// we need to get the validator's ip in info for grpc connection for pfd & gsbn
+	appNode, err := common.GetValidatorInfo(ctx, syncclient, runenv.IntParam("validator"), int(initCtx.GroupSeq))
 	if err != nil {
 		return err
 	}
 
-	ndhome := fmt.Sprintf("/.celestia-light-%d", initCtx.GlobalSeq)
+	bridgeNode, err := common.GetBridgeNode(
+		ctx,
+		syncclient,
+		initCtx.GroupSeq,
+		runenv.IntParam("bridge"),
+	)
+	if err != nil {
+		return err
+	}
+
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
 
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
@@ -69,18 +80,15 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// We wait until the bridge reaches a certain height and then start syncing the chain
-	b, err := syncclient.Barrier(ctx, testkit.PastBlocksGeneratedState, runenv.IntParam("bridge"))
-	berr := <-b.C
-	if err != nil || berr != nil {
-		return fmt.Errorf("error occured on barriering: err - %s, barrier err - %s", err, berr)
-	}
-
 	trustedPeers := []string{bridgeNode.Maddr}
-	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
+	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+	cfg.Core.IP = appNode.IP.To4().String()
+	cfg.Core.RPCPort = "26657"
+	cfg.Core.GRPCPort = "9090"
+
 	nd, err := nodekit.NewNode(
 		ndhome,
-		node.Light,
+		node.Full,
 		cfg,
 	)
 	if err != nil {
@@ -88,6 +96,22 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	err = nd.Start(ctx)
+	if err != nil {
+		return err
+	}
+
+	addr, err := nd.StateServ.AccountAddress(ctx)
+	if err != nil {
+		return err
+	}
+
+	_, err = syncclient.PublishAndWait(
+		ctx,
+		testkit.FundAccountTopic,
+		addr.String(),
+		testkit.AccountsFundedState,
+		runenv.IntParam("validator"),
+	)
 	if err != nil {
 		return err
 	}
@@ -101,13 +125,32 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		eh.Commit.BlockID.Hash.String())
 
 	if nd.HeaderServ.IsSyncing() {
-		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
+		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 
-	bh := uint64(runenv.IntParam("block-height"))
+	bal, err := nd.StateServ.Balance(ctx)
+	if err != nil {
+		return err
+	}
+	if bal.IsZero() {
+		return fmt.Errorf("full has no money in the bank")
+	}
 
-	if !checkDaserStatus(ctx, nd.DASer, bh) {
-		return fmt.Errorf("light node is still dasing past headers")
+	runenv.RecordMessage("full -> %d has this %s balance", initCtx.GroupSeq, bal.String())
+
+	nid, _ := hex.DecodeString("0c204d39600fddd3")
+	data := []byte("f1f20ca8007e910a3bf8b2e61da0f26bca07ef78717a6ea54165f5")
+	for i := 0; i < 10; i++ {
+		tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 70000)
+		if err != nil {
+			return err
+		}
+
+		runenv.RecordMessage("code reponse is %d", tx.Code)
+		runenv.RecordMessage(tx.RawLog)
+		if tx.Code != 0 {
+			return fmt.Errorf("failed pfd")
+		}
 	}
 
 	err = nd.Stop(ctx)
@@ -121,24 +164,4 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	return err
-}
-
-func checkDaserStatus(ctx context.Context, daser *das.DASer, bh uint64) bool {
-	timeout := time.After(2 * time.Second)
-	ticker := time.NewTicker(100 * time.Millisecond)
-
-	for {
-		st, err := daser.SamplingStats(ctx)
-		if err != nil {
-			return false
-		}
-		select {
-		case <-timeout:
-			return false
-		case <-ticker.C:
-			if st.CatchUpDone && st.CatchupHead >= bh && st.SampledChainHead >= bh {
-				return true
-			}
-		}
-	}
 }
