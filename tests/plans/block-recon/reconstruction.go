@@ -7,7 +7,9 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-// TODO(@Bidon15): Add description
+// BlockReconstruction represents all test-cases(1/2/3/4 Full Nodes) that
+// are trying to reconstruct the latest block from Light Nodes only
+// More information under docs/test-plans/004-Block-Reconstruction
 func BlockReconstruction(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
 	case "validator":
