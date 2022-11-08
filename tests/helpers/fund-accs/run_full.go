@@ -46,7 +46,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	config.IPv4 = runenv.TestSubnet
 
 	// using the assigned `GlobalSequencer` id per each of instance
-	// to fill in the last 2 octects of the new IP address for the instance
+	// to fill in the last 2 octets of the new IP address for the instance
 	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
 	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
