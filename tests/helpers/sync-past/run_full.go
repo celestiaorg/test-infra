@@ -8,7 +8,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -45,7 +45,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	config.IPv4 = runenv.TestSubnet
 
 	// using the assigned `GlobalSequencer` id per each of instance
-	// to fill in the last 2 octects of the new IP address for the instance
+	// to fill in the last 2 octets of the new IP address for the instance
 	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
 	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)

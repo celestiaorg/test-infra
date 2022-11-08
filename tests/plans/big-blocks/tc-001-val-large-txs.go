@@ -1,7 +1,7 @@
-package tests
+package bigblocks
 
 import (
-	appsync "github.com/celestiaorg/test-infra/tests/app-sync"
+	appsync "github.com/celestiaorg/test-infra/tests/helpers/app-sync"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )

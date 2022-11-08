@@ -1,4 +1,4 @@
-package fundaccounts
+package nodesync
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/tests/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -44,7 +44,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	config.IPv4 = runenv.TestSubnet
 
 	// using the assigned `GlobalSequencer` id per each of instance
-	// to fill in the last 2 octects of the new IP address for the instance
+	// to fill in the last 2 octets of the new IP address for the instance
 	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
 	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
@@ -55,22 +55,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	nd, err := common.BuildBridge(ctx, runenv, initCtx)
-	if err != nil {
-		return err
-	}
-
-	addr, err := nd.StateServ.AccountAddress(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = syncclient.PublishAndWait(
-		ctx,
-		testkit.FundAccountTopic,
-		addr.String(),
-		testkit.AccountsFundedState,
-		runenv.IntParam("validator"),
-	)
 	if err != nil {
 		return err
 	}
@@ -86,16 +70,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if nd.HeaderServ.IsSyncing() {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
-
-	bal, err := nd.StateServ.Balance(ctx)
-	if err != nil {
-		return err
-	}
-	if bal.IsZero() {
-		return fmt.Errorf("bridge has no money in the bank")
-	}
-
-	runenv.RecordMessage("bridge -> %d has this %s balance", initCtx.GroupSeq, bal.String())
 
 	err = nd.Stop(ctx)
 	if err != nil {

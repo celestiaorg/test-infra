@@ -1,12 +1,13 @@
-package fundaccounts
+package nodesync
 
 import (
 	"context"
+	"net"
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit"
-	"github.com/celestiaorg/test-infra/tests/common"
-
+	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -38,7 +39,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	config.IPv4 = runenv.TestSubnet
 
 	// using the assigned `GlobalSequencer` id per each of instance
-	// to fill in the last 2 octects of the new IP address for the instance
+	// to fill in the last 2 octets of the new IP address for the instance
 	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
 	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
@@ -78,40 +79,25 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	accsCh := make(chan string)
-	runenv.RecordMessage("start funding celestia-node accounts")
-	sub, err := syncclient.Subscribe(ctx, testkit.FundAccountTopic, accsCh)
-	if err != nil {
-		return err
-	}
-
-	total := runenv.TestInstanceCount - runenv.IntParam("validator")
-	var fundAccs []string
-	for i := 0; i < total; i++ {
-		select {
-		case err = <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case account := <-accsCh:
-			runenv.RecordMessage(account)
-			fundAccs = append(fundAccs, account)
+	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
+		err = appcmd.PayForData(
+			appcmd.AccountAddress,
+			runenv.IntParam("msg-size"),
+			"test",
+			appcmd.GetHomePath(),
+		)
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
 		}
-	}
 
-	err = appcmd.FundAccounts(
-		appcmd.AccountAddress,
-		"10000000utia",
-		"test",
-		appcmd.GetHomePath(),
-		fundAccs...)
-	if err != nil {
-		return err
-	}
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		if err != nil {
+			runenv.RecordMessage("err in last size call, %s", err.Error())
+		}
 
-	_, err = syncclient.SignalEntry(ctx, testkit.AccountsFundedState)
-	if err != nil {
-		return err
+		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
 	}
 
 	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
