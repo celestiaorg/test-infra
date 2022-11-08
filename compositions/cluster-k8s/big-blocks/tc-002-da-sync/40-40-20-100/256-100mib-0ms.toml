@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "002-da-sync"
-  total_instances = 100
+  total_instances = 200
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -15,10 +15,10 @@
   persistent-peers = "10"
   submit-times = "12"
   msg-size = "100000"
-  validator = "20"
-  bridge = "20"
-  full = "10"
-  light = "50"
+  validator = "40"
+  bridge = "40"
+  full = "20"
+  light = "100"
 
 [[groups]]
   id = "validators"
@@ -27,7 +27,7 @@
     memory = "4Gi"
     cpu = "3"
   [groups.instances]
-    count = 20
+    count = 40
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -48,7 +48,7 @@
     memory = "4Gi"
     cpu = "3"
   [groups.instances]
-    count = 20
+    count = 40
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -70,7 +70,7 @@
     memory = "4Gi"
     cpu = "3"
   [groups.instances]
-    count = 10
+    count = 20
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -92,7 +92,7 @@
     memory = "4Gi"
     cpu = "2"
   [groups.instances]
-    count = 50
+    count = 100
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
