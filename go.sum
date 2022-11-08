@@ -222,8 +222,8 @@ github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOC
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20 h1:BqlcOQqL2UqdDTcdCtrOLXDlmwxIA8DiKiY79oahxkQ=
 github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
-github.com/celestiaorg/celestia-node v0.4.0 h1:xxExCC4l8YCgrk178QbhrHbhQXbCSTV6E4DdSw90K54=
-github.com/celestiaorg/celestia-node v0.4.0/go.mod h1:tBXn+ddZHBj0925y7ydYDnVCsJuzP6PFW/i1c+Ewe9k=
+github.com/celestiaorg/celestia-node v0.4.2 h1:+b5QaAj9GfocjY9lvEutDxq1OnLp0a/kN8sAyysS3R4=
+github.com/celestiaorg/celestia-node v0.4.2/go.mod h1:tBXn+ddZHBj0925y7ydYDnVCsJuzP6PFW/i1c+Ewe9k=
 github.com/celestiaorg/go-leopard v0.1.0 h1:28z2EkvKJIez5J9CEaiiUEC+OxalRLtTGJJ1oScfE1g=
 github.com/celestiaorg/go-leopard v0.1.0/go.mod h1:NtO/rjlB8dw2aq7jr06vZFKGvryQcTDXaNHelmPNOAM=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=

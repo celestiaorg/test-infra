@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/celestiaorg/test-infra/tests"
-	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
+	"github.com/celestiaorg/test-infra/tests/plans/big-blocks"
+	"github.com/celestiaorg/test-infra/tests/plans/block-recon"
 	"github.com/testground/sdk-go/run"
 )
 
@@ -15,6 +16,8 @@ var testcases = map[string]interface{}{
 	"005-light-das-past":  run.InitializedTestCaseFn(bigblocks.LightDasPast),
 	// Pay For Data & Get Shares by Namespace Plan
 	"pfd": run.InitializedTestCaseFn(tests.SubmitPFD),
+	// Block Reconstruction Plan
+	"reconstruction": run.InitializedTestCaseFn(blockrecon.BlockReconstruction),
 }
 
 func main() {
