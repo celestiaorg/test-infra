@@ -146,7 +146,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		runenv.RecordMessage("code reponse is %d", tx.Code)
+		runenv.RecordMessage("code response is %d", tx.Code)
 		runenv.RecordMessage(tx.RawLog)
 		if tx.Code != 0 {
 			return fmt.Errorf("failed pfd")

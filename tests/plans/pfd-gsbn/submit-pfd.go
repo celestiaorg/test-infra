@@ -1,4 +1,4 @@
-package tests
+package pfdgsbn
 
 import (
 	fundaccounts "github.com/celestiaorg/test-infra/tests/helpers/fund-accs"

@@ -2,6 +2,7 @@ package fundaccounts
 
 import (
 	"context"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -97,6 +98,24 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("bridge -> %d has this %s balance", initCtx.GroupSeq, bal.String())
 
+	nid, _ := hex.DecodeString("0c204d39600fddd3")
+	data := []byte("f1f20ca8007e910a3bf8b2e61da0f26bca07ef78717a6ea54165f5")
+	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+		tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 70000)
+		if err != nil {
+			return err
+		}
+
+		runenv.RecordMessage("code response is %d", tx.Code)
+		runenv.RecordMessage(tx.RawLog)
+		if tx.Code != 0 {
+			return fmt.Errorf("failed pfd")
+		}
+	}
+
+	//if runenv.TestCase == "get-shares-by-namespace" {
+	//	nd.ShareServ.GetSharesByNamespace()
+	//}
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
