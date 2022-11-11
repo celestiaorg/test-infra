@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/celestiaorg/test-infra/tests/plans/big-blocks"
-	"github.com/celestiaorg/test-infra/tests/plans/block-recon"
-	"github.com/celestiaorg/test-infra/tests/plans/pfd-gsbn"
+	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
+	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
+	dasbenchs "github.com/celestiaorg/test-infra/tests/plans/das-benchmarks"
+	pfdgsbn "github.com/celestiaorg/test-infra/tests/plans/pfd-gsbn"
 	"github.com/testground/sdk-go/run"
 )
 
@@ -21,6 +22,8 @@ var testcases = map[string]interface{}{
 	"get-shares-by-namespace": run.InitializedTestCaseFn(pfdgsbn.PayForDataAndGetShares),
 	// Block Reconstruction Plan
 	"reconstruction": run.InitializedTestCaseFn(blockrecon.BlockReconstruction),
+	// DAS Benchmarks Plan
+	"001-lights-dasing-latest": run.InitializedTestCaseFn(dasbenchs.LightsDasingLatest),
 }
 
 func main() {

@@ -1,9 +1,9 @@
-package tests
+package dasbenchs
 
 import (
+	dasbenchmarks "github.com/celestiaorg/test-infra/tests/helpers/das-benchmarks"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	synclatest "github.com/celestiaorg/test-infra/plans/002-das-benchmarks/tests/sync-latest"
 )
 
 // Test-Case #001 - X Light Nodes have finished DASing (from one full/bridge node) before block time
@@ -11,11 +11,11 @@ import (
 func LightsDasingLatest(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
 	case "validator":
-		err = synclatest.RunValidator(runenv, initCtx)
+		err = dasbenchmarks.RunValidator(runenv, initCtx)
 	case "bridge":
-		err = synclatest.RunBridgeNode(runenv, initCtx)
+		err = dasbenchmarks.RunBridgeNode(runenv, initCtx)
 	case "light":
-		err = synclatest.RunLightNode(runenv, initCtx)
+		err = dasbenchmarks.RunLightNode(runenv, initCtx)
 	}
 
 	if err != nil {

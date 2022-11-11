@@ -1,4 +1,4 @@
-package synclatest
+package dasbenchmarks
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit/appkit"
-	"github.com/celestiaorg/test-infra/testkit/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/testground/sdk-go/network"
@@ -65,7 +65,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-	
+
 	_, err = syncclient.Publish(
 		ctx,
 		testkit.AppNodeTopic,

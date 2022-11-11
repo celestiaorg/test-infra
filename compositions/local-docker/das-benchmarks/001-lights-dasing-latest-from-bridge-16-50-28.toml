@@ -3,7 +3,7 @@
   author = "derrandz"
 
 [global]
-  plan = "002-das-benchmarks"
+  plan = "celestia"
   case = "001-lights-dasing-latest"
   total_instances = 30
   builder = "docker:generic"

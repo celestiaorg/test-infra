@@ -1,18 +1,20 @@
-package synclatest
+package dasbenchmarks
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"bytes"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
-	"github.com/celestiaorg/test-infra/testkit/common"
+	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -56,7 +58,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-
 	bridgeCh := make(chan *testkit.BridgeNodeInfo)
 	_, err = syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
 	if err != nil {
@@ -82,6 +83,13 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		ndhome,
 		node.Light,
 		cfg,
+		nodebuilder.WithMetrics(
+			[]otlpmetrichttp.Option{
+				otlpmetrichttp.WithEndpoint("192.18.0.8:4318"),
+				otlpmetrichttp.WithInsecure(),
+			},
+			nodekit.LightNodeType,
+		),
 	)
 
 	if err != nil {
@@ -108,9 +116,9 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			runenv.RecordMessage("Failed to stay on top of the chain")
 			return fmt.Errorf("xxx")
 		}
-	
+
 		prevHead = header.Commit.BlockID.Hash
-		
+
 		if nd.HeaderServ.IsSyncing() {
 			runenv.RecordMessage("Failed to stay on top of the chain")
 			return fmt.Errorf("xxx")

@@ -16,6 +16,12 @@ import (
 	"go.uber.org/fx"
 )
 
+var (
+	BridgeNodeType = node.Bridge
+	FullNodeType   = node.Full
+	LightNodeType  = node.Light
+)
+
 func NewConfig(
 	tp node.Type,
 	IP net.IP,
