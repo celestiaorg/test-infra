@@ -87,8 +87,8 @@ github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v0.3.0/go.mod h1:tPaiy8S5bQ
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78/go.mod h1:LmzpDX56iTiv29bbRTIsUNlaFfuhWRQBWjQdVyAevI8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-autorest v11.1.2+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
-github.com/Bidon15/cosmos-sdk v1.3.0-dirty-sdk-v0.46.0 h1:3Fl2VpvQmPSvQvU7fZqwb9dAKO0+HFIChsv4sOulgOo=
-github.com/Bidon15/cosmos-sdk v1.3.0-dirty-sdk-v0.46.0/go.mod h1:ByQ2rOrZs7s2OnPfeaiTMC8IOlcrT195xIRPgevydCI=
+github.com/Bidon15/cosmos-sdk v1.4.0-dirty-sdk-v0.46.0 h1:92qzUYBONiCHcayC9rNqlLupMx9VapJcGO28gTuFpS8=
+github.com/Bidon15/cosmos-sdk v1.4.0-dirty-sdk-v0.46.0/go.mod h1:ByQ2rOrZs7s2OnPfeaiTMC8IOlcrT195xIRPgevydCI=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
 github.com/Bidon15/go-log/v2 v2.5.2/go.mod h1:TMD+iYDL/QBjspKUN0Ypxpr2IMAz3uGUAsbCeClDQ+4=
 github.com/Bidon15/lazyledger-app v1.8.0-dirty-app h1:pikS6SlZ+a11JZ5xztlz55zTcaaFl9Z9R5oOcb6EvFo=
