@@ -222,8 +222,8 @@ github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOC
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20 h1:BqlcOQqL2UqdDTcdCtrOLXDlmwxIA8DiKiY79oahxkQ=
 github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
-github.com/celestiaorg/celestia-node v0.5.0-rc1 h1:z7X4Lh1K4MPxwS6UKBs4ezgugh66pkE8kESs4yiXjF0=
-github.com/celestiaorg/celestia-node v0.5.0-rc1/go.mod h1:AsGCaSULGHb44AjC6RhQO7OCd9FcTgVktSrHe2iry6E=
+github.com/celestiaorg/celestia-node v0.5.0-rc2 h1:VVOKgxRYhV8yk87yO9nKD01nH5+dbvM3HCYAmeupw4s=
+github.com/celestiaorg/celestia-node v0.5.0-rc2/go.mod h1:AsGCaSULGHb44AjC6RhQO7OCd9FcTgVktSrHe2iry6E=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0/go.mod h1:XzNksXrH0VxuNRGOnjPL9Ck4UyQlbmMpCYg9YwSBerI=
 github.com/celestiaorg/go-libp2p-pubsub v0.6.2-0.20220812132010-46b2a019f2f2 h1:Tb1lPVAGSJvBjRCM7YpC+VaITzdZjjno4+KEnbPT6tU=
