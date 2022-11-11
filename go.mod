@@ -4,7 +4,7 @@ go 1.19
 
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
-	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.5.0-dirty-app
+	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.8.0-dirty-app
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.3.0-dirty-sdk-v0.46.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-log/v2 => github.com/Bidon15/go-log/v2 v2.5.2
@@ -15,7 +15,7 @@ replace (
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
-	github.com/celestiaorg/celestia-app v0.7.0
+	github.com/celestiaorg/celestia-app v0.10.0-rc1
 	github.com/cosmos/cosmos-sdk v0.46.0
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/libp2p/go-libp2p-core v0.19.1
@@ -25,7 +25,7 @@ require (
 )
 
 require (
-	github.com/celestiaorg/celestia-node v0.4.2
+	github.com/celestiaorg/celestia-node v0.5.0-rc1
 	github.com/tendermint/tendermint v0.35.4
 	go.uber.org/fx v1.18.2
 )
@@ -51,12 +51,11 @@ require (
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.22.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
-	github.com/celestiaorg/go-leopard v0.1.0 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.1.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
-	github.com/celestiaorg/nmt v0.10.0 // indirect
+	github.com/celestiaorg/nmt v0.11.0 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
-	github.com/celestiaorg/rsmt2d v0.6.0 // indirect
+	github.com/celestiaorg/rsmt2d v0.7.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
@@ -92,6 +91,7 @@ require (
 	github.com/elastic/gosigar v0.14.2 // indirect
 	github.com/ethereum/go-ethereum v1.10.17 // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
+	github.com/filecoin-project/go-jsonrpc v0.1.8 // indirect
 	github.com/flynn/noise v1.0.0 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
@@ -167,6 +167,7 @@ require (
 	github.com/ipfs/go-metrics-interface v0.0.1 // indirect
 	github.com/ipfs/go-peertaskqueue v0.7.0 // indirect
 	github.com/ipfs/go-verifcid v0.0.1 // indirect
+	github.com/ipld/go-car v0.5.0 // indirect
 	github.com/ipld/go-codec-dagpb v1.3.1 // indirect
 	github.com/ipld/go-ipld-prime v0.16.0 // indirect
 	github.com/jackpal/go-nat-pmp v1.0.2 // indirect
@@ -176,7 +177,8 @@ require (
 	github.com/jmhodges/levigo v1.0.0 // indirect
 	github.com/keybase/go-keychain v0.0.0-20190712205309-48d3d31d256d // indirect
 	github.com/klauspost/compress v1.15.6 // indirect
-	github.com/klauspost/cpuid/v2 v2.0.14 // indirect
+	github.com/klauspost/cpuid/v2 v2.1.1 // indirect
+	github.com/klauspost/reedsolomon v1.11.1 // indirect
 	github.com/koron/go-ssdp v0.0.3 // indirect
 	github.com/lib/pq v1.10.6 // indirect
 	github.com/libp2p/go-buffer-pool v0.1.0 // indirect
@@ -262,7 +264,7 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.8.0 // indirect
+	github.com/stretchr/testify v1.8.1 // indirect
 	github.com/subosito/gotenv v1.4.0 // indirect
 	github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7 // indirect
 	github.com/tendermint/btcd v0.1.1 // indirect
@@ -295,14 +297,15 @@ require (
 	go.uber.org/multierr v1.8.0 // indirect
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
+	golang.org/x/exp v0.0.0-20221012211006-4de253d81b95 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/net v0.0.0-20220630215102-69896b714898 // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
 	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
-	golang.org/x/sys v0.0.0-20220702020025-31831981b65f // indirect
+	golang.org/x/sync v0.0.0-20220929204114-8fcdb60fdcc0 // indirect
+	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	golang.org/x/tools v0.1.12-0.20220628192153-7743d1d949f1 // indirect
+	golang.org/x/tools v0.1.12 // indirect
 	golang.org/x/xerrors v0.0.0-20220609144429-65e65417b02f // indirect
 	google.golang.org/api v0.81.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
