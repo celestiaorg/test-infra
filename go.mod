@@ -5,6 +5,7 @@ go 1.19
 replace (
 	github.com/99designs/keyring => github.com/cosmos/keyring v1.1.7-0.20210622111912-ef00f8ac3d76
 	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.8.0-dirty-app
+	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.5.0-pfd
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.4.0-dirty-sdk-v0.46.0
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-log/v2 => github.com/Bidon15/go-log/v2 v2.5.2
@@ -26,6 +27,7 @@ require (
 
 require (
 	github.com/celestiaorg/celestia-node v0.5.0-rc2
+	github.com/celestiaorg/nmt v0.11.0
 	github.com/tendermint/tendermint v0.35.4
 	go.uber.org/fx v1.18.2
 )
@@ -53,7 +55,6 @@ require (
 	github.com/btcsuite/btcd/btcec/v2 v2.2.0 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.1.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
-	github.com/celestiaorg/nmt v0.11.0 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.7.0 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
