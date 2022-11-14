@@ -15,7 +15,8 @@ var testcases = map[string]interface{}{
 	"004-full-light-past": run.InitializedTestCaseFn(bigblocks.FullLightSyncPast),
 	"005-light-das-past":  run.InitializedTestCaseFn(bigblocks.LightDasPast),
 	// Pay For Data & Get Shares by Namespace Plan
-	"pfd": run.InitializedTestCaseFn(pfdgsbn.SubmitPFD),
+	"pay-for-data":            run.InitializedTestCaseFn(pfdgsbn.PayForDataAndGetShares),
+	"get-shares-by-namespace": run.InitializedTestCaseFn(pfdgsbn.PayForDataAndGetShares),
 	// Block Reconstruction Plan
 	"reconstruction": run.InitializedTestCaseFn(blockrecon.BlockReconstruction),
 }
