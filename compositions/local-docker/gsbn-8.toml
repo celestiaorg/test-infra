@@ -11,7 +11,7 @@
   disable_metrics = false
 
 [global.run.test_params]
-  execution-time = "30"
+  execution-time = "10"
   persistent-peers = "3"
   submit-times = "12"
   namespace-id = "1"
@@ -61,7 +61,7 @@
     [groups.run.test_params]
     latency = "0"
     bandwidth = "256Mib"
-    block-height = "20"
+    block-height = "5"
     role = "bridge"
 
 [[groups]]
