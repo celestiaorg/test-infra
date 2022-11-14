@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/das"
+	"github.com/celestiaorg/celestia-node/nodebuilder/das"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -123,7 +123,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	return err
 }
 
-func checkDaserStatus(ctx context.Context, daser *das.DASer, bh uint64) bool {
+func checkDaserStatus(ctx context.Context, daser das.Module, bh uint64) bool {
 	timeout := time.After(2 * time.Second)
 	ticker := time.NewTicker(100 * time.Millisecond)
 
