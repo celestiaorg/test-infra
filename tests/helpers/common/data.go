@@ -33,7 +33,7 @@ func GetRandomMessageBySize(size int) []byte {
 }
 
 func SubmitData(ctx context.Context, runenv *runtime.RunEnv, nd *nodebuilder.Node, nid namespace.ID, data []byte) error {
-	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 150000)
+	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 2000000)
 	if err != nil {
 		return err
 	}
