@@ -3,7 +3,6 @@ package fundaccounts
 import (
 	"context"
 	"fmt"
-	"github.com/celestiaorg/nmt/namespace"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -85,6 +84,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cfg.Core.IP = appNode.IP.To4().String()
 	cfg.Core.RPCPort = "26657"
 	cfg.Core.GRPCPort = "9090"
+	cfg.Gateway.Enabled = true
+	cfg.Gateway.Port = "26659"
 
 	nd, err := nodekit.NewNode(
 		ndhome,
@@ -138,25 +139,17 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("full -> %d has this %s balance", initCtx.GroupSeq, bal.String())
 
-	var nid namespace.ID
-	if runenv.StringParam("namespace-id") == "1" {
-		nid = common.DefaultNameId
-	} else {
-		nid = common.GetRandomNamespace()
-	}
-
+	nid := common.GenerateNamespaceID(runenv.StringParam("namespace-id"))
 	data := common.GetRandomMessageBySize(runenv.IntParam("msg-size"))
+
 	for i := 0; i < runenv.IntParam("submit-times"); i++ {
 		err = common.SubmitData(ctx, runenv, nd, nid, data)
 		if err != nil {
 			return err
 		}
 
-		if runenv.TestCase == "get-shares-by-namespace" {
-			err = common.CheckSharesByNamespace(ctx, nd, nid, data)
-			if err != nil {
-				return err
-			}
+		if runenv.TestCase == "get-shares-by-namespace" && common.VerifyDataInNamespace(ctx, nd, nid, data) != nil {
+			return fmt.Errorf("no expected data found in the namespace ID")
 		}
 	}
 
