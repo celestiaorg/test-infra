@@ -68,14 +68,14 @@ func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid names
 	if err != nil {
 		return err
 	}
-	fmt.Println("overall shares by this nid -> ", len(shares))
-	for _, v := range shares {
-		if bytes.Contains(v, expectedData) {
-			return nil
-		} else {
-			fmt.Println("length of a share is -> ", len(v))
-		}
+	
+	var allConcatData []byte
+	bytes.Join(shares, allConcatData)
+
+	if bytes.Contains(allConcatData, expectedData) {
+		return nil
 	}
+
 	return fmt.Errorf("expected data is not equal to actual one")
 }
 
