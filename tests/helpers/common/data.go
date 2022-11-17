@@ -7,7 +7,6 @@ import (
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
-	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/nmt/namespace"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/testground/sdk-go/runtime"
@@ -69,9 +68,12 @@ func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid names
 	if err != nil {
 		return err
 	}
+	fmt.Println("overall shares by this nid -> ", len(shares))
 	for _, v := range shares {
-		if bytes.Contains(share.Data(v), expectedData) {
+		if bytes.Contains(v, expectedData) {
 			return nil
+		} else {
+			fmt.Println("length of a share is -> ", len(v))
 		}
 	}
 	return fmt.Errorf("expected data is not equal to actual one")

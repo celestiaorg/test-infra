@@ -26,7 +26,7 @@
     memory = "4Gi"
     cpu = "3"
   [groups.instances]
-    count = 80
+    count = 100
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
