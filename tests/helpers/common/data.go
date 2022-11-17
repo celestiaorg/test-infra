@@ -68,15 +68,14 @@ func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid names
 	if err != nil {
 		return err
 	}
-	
-	var allConcatData []byte
-	bytes.Join(shares, allConcatData)
 
-	if bytes.Contains(allConcatData, expectedData) {
+	allConcatData := bytes.Join(shares, nid)
+
+	if bytes.Compare(allConcatData, expectedData) >= 0 {
 		return nil
 	}
 
-	return fmt.Errorf("expected data is not equal to actual one")
+	return fmt.Errorf("expected data is not in the shares slice")
 }
 
 // VerifyDataInNamespace encapsulates 3 steps to get the data verified against the next block's shares
