@@ -35,9 +35,8 @@ func GetRandomNamespace() namespace.ID {
 func GenerateNamespaceID(amount string) namespace.ID {
 	if amount == "1" {
 		return DefaultNameId
-	} else {
-		return GetRandomNamespace()
 	}
+	return GetRandomNamespace()
 }
 
 // GetRandomMessageBySize returns a random []byte per each call made by
