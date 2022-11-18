@@ -87,6 +87,8 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
 
+	// TODO(@Bidon15): Check in the cluster if we can reproduce this issue
+	// https://github.com/celestiaorg/celestia-node/issues/1219
 	bal, err := nd.StateServ.Balance(ctx)
 	if err != nil {
 		return err
@@ -96,6 +98,20 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("bridge -> %d has this %s balance", initCtx.GroupSeq, bal.String())
+
+	nid := common.GenerateNamespaceID(runenv.StringParam("namespace-id"))
+	data := common.GetRandomMessageBySize(runenv.IntParam("msg-size"))
+
+	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+		err = common.SubmitData(ctx, runenv, nd, nid, data)
+		if err != nil {
+			return err
+		}
+
+		if runenv.TestCase == "get-shares-by-namespace" && common.VerifyDataInNamespace(ctx, nd, nid, data) != nil {
+			return fmt.Errorf("no expected data found in the namespace ID")
+		}
+	}
 
 	err = nd.Stop(ctx)
 	if err != nil {

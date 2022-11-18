@@ -2,7 +2,6 @@ package fundaccounts
 
 import (
 	"context"
-	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -85,6 +84,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cfg.Core.IP = appNode.IP.To4().String()
 	cfg.Core.RPCPort = "26657"
 	cfg.Core.GRPCPort = "9090"
+	cfg.Gateway.Enabled = true
+	cfg.Gateway.Port = "26659"
 
 	nd, err := nodekit.NewNode(
 		ndhome,
@@ -138,18 +139,17 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("full -> %d has this %s balance", initCtx.GroupSeq, bal.String())
 
-	nid, _ := hex.DecodeString("0c204d39600fddd3")
-	data := []byte("f1f20ca8007e910a3bf8b2e61da0f26bca07ef78717a6ea54165f5")
-	for i := 0; i < 10; i++ {
-		tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, 70000)
+	nid := common.GenerateNamespaceID(runenv.StringParam("namespace-id"))
+	data := common.GetRandomMessageBySize(runenv.IntParam("msg-size"))
+
+	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+		err = common.SubmitData(ctx, runenv, nd, nid, data)
 		if err != nil {
 			return err
 		}
 
-		runenv.RecordMessage("code reponse is %d", tx.Code)
-		runenv.RecordMessage(tx.RawLog)
-		if tx.Code != 0 {
-			return fmt.Errorf("failed pfd")
+		if runenv.TestCase == "get-shares-by-namespace" && common.VerifyDataInNamespace(ctx, nd, nid, data) != nil {
+			return fmt.Errorf("no expected data found in the namespace ID")
 		}
 	}
 

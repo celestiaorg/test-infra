@@ -97,7 +97,7 @@ instances = { min = 4, max = 3000, default = 12 }
     role = { type = "string" }
 
 [[testcases]]
-name = "pfd"
+name = "pay-for-data"
 instances = { min = 4, max = 3000, default = 12 }
     [testcases.params]
     execution-time = { type = "int" }
@@ -106,6 +106,25 @@ instances = { min = 4, max = 3000, default = 12 }
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
     submit-times = { type = "int", default = 4}
+    namespace-id = { type = "string", default = "1"}
+    msg-size = { type = "int", default = 10000}
+    bridge = { type = "int", default = 3}
+    full = { type = "int", default = 3}
+    light = { type = "int", default = 3}
+    block-height = { type = "int" }
+    role = { type = "string" }
+
+[[testcases]]
+name = "get-shares-by-namespace"
+instances = { min = 4, max = 3000, default = 12 }
+    [testcases.params]
+    execution-time = { type = "int" }
+    latency = { type = "int", default = 0}
+    bandwidth = { type = "string", default = "256Mib"}
+    validator = { type = "int", default = 3}
+    persistent-peers = { type = "int", default = 3}
+    submit-times = { type = "int", default = 4}
+    namespace-id = { type = "string", default = "1"}
     msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
