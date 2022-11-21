@@ -31,16 +31,16 @@ be applied for them, too as we are having for current implementation(Go)
 
 ## Out-of-Scope
 
-- Optimint submitting data using public api or any other way
+- Rollmint submitting data using public api or any other way
 - Malicious behaviour from the validators’ set
-- Withhelding the data
+- Withholding the data
 - Losing/Restoring connection between peers
 - Gas fees for submitting data(\*\*)
 
 ## Risks
 
 - This plan is not covering the sync time for a long-live chain, which might uncover further defects before start of incentivised testnet
-- From an economic stand point, we need to be aware of the costs that the users will bear if the block space is too scarce and how much premium should be payed to get the data included in the block
+- From an economic standpoint, we need to be aware of the costs that the users will bear if the block space is too scarce and how much premium should be payed to get the data included in the block
 
 ## Entry Conditions
 
@@ -68,9 +68,9 @@ be applied for them, too as we are having for current implementation(Go)
 
 [DASing with different max block sizes](https://github.com/celestiaorg/celestia-node/issues/266)
 
-(\*) - Considering that we have 30 seconds block time and we want to test on the span of 500 blocks, the test run will be around 4 hours
+(\*) - Considering that we have 30 seconds block time, and we want to test on the span of 500 blocks, the test run will be around 4 hours
 
-(\*\*) - We make an assumption that all wallets have more then enough money to cover all the costs of submitting txs
+(\*\*) - We make an assumption that all wallets have more than enough money to cover all the costs of submitting txs
 
 ## Test-Cases
 
@@ -78,10 +78,8 @@ be applied for them, too as we are having for current implementation(Go)
 
 [Test-Case #002 - DA nodes are in sync with validators’ ](test-cases/tc-002-da-sync.md)
 
-[Test-Case #003 - Full nodes are syncing past headers faster then validators produce new ones](test-cases/tc-003-full-sync-past.md)
+[Test-Case #003 - Full nodes are syncing past headers faster than validators produce new ones](test-cases/tc-003-full-sync-past.md)
 
-[Test-Case #004 - Full and Light nodes are syncing past headers faster then validators produce new ones](test-cases/tc-004-full-light-past.md)
+[Test-Case #004 - Full and Light nodes are syncing past headers faster than validators produce new ones](test-cases/tc-004-full-light-past.md)
 
-[Test-Case #005 - Light nodes are DASing past headers faster then validators produce new ones](test-cases/tc-005-light-past.md)
-
-[Test-Case #006 - All DA nodes can submit data ](test-cases/tc-006-da-node-pfd.md)
+[Test-Case #005 - Light nodes are DASing past headers faster than validators produce new ones](test-cases/tc-005-light-past.md)

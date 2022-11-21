@@ -16,13 +16,13 @@
 2. Generates and broadcasts
    1. `X` kb of random data
    2. `Y` times
-3. Checks the block size is bigger then 3.5 MiB
+3. Checks the block size is bigger than 7 MiB
 
 ## Data Set:
 
 | Number of Validators<br />`I` |            Bandwidth / Latency per validator<br />`J`             | KB of random data<br />`X` | Submit amount<br />`Y` |
-| :---------------------------: | :---------------------------------------------------------------: | :------------------------: | :--------------------: |
-|              20               | 1. 256MiB / 0ms <br /> 2. 256MiB / 100ms <br /> 3. 256MiB / 200ms |            200             |           10           |
-|              40               |  1. 256MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |            100             |           10           |
-|              80               |  1. 320MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |             50             |           10           |
-|              100              |  1. 320MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |             40             |           10           |
+|:-----------------------------:|:-----------------------------------------------------------------:|:--------------------------:|:----------------------:|
+|              20               | 1. 256MiB / 0ms <br /> 2. 256MiB / 100ms <br /> 3. 256MiB / 200ms |            380             |           10           |
+|              40               |  1. 256MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |            180             |           10           |
+|              80               |  1. 320MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |             90             |           10           |
+|              100              |  1. 320MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |             70             |           10           |

@@ -234,7 +234,7 @@ func changeConfig(path string) error {
 			"timeout_propose":   "10s",
 			"timeout_prevote":   "1s",
 			"timeout_precommit": "1s",
-			"timeout_commit":    "10s",
+			"timeout_commit":    "15s",
 		},
 		"rpc": {
 			"timeout_broadcast_tx_commit": "30s",
