@@ -62,6 +62,7 @@ func SubmitData(ctx context.Context, runenv *runtime.RunEnv, nd *nodebuilder.Nod
 
 // CheckSharesByNamespace accepts an expected namespace.ID and data that was submitted.
 // Next, it verifies the data against the received shares of a block from a user-specified extended header
+// by comparing length of each
 func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid namespace.ID, eh *header.ExtendedHeader, expectedData []byte) error {
 	shares, err := nd.ShareServ.GetSharesByNamespace(ctx, eh.DAH, nid)
 	if err != nil {
@@ -69,8 +70,7 @@ func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid names
 	}
 
 	allConcatData := bytes.Join(shares, nid)
-
-	if bytes.Compare(allConcatData, expectedData) >= 0 {
+	if len(allConcatData) >= len(expectedData) {
 		return nil
 	}
 
