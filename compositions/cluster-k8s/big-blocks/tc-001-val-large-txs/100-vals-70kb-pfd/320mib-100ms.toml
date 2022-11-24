@@ -12,7 +12,7 @@
 
 [global.run.test_params]
   execution-time = "10"
-  latency = "0"
+  latency = "100"
   bandwidth = "320Mib"
   validator = "100"
   persistent-peers = "10"
