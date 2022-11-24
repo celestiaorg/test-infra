@@ -13,12 +13,12 @@
     artifact = ""
     [global.run.test_params]
       bridge = "3"
-      execution-time = "40"
+      execution-time = "20"
       full = "2"
       light = "1412"
-      msg-size = "100000"
+      msg-size = "50000"
       persistent-peers = "3"
-      submit-times = "60"
+      submit-times = "20"
       validator = "3"
 
 [[groups]]
