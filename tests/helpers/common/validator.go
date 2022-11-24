@@ -206,7 +206,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	}
 
 	var persPeers []string
-	for i := 0; i < runenv.IntParam("validator"); i++ {
+	for i := 0; i < runenv.IntParam("persistent-peers"); i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
@@ -231,7 +231,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 func changeConfig(path string) error {
 	cfg := map[string]map[string]string{
 		"consensus": {
-			"timeout_propose":   "3s",
+			"timeout_propose":   "10s",
 			"timeout_prevote":   "1s",
 			"timeout_precommit": "1s",
 			"timeout_commit":    "15s",

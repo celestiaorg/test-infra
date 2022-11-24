@@ -14,7 +14,7 @@
   execution-time = "10"
   persistent-peers = "10"
   submit-times = "12"
-  msg-size = "40000"
+  msg-size = "70000"
   validator = "100"
   bridge = "100"
   full = "50"
@@ -89,8 +89,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "2"
+    memory = "300Mi"
+    cpu = "1"
   [groups.instances]
     count = 1000
     percentage = 0.0

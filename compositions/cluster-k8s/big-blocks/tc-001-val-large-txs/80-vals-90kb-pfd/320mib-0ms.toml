@@ -1,11 +1,11 @@
 [metadata]
-  name = "001-val-large-txs-40-set"
+  name = "001-val-large-txs-80-set"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
   case = "001-val-large-txs"
-  total_instances = 40
+  total_instances = 80
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -13,20 +13,20 @@
 [global.run.test_params]
   execution-time = "10"
   latency = "0"
-  bandwidth = "256Mib"
-  validator = "40"
+  bandwidth = "320Mib"
+  validator = "80"
   persistent-peers = "10"
   submit-times = "10"
-  msg-size = "100000"
+  msg-size = "90000"
 
 [[groups]]
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
     memory = "4Gi"
-    cpu = "3"
+    cpu = "4"
   [groups.instances]
-    count = 40
+    count = 80
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

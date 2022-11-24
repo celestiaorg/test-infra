@@ -1,4 +1,4 @@
-# Test-Case #005 - Light nodes are DASing past headers faster then validators produce new ones
+# Test-Case #005 - Light nodes are DASing past headers faster than validators produce new ones
 
 ## Pre-Requisites:
 
@@ -19,7 +19,7 @@
    1. `X` kb of random data
    2. `Y` times
    3. IP and Genesis Hash for DA Bridge nodes
-3. Checks the block size is bigger then 3.5 MiB
+3. Checks the block size is bigger than 7 MiB
 
 ## Steps for each of the DA Bridge nodes:
 
@@ -49,14 +49,14 @@
 3. Waits until `N` amount of block has been produced by the chain
 4. Starts DASing the chain afterwards
 5. Checks that it can:
-   1. DASes the past headers faster then new blocks are produced (\*)
+   1. DASes the past headers faster than new blocks are produced (\*)
 
 ## Data Set:
 
 | Number of Validators / Bridges / Fulls / Lights <br /> `I` |                                Bandwidth / Latency per v/b/f/l <br /> `J`                                | KB of random data <br />`X` | Submit amount <br />`Y` | Amount of Past Blocks <br />`N` |
-| :--------------------------------------------------------: | :------------------------------------------------------------------------------------------------------: | :-------------------------: | :---------------------: | :-----------------------------: |
-|                     40 / 40 / 20 / 100                     | 1. 256(v/b/f)-100(l)MiB / 0ms <br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms |             100             |           50            |               30                |
-|                   100 / 100 / 50 / 1000                    | 1. 320(v/b/f)-100(l)MiB / 0ms<br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms  |             40              |           100           |               50                |
+|:----------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------:|:---------------------------:|:-----------------------:|:-------------------------------:|
+|                     40 / 40 / 20 / 100                     | 1. 256(v/b/f)-100(l)MiB / 0ms <br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms |             180             |           50            |               30                |
+|                   100 / 100 / 50 / 1000                    | 1. 320(v/b/f)-100(l)MiB / 0ms<br />2. 320(v/b/f)-100(l)MiB / 100ms<br />3. 320(v/b/f)-100(i)MiB / 200ms  |             70              |           100           |               50                |
 
 ## Notes:
 
