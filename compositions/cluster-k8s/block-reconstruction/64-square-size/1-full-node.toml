@@ -5,21 +5,21 @@
 [global]
   plan = "celestia"
   case = "reconstruction"
-  total_instances = 1419
+  total_instances = 1433
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
   [global.run]
     artifact = ""
     [global.run.test_params]
-      bridge = "3"
-      execution-time = "40"
+      bridge = "10"
+      execution-time = "20"
       full = "1"
       light = "1412"
-      msg-size = "100000"
-      persistent-peers = "3"
-      submit-times = "60"
-      validator = "3"
+      msg-size = "15000"
+      persistent-peers = "10"
+      submit-times = "20"
+      validator = "10"
 
 [[groups]]
   id = "validators"
@@ -28,7 +28,7 @@
     memory = "4Gi"
     cpu = "2000m"
   [groups.instances]
-    count = 3
+    count = 10
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -50,7 +50,7 @@
     memory = "4Gi"
     cpu = "2000m"
   [groups.instances]
-    count = 3
+    count = 10
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -70,7 +70,7 @@
   id = "fulls"
   builder = "docker:generic"
   [groups.resources]
-    memory = "16Gi"
+    memory = "8Gi"
     cpu = "8"
   [groups.instances]
     count = 1
