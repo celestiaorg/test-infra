@@ -3,7 +3,6 @@ package appsync
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -20,7 +19,7 @@ import (
 // Now this code is not used anywhere in test-plan/cases
 // More info to follow up: https://github.com/tendermint/tendermint/issues/9289
 func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -55,32 +54,64 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appkit.New(home, "tia-test")
+	cmd := appkit.New(home, "private")
+	configPath := filepath.Join(home, "config", "config.toml")
+
+	moniker := fmt.Sprintf("seed-%d", initCtx.GroupSeq)
+	_, err = cmd.InitChain(moniker)
+	if err != nil {
+		return err
+	}
+	runenv.RecordMessage("Chain initialised")
+
+	valCh := make(chan *appkit.ValidatorNode)
+	sub, err := syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < runenv.IntParam("persistent-peers"); i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case val := <-valCh:
+			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+		}
+	}
+
+	ipCh := make(chan *string)
+	sub, err = syncclient.Subscribe(ctx, testkit.CurlGenesisState, ipCh)
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("before barrier for the ip we need")
+	ip := <-ipCh
+	runenv.RecordMessage("curling genesis state from this validator's ip - %s", *ip)
+	time.Sleep(30 * time.Second)
+
+	uri := fmt.Sprintf("http://%s:26657/genesis", *ip)
+	genState, err := appkit.GetGenesisState(uri)
+	if err != nil {
+		return err
+	}
+
+	err = genState.Genesis.SaveAs(fmt.Sprintf("%s/config/genesis.json", home))
+	if err != nil {
+		return err
+	}
+
+	// We need to curl the instance 1 with RPC to get the genesis.json file
+	// Only 1 validator must fire up to provide the RPC
 
 	nodeId, err := cmd.GetNodeId()
 	if err != nil {
 		return err
 	}
 
-	initGenCh := make(chan string)
-	sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
-	if err != nil {
-		return err
-	}
-	select {
-	case err = <-sub.Done():
-		if err != nil {
-			return err
-		}
-	case initGen := <-initGenCh:
-		err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
-		if err != nil {
-			return err
-		}
-	}
-	runenv.RecordMessage("Validator has received the initial genesis")
-
-	configPath := filepath.Join(home, "config", "config.toml")
 	err = appkit.ChangeConfigParam(configPath, "p2p", "seed_mode", true)
 	if err != nil {
 		return err
@@ -88,7 +119,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	_, err = syncclient.Publish(
 		ctx,
-		testkit.ValidatorPeerTopic,
+		testkit.SeedNodeTopic,
 		&appkit.ValidatorNode{
 			PubKey: nodeId,
 			IP:     config.IPv4.IP},
@@ -100,9 +131,13 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode("info")
 
 	// // wait for a new block to be produced
-	time.Sleep(1 * time.Minute)
+	time.Sleep(4 * time.Minute)
 
 	runenv.RecordSuccess()
 
 	return nil
 }
+
+//func saveGenesisState(runenv *runtime.RunEnv, sub *sync.Subscription, ipCh chan *string, home string) error {
+//
+//}
