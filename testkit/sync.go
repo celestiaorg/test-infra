@@ -52,4 +52,5 @@ var (
 	PastBlocksGeneratedState = sync.State("past-blocks-generated")
 	AccountsFundedState      = sync.State("accounts-funded")
 	FinishState              = sync.State("test-finished")
+	LightNodesStartedState   = sync.State("light-nodes-started")
 )

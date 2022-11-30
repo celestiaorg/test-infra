@@ -150,8 +150,8 @@ instances = { min = 4, max = 3000, default = 12 }
     role = { type = "string" }
 
 [[testcases]]
-name = "001-lights-dasing-latest"
-instances = { min = 30, max = 200, default = 30 }
+name = "001-lights-dasing-latest-from-bridges"
+instances = { min = 30, max = 1000, default = 30 }
     [testcases.params]
     execution-time = { type = "int" }
     latency = { type = "int", default = 60}

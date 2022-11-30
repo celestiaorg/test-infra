@@ -1,7 +1,6 @@
 package dasbenchmarks
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 	"time"
@@ -85,11 +84,12 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		cfg,
 		nodebuilder.WithMetrics(
 			[]otlpmetrichttp.Option{
-				otlpmetrichttp.WithEndpoint("192.18.0.8:4318"),
+				otlpmetrichttp.WithEndpoint("178.128.163.171:4318"),
 				otlpmetrichttp.WithInsecure(),
 			},
 			nodekit.LightNodeType,
 		),
+		nodebuilder.WithBlackboxMetrics(),
 	)
 
 	if err != nil {
@@ -101,41 +101,61 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("Starting DAS")
+	runenv.R().Counter("light-nodes-counter").Inc(1)
 
-	_, err = nd.HeaderServ.GetByHeight(ctx, uint64(5))
-	prevHead := []byte(bridgeNode.TrustedHash)
+	// wait for the core network to reach height 1
+	_, err = nd.HeaderServ.GetByHeight(ctx, uint64(1))
+	if err != nil {
+		runenv.RecordFailure(fmt.Errorf("Error: failed to wait for core network, %s", err))
+		return err
+	}
 
-	for i := 0; i < runenv.IntParam("block-height"); i++ {
-		header, err := nd.HeaderServ.Head(ctx)
+	// wait for the daser to catch up with the current height of the core network
+	err = nd.DASer.WaitCatchUp(ctx)
+	if err != nil {
+		runenv.RecordFailure(fmt.Errorf("Error while waiting for the DASer to catch up, %s", err))
+		return err
+	}
+
+	_, err = syncclient.SignalEntry(ctx, testkit.LightNodesStartedState)
+	if err != nil {
+		return err
+	}
+
+	// let the chain move!
+	for i := 1; i < runenv.IntParam("block-height"); i++ {
+		start := time.Now()
+		nd.DASer.WaitCatchUp(ctx) // wait for the daser to catch up on every height
+		stats, err := nd.DASer.SamplingStats(ctx)
 		if err != nil {
+			runenv.RecordFailure(err)
+		} else {
+			runenv.R().Gauge("daser-head").Update(
+				float64(stats.SampledChainHead),
+			)
+			runenv.R().RecordPoint(fmt.Sprintf("das.time_to_catch_up,height=%v", stats.SampledChainHead), float64(time.Since(start).Milliseconds()))
+		}
+
+		// wait for the core network to reach height 1ß
+		myHdr, err := nd.HeaderServ.GetByHeight(ctx, uint64(i+1))
+		if err != nil {
+			runenv.RecordFailure(fmt.Errorf("Error: failed to sync headers, %s", err))
 			return err
 		}
 
-		if bytes.Compare(header.Commit.BlockID.Hash, prevHead) == 0 {
-			runenv.RecordMessage("Failed to stay on top of the chain")
-			return fmt.Errorf("xxx")
-		}
-
-		prevHead = header.Commit.BlockID.Hash
-
-		if nd.HeaderServ.IsSyncing() {
-			runenv.RecordMessage("Failed to stay on top of the chain")
-			return fmt.Errorf("xxx")
-		}
-
-		st, err := nd.DASer.SamplingStats(ctx)
+		coreNetHdr, err := nd.HeaderServ.SyncerHead(ctx) // for metrics
 		if err != nil {
-			return fmt.Errorf("xxx")
+			runenv.RecordFailure(fmt.Errorf("Error: failed to sync headers, %s", err))
+			return err
 		}
 
-		if st.CatchUpDone &&
-			st.CatchupHead == uint64(header.RawHeader.Height) &&
-			st.SampledChainHead == uint64(header.RawHeader.Height) {
-			return fmt.Errorf("xxx")
+		if coreNetHdr.RawHeader.Height != myHdr.RawHeader.Height {
+			runenv.RecordMessage(
+				"Light node lagging behind core network!",
+				"core network height=", coreNetHdr.RawHeader.Height,
+				"light node height=", myHdr.RawHeader.Height,
+			)
 		}
-
-		nd.HeaderServ.GetByHeight(ctx, uint64(header.RawHeader.Height+1))
 	}
 
 	err = nd.Stop(ctx)

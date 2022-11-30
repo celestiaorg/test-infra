@@ -59,18 +59,22 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// After reaching a dedicated block-height, we can signal other node types
-	// to start syncing the past
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
-	if err != nil {
-		return err
+	for i := 0; i < runenv.IntParam("block-height"); i++ {
+		start := time.Now()
+		// After reaching a dedicated block-height, we can signal other node types
+		// to start syncing the past
+		eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(i+1))
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
+		}
+		runenv.R().RecordPoint(fmt.Sprintf("bridge.time_to_sync_block,height=%v", eh.RawHeader.Height), float64(time.Since(start).Milliseconds()))
+		runenv.RecordMessage(
+			"Reached Block#%d contains Hash: %s",
+			runenv.IntParam("block-height"),
+			eh.Commit.BlockID.Hash.String(),
+		)
 	}
-
-	runenv.RecordMessage(
-		"Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
-		eh.Commit.BlockID.Hash.String(),
-	)
 
 	if nd.HeaderServ.IsSyncing() {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))

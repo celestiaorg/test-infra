@@ -285,6 +285,17 @@ func GetLatestsBlockSize(ip net.IP) (int, error) {
 	return resBlock.Block.Size(), nil
 }
 
+func GetLatestBlockSizeAndHeight(ip net.IP) (int, uint64, error) {
+	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
+
+	resBlock, err := getResultBlockResponse(uri)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return resBlock.Block.Size(), uint64(resBlock.Block.Height), nil
+}
+
 func updateConfig(path, key string, value interface{}) error {
 	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
 	if err != nil {

@@ -1,6 +1,6 @@
-# Test Plan #001: Big Blocks Creation/Sync
+# Test Plan #002: DAS Benchmarks
 
-- [Test Plan #001: Big Blocks Creation/Sync](#test-plan-001-big-blocks-creationsync)
+- [Test Plan #002: DAS Benchmarks](#./002-das-benchmarks)
   - [Introduction](#introduction)
   - [In-Scope](#in-scope)
   - [Out-of-Scope](#out-of-scope)
@@ -11,17 +11,18 @@
   - [Test-Cases](#test-cases)
 
 ## Introduction
-The goal of this test plan is to benchmark our Full and Bridge Node implementation against X amount of light nodes to measure performance at peak usage when participating in Data Availability Sampling.
+The goal of this test plan is to benchmark Full and Bridge Nodes implementations against
+different numberrs of light nodes to measure performance at peak usage when participating in Data Availability Sampling.
 
 ## In-Scope
 - Celestia Node Instances
   - Bridge / Full / Light
-- Max 4 MB block size
+- Max 8 MB block size
 - Max Share Size: 128
 - Network Latencies between 60 and 300ms
 - DASing will concern both:
   - Latest HEAD
-  - a few random sampling ranges
+  - A few random sampling ranges
 
 ## Out-of-Scope
 
@@ -53,9 +54,9 @@ The goal of this test plan is to benchmark our Full and Bridge Node implementati
 
 [E2E: Celestia Network Tests](https://github.com/celestiaorg/celestia-node/issues/7)
 
-[Benchmarking Full And Bridge Nodes against X Light Nodes]](https://github.com/celestiaorg/test-infra/issues/83)
+[Benchmarking Full And Bridge Nodes against Multiple Light Nodes]](https://github.com/celestiaorg/test-infra/issues/83)
 
 
 ## Test-Cases
 
-[Test-Case #001 - Light Nodes Must Finish DASing before Block Time](test-cases/tc-001-x-light-finish-das-before-block-time.md)
+[Test-Case #001 - Light Nodes Must Finish DASing before Block Time](./test-cases/tc-001-lights-dasing-latest-from-bridge.md)

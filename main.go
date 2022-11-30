@@ -23,7 +23,7 @@ var testcases = map[string]interface{}{
 	// Block Reconstruction Plan
 	"reconstruction": run.InitializedTestCaseFn(blockrecon.BlockReconstruction),
 	// DAS Benchmarks Plan
-	"001-lights-dasing-latest": run.InitializedTestCaseFn(dasbenchs.LightsDasingLatest),
+	"001-lights-dasing-latest-from-bridges": run.InitializedTestCaseFn(dasbenchs.LightsDasingLatest),
 }
 
 func main() {
