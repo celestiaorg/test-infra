@@ -43,7 +43,7 @@ endif
 ## check-docker: Check if docker is installed on the machine
 check-docker:
 ifeq (,$(shell which docker))	
-	@echo "docker is not installed, you must install go first."
+	@echo "docker is not installed, you must install docker first."
 	exit 1;
 else
 ifeq (/snap/bin/docker,$(shell which docker))
@@ -111,17 +111,17 @@ tg-start:
 .PHONY: tg-start
 
 ## tg-create-testplan: Create test plan under ./plans/ of this repository
-tg-create-testplan: check-name-arg
-	TESTGROUND_HOME=${DIR_FULLPATH} testground plan create --plan=${NAME}
-	@rm -rf ./data ./sdks
-	@mkdir ./docs/test-plans/${NAME}
-	@cp ./docs/test-plans/tp-template.md ./docs/test-plans/${NAME}/${NAME}.md
-.PHONY: tg-create-testplan
+# tg-create-testplan: check-name-arg
+# 	TESTGROUND_HOME=${DIR_FULLPATH} testground plan create --plan=${NAME}
+# 	@rm -rf ./data ./sdks
+# 	@mkdir ./docs/test-plans/${NAME}
+# 	@cp ./docs/test-plans/tp-template.md ./docs/test-plans/${NAME}/${NAME}.md
+# .PHONY: tg-create-testplan
 
 ## tg-import-testplan Import testplan to TESTGROUND_HOME
-tg-import-testplan: check-testplan-arg check-name-arg
-	testground plan import --from ./plans/${TESTPLAN} --name ${NAME}	
-.PHONY: tg-import-testplan
+# tg-import-testplan: check-testplan-arg check-name-arg
+# 	testground plan import --from ./plans/${TESTPLAN} --name ${NAME}	
+# .PHONY: tg-import-testplan
 
 ## tg-run-composition: runs a specific composition by name given a testplan and a runner
 tg-run-composition: check-testplan-arg check-runner-arg check-composition-arg
@@ -145,3 +145,25 @@ telemetry-infra-up: check-docker check-docker-compose
 telemetry-infra-down: check-docker check-docker-compose
 	PWD="${DIR_FULLPATH}/build" docker-compose -f ./build/docker-compose.yml down
 .PHONY: telemetry-infra-down
+
+## check-composition-arg: check if composition env var was provided
+check-podname-arg:
+ifeq (,${POD_NAME})
+	@printf "you must specify a podname, example:\n\t make COMMAND POD_NAME=influxdb\n\n"
+	exit 1
+endif
+.phony: check-podname-arg
+
+
+## check-docker: Check if docker is installed on the machine
+check-kubectl:
+ifeq (,$(shell which kubectl))	
+	@echo "kubectl is not installed, you must install kubectl first."
+	exit 1;
+endif
+.PHONY: check-go
+
+# port forwards influx-db to be used locally with local grafana instances
+port-forward-influxdb: check-kubectl check-podname-arg
+	kubectl port-forward --address 0.0.0.0 9086:8086 ${POD_NAME}
+.PHONY: port-forward-influxdb

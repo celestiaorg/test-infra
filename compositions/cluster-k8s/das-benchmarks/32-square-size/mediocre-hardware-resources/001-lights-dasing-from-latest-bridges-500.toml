@@ -5,14 +5,11 @@
 [global]
   plan = "celestia"
   case = "001-lights-dasing-latest-from-bridges"
-  total_instances = 102
+  total_instances = 502
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
 
-# we define 1 validator that produces 8mb blocks
-# the msg-size does not result in exactly 8mb
-# because we are accounting for padding
 [global.run.test_params]
   execution-time = "10"
   persistent-peers = "1"
@@ -20,7 +17,7 @@
   msg-size = "700000"
   validator = "1"
   bridge = "1"
-  light = "280"
+  light = "500"
   block-height = "30"
 
 [[groups]]
@@ -48,8 +45,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "1"
+    memory = "8Gi"
+    cpu = "2"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -70,9 +67,9 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "1Gi"
-    cpu = "1500m"
+    cpu = "1000m"
   [groups.instances]
-    count = 100
+    count = 500
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

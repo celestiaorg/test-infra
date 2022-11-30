@@ -45,8 +45,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "1"
+    memory = "12Gi"
+    cpu = "4"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -66,8 +66,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "300Mi"
-    cpu = "500m"
+    memory = "2Gi"
+    cpu = "2000m"
   [groups.instances]
     count = 500
     percentage = 0.0

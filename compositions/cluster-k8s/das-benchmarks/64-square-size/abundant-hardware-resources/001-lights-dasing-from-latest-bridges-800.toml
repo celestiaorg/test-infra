@@ -16,7 +16,7 @@
 [global.run.test_params]
   execution-time = "10"
   persistent-peers = "1"
-  submit-times = "10"
+  submit-times = "20"
   msg-size = "700000"
   validator = "1"
   bridge = "1"
@@ -48,8 +48,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "1"
+    memory = "12Gi"
+    cpu = "4"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -69,8 +69,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "300Mi"
-    cpu = "500m"
+    memory = "1Gi"
+    cpu = "2000m"
   [groups.instances]
     count = 800
     percentage = 0.0
