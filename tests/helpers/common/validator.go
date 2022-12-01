@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"fmt"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"io"
 	"net"
 	"os"
@@ -181,22 +182,20 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	if initCtx.GroupSeq <= int64(runenv.IntParam("persistent-peers")) {
-		nodeId, err := cmd.GetNodeId()
-		if err != nil {
-			return nil, err
-		}
+	nodeId, err := cmd.GetNodeId()
+	if err != nil {
+		return nil, err
+	}
 
-		_, err = syncclient.Publish(
-			ctx,
-			testkit.ValidatorPeerTopic,
-			&appkit.ValidatorNode{
-				PubKey: nodeId,
-				IP:     ip},
-		)
-		if err != nil {
-			return nil, err
-		}
+	_, err = syncclient.Publish(
+		ctx,
+		testkit.ValidatorPeerTopic,
+		&appkit.ValidatorNode{
+			PubKey: nodeId,
+			IP:     ip},
+	)
+	if err != nil {
+		return nil, err
 	}
 
 	valCh := make(chan *appkit.ValidatorNode)
@@ -205,31 +204,50 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	var persPeers []string
-	for i := 0; i < runenv.IntParam("persistent-peers"); i++ {
+	var peers []appkit.ValidatorNode
+	for i := 0; i < runenv.IntParam("validator"); i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
 				return nil, err
 			}
 		case val := <-valCh:
-			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
 			if !val.IP.Equal(ip) {
-				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
-			}
-
-			err = appkit.AddPersistentPeers(configPath, persPeers)
-			if err != nil {
-				return nil, err
+				peers = append(peers, *val)
 			}
 		}
 	}
+	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
+
+	randomizer := tmrand.Intn(runenv.IntParam("validator"))
+	randPeers := GetRandomisedPeers(randomizer, runenv.IntParam("persistent-peers"), peers)
+	if randPeers == nil {
+		return nil, fmt.Errorf("no peers added for validator's addrbook, got %s", randPeers)
+	}
+
+	err = appkit.AddPeersToAddressBook(home, randPeers)
+	if err != nil {
+		return nil, err
+	}
+
+	runenv.RecordMessage("Added %d to the address book", len(randPeers))
 
 	return cmd, nil
 }
 
+func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.ValidatorNode) []appkit.ValidatorNode {
+	for i := 1; i <= peersRange; i++ {
+		if randomizer <= peersRange*i && i < 10 {
+			return peers[peersRange*(i-1) : peersRange*i]
+		} else {
+			return peers[peersRange*(i-1):]
+		}
+	}
+	return nil
+}
+
 func changeConfig(path string) error {
-	cfg := map[string]map[string]string{
+	cfg := map[string]map[string]interface{}{
 		"consensus": {
 			"timeout_propose":   "10s",
 			"timeout_prevote":   "1s",
@@ -237,9 +255,14 @@ func changeConfig(path string) error {
 			"timeout_commit":    "15s",
 		},
 		"rpc": {
-			"timeout_broadcast_tx_commit": "30s",
-			"max_body_bytes":              "1000000",
-			"max_header_bytes":            "1048576",
+			"timeout_broadcast_tx_commit": "40s",
+			"max_body_bytes":              4000000,
+			"max_header_bytes":            4048576,
+		},
+		"p2p": {
+			"send_rate":                   10240000,
+			"recv_rate":                   10240000,
+			"max_packet_msg_payload_size": 1024,
 		},
 	}
 

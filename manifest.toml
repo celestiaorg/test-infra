@@ -18,7 +18,7 @@ enabled = true
 
 [[testcases]]
 name = "001-val-large-txs"
-instances = { min = 1, max = 100, default = 3 }
+instances = { min = 1, max = 200, default = 3 }
     [testcases.params]
     execution-time = { type = "int" }
     latency = { type = "int", default = 0}

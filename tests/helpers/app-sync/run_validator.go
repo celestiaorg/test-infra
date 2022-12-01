@@ -60,12 +60,10 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		runenv.RecordMessage("LET SEED KNOW WHAT I'M ARE")
 		_, err = syncclient.Publish(ctx, testkit.CurlGenesisState, ip.To4().String())
 		if err != nil {
 			return err
 		}
-		runenv.RecordMessage("DONE DONE DONE DONE DONE")
 
 		go appcmd.StartNode("info")
 	}
@@ -101,7 +99,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	// wait for a new block to be produced
-	time.Sleep(1 * time.Minute)
+	time.Sleep(2 * time.Minute)
 
 	for i := 0; i < runenv.IntParam("submit-times"); i++ {
 		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))

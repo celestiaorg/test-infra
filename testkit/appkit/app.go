@@ -3,6 +3,8 @@ package appkit
 import (
 	"bytes"
 	"fmt"
+	"github.com/tendermint/tendermint/p2p"
+	"github.com/tendermint/tendermint/p2p/pex"
 	"io"
 	"net"
 	"net/http"
@@ -362,6 +364,33 @@ func AddPersistentPeers(path string, peers []string) error {
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
 	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
+}
+
+func AddPeersToAddressBook(path string, peers []ValidatorNode) error {
+	var filePath string = fmt.Sprintf("%s/config/addrbook.json", path)
+
+	_, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	addrBook := pex.NewAddrBook(filePath, false)
+
+	for _, peer := range peers {
+		if peer.IP != nil {
+			netAddr := p2p.NetAddress{
+				ID:   p2p.ID(peer.PubKey),
+				IP:   peer.IP,
+				Port: 26656,
+			}
+			err = addrBook.AddAddress(&netAddr, &netAddr)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	addrBook.Save()
+	return nil
 }
 
 func ChangeRPCServerAddress(path string, ip net.IP) error {

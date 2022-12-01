@@ -3,6 +3,7 @@ package appsync
 import (
 	"context"
 	"fmt"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"path/filepath"
 	"time"
 
@@ -71,16 +72,31 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	for i := 0; i < runenv.IntParam("persistent-peers"); i++ {
+	var peers []appkit.ValidatorNode
+	for i := 0; i < runenv.IntParam("validator"); i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
 				return err
 			}
 		case val := <-valCh:
-			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
+			peers = append(peers, *val)
 		}
 	}
+	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
+
+	randomizer := tmrand.Intn(runenv.IntParam("validator"))
+	randPeers := common.GetRandomisedPeers(randomizer, runenv.IntParam("persistent-peers"), peers)
+	if randPeers == nil {
+		return fmt.Errorf("no peers added for seed's addrbook, got %s", randPeers)
+	}
+
+	err = appkit.AddPeersToAddressBook(home, randPeers)
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("Added %d to the address book", len(randPeers))
 
 	ipCh := make(chan *string)
 	sub, err = syncclient.Subscribe(ctx, testkit.CurlGenesisState, ipCh)
@@ -131,7 +147,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode("info")
 
 	// // wait for a new block to be produced
-	time.Sleep(4 * time.Minute)
+	time.Sleep(15 * time.Minute)
 
 	runenv.RecordSuccess()
 
