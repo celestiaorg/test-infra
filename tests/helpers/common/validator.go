@@ -220,7 +220,10 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
 
 	randomizer := tmrand.Intn(runenv.IntParam("validator"))
-	randPeers := GetRandomisedPeers(randomizer, runenv.IntParam("persistent-peers"), peers)
+	runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
+	peersRange := runenv.IntParam("persistent-peers")
+	runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
+	randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
 	if randPeers == nil {
 		return nil, fmt.Errorf("no peers added for validator's addrbook, got %s", randPeers)
 	}
@@ -237,9 +240,10 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 
 func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.ValidatorNode) []appkit.ValidatorNode {
 	for i := 1; i <= peersRange; i++ {
-		if randomizer <= peersRange*i && i < 10 {
+		fmt.Println("Iteration of i -> ", i)
+		if randomizer <= peersRange*i {
 			return peers[peersRange*(i-1) : peersRange*i]
-		} else {
+		} else if i > 9 {
 			return peers[peersRange*(i-1):]
 		}
 	}
@@ -255,14 +259,15 @@ func changeConfig(path string) error {
 			"timeout_commit":    "15s",
 		},
 		"rpc": {
-			"timeout_broadcast_tx_commit": "40s",
-			"max_body_bytes":              4000000,
-			"max_header_bytes":            4048576,
+			"timeout_broadcast_tx_commit": "50s",
+			"max_body_bytes":              8000000,
+			"max_header_bytes":            8048576,
 		},
 		"p2p": {
 			"send_rate":                   10240000,
 			"recv_rate":                   10240000,
 			"max_packet_msg_payload_size": 1024,
+			"persistent_peers":            "",
 		},
 	}
 

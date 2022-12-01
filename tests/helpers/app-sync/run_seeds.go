@@ -109,6 +109,8 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("curling genesis state from this validator's ip - %s", *ip)
 	time.Sleep(30 * time.Second)
 
+	// We need to curl the instance 1 with RPC to get the genesis.json file
+	// Only 1 validator must fire up to provide the RPC
 	uri := fmt.Sprintf("http://%s:26657/genesis", *ip)
 	genState, err := appkit.GetGenesisState(uri)
 	if err != nil {
@@ -120,15 +122,12 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// We need to curl the instance 1 with RPC to get the genesis.json file
-	// Only 1 validator must fire up to provide the RPC
-
 	nodeId, err := cmd.GetNodeId()
 	if err != nil {
 		return err
 	}
 
-	err = appkit.ChangeConfigParam(configPath, "p2p", "seed_mode", true)
+	err = changeConfig(configPath)
 	if err != nil {
 		return err
 	}
@@ -146,14 +145,32 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	go cmd.StartNode("info")
 
-	// // wait for a new block to be produced
-	time.Sleep(15 * time.Minute)
+	// wait and crawl
+	time.Sleep(12 * time.Minute)
 
 	runenv.RecordSuccess()
 
 	return nil
 }
 
-//func saveGenesisState(runenv *runtime.RunEnv, sub *sync.Subscription, ipCh chan *string, home string) error {
-//
-//}
+func changeConfig(path string) error {
+	cfg := map[string]map[string]interface{}{
+		"p2p": {
+			"seed_mode":                   true,
+			"max_num_inbound_peers":       100,
+			"max_num_outbound_peers":      100,
+			"max_packet_msg_payload_size": 1024,
+			"persistent_peers":            "",
+		},
+	}
+
+	for i, j := range cfg {
+		for k, v := range j {
+			err := appkit.ChangeConfigParam(path, i, k, v)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
