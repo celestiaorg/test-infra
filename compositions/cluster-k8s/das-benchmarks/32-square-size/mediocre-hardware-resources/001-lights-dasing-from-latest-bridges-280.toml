@@ -22,6 +22,7 @@
   bridge = "1"
   light = "280"
   block-height = "30"
+  otel-collector-address = "178.128.163.171:4318"
 
 [[groups]]
   id = "validators"

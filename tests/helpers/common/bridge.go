@@ -52,7 +52,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		cfg,
 		nodebuilder.WithMetrics(
 			[]otlpmetrichttp.Option{
-				otlpmetrichttp.WithEndpoint("178.128.163.171:4318"),
+				otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
 				otlpmetrichttp.WithInsecure(),
 			},
 			nodekit.BridgeNodeType,

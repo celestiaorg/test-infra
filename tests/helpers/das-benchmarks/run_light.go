@@ -84,7 +84,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		cfg,
 		nodebuilder.WithMetrics(
 			[]otlpmetrichttp.Option{
-				otlpmetrichttp.WithEndpoint("178.128.163.171:4318"),
+				otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
 				otlpmetrichttp.WithInsecure(),
 			},
 			nodekit.LightNodeType,
