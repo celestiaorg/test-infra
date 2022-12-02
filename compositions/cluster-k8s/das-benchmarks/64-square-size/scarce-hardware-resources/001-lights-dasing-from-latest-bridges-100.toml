@@ -20,7 +20,7 @@
   msg-size = "700000"
   validator = "1"
   bridge = "1"
-  light = "280"
+  light = "100"
   block-height = "30"
 
 [[groups]]
