@@ -151,7 +151,7 @@ instances = { min = 4, max = 3000, default = 12 }
 
 [[testcases]]
 name = "001-lights-dasing-latest-from-bridges"
-instances = { min = 30, max = 1000, default = 30 }
+instances = { min = 30, max = 1002, default = 30 }
     [testcases.params]
     execution-time = { type = "int" }
     latency = { type = "int", default = 60}

@@ -165,5 +165,5 @@ endif
 
 # port forwards influx-db to be used locally with local grafana instances
 port-forward-influxdb: check-kubectl check-podname-arg
-	kubectl port-forward --address 0.0.0.0 9086:8086 ${POD_NAME}
+	kubectl port-forward ${POD_NAME} --address 0.0.0.0 9086:8086
 .PHONY: port-forward-influxdb
