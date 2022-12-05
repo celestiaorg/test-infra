@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "reconstruction"
-  total_instances = 1436
+  total_instances = 1437
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -18,8 +18,31 @@
       light = "1412"
       msg-size = "15000"
       persistent-peers = "10"
+      seed = "1"
       submit-times = "20"
       validator = "10"
+
+[[groups]]
+  id = "seeds"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "4Gi"
+    cpu = "3"
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+    [groups.run.test_params]
+      bandwidth = "256Mib"
+      latency = "50"
+      role = "seed"
 
 [[groups]]
   id = "validators"

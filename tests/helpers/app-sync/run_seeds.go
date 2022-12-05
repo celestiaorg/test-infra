@@ -16,9 +16,7 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-// TODO(@Bidon15): seed nodes are not working as expected
-// Now this code is not used anywhere in test-plan/cases
-// More info to follow up: https://github.com/tendermint/tendermint/issues/9289
+// RunSeed configures a tendermint full node running with seed settings
 func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
@@ -86,7 +84,8 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
 
 	randomizer := tmrand.Intn(runenv.IntParam("validator"))
-	randPeers := common.GetRandomisedPeers(randomizer, runenv.IntParam("persistent-peers"), peers)
+	peersRange := runenv.IntParam("validator") / runenv.IntParam("seed")
+	randPeers := common.GetRandomisedPeers(randomizer, peersRange, peers)
 	if randPeers == nil {
 		return fmt.Errorf("no peers added for seed's addrbook, got %s", randPeers)
 	}
@@ -104,14 +103,21 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("before barrier for the ip we need")
-	ip := <-ipCh
-	runenv.RecordMessage("curling genesis state from this validator's ip - %s", *ip)
-	time.Sleep(30 * time.Second)
+	var uri string
+	select {
+	case err := <-sub.Done():
+		if err != nil {
+			return err
+		}
+	case ip := <-ipCh:
+		runenv.RecordMessage("curling genesis state from this validator's ip - %s", *ip)
+		time.Sleep(30 * time.Second)
 
-	// We need to curl the instance 1 with RPC to get the genesis.json file
-	// Only 1 validator must fire up to provide the RPC
-	uri := fmt.Sprintf("http://%s:26657/genesis", *ip)
+		// We need to curl the instance 1 with RPC to get the genesis.json file
+		// Only 1 validator must fire up to provide the RPC
+		uri = fmt.Sprintf("http://%s:26657/genesis", *ip)
+	}
+
 	genState, err := appkit.GetGenesisState(uri)
 	if err != nil {
 		return err
@@ -146,9 +152,10 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	go cmd.StartNode("info")
 
 	// wait and crawl
-	time.Sleep(12 * time.Minute)
-
-	runenv.RecordSuccess()
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

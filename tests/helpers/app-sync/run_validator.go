@@ -82,7 +82,6 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return err
 			}
 		case seed := <-seedCh:
-			fmt.Println("adding seedoooooor -> ", seed.IP.To4().String())
 			seedPeers = append(seedPeers, fmt.Sprintf("%s@%s", seed.PubKey, seed.IP.To4().String()))
 		}
 	}
@@ -122,8 +121,10 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
 	}
 
-	time.Sleep(30 * time.Second)
-	runenv.RecordSuccess()
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

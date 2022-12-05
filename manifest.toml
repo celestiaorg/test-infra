@@ -38,6 +38,7 @@ instances = { min = 4, max = 3000, default = 12 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}
@@ -55,6 +56,7 @@ instances = { min = 4, max = 3000, default = 12 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}
@@ -72,6 +74,7 @@ instances = { min = 4, max = 3000, default = 12 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}
@@ -89,6 +92,7 @@ instances = { min = 4, max = 3000, default = 12 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}
@@ -106,6 +110,7 @@ instances = { min = 4, max = 3000, default = 12 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     namespace-id = { type = "string", default = "1"}
     msg-size = { type = "int", default = 10000}
@@ -124,6 +129,7 @@ instances = { min = 4, max = 3000, default = 12 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     namespace-id = { type = "string", default = "1"}
     msg-size = { type = "int", default = 10000}
@@ -142,6 +148,7 @@ instances = { min = 4, max = 3000, default = 12 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     persistent-peers = { type = "int", default = 3}
+    seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 20}
     msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}

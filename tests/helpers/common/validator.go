@@ -259,9 +259,9 @@ func changeConfig(path string) error {
 			"timeout_commit":    "15s",
 		},
 		"rpc": {
-			"timeout_broadcast_tx_commit": "50s",
-			"max_body_bytes":              8000000,
-			"max_header_bytes":            8048576,
+			"timeout_broadcast_tx_commit": "40s",
+			"max_body_bytes":              6000000,
+			"max_header_bytes":            6048576,
 		},
 		"p2p": {
 			"send_rate":                   10240000,
