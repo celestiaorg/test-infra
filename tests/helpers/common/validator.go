@@ -104,7 +104,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	}
 
 	for _, v := range accounts {
-		_, err := cmd.AddGenAccount(v, "1000000000000000utia")
+		_, err := cmd.AddGenAccount(v, "10000000000000000utia")
 		if err != nil {
 			return nil, err
 		}
@@ -259,9 +259,10 @@ func changeConfig(path string) error {
 			"timeout_commit":    "15s",
 		},
 		"rpc": {
-			"timeout_broadcast_tx_commit": "40s",
-			"max_body_bytes":              6000000,
-			"max_header_bytes":            6048576,
+			"max_subscriptions_per_client": 100,
+			"timeout_broadcast_tx_commit":  "40s",
+			"max_body_bytes":               6000000,
+			"max_header_bytes":             6048576,
 		},
 		"p2p": {
 			"send_rate":                   10240000,

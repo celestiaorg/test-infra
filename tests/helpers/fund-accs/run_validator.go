@@ -54,7 +54,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("starting........")
-	go appcmd.StartNode("error")
+	go appcmd.StartNode("info")
 
 	// wait for a new block to be produced
 	// RPC is also being initialized...
@@ -85,7 +85,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	total := runenv.TestInstanceCount - runenv.IntParam("validator")
+	total := runenv.TestInstanceCount - runenv.IntParam("validator") - runenv.IntParam("seed")
 	var fundAccs []string
 	for i := 0; i < total; i++ {
 		select {
@@ -94,19 +94,22 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return err
 			}
 		case account := <-accsCh:
-			runenv.RecordMessage(account)
 			fundAccs = append(fundAccs, account)
 		}
 	}
 
-	err = appcmd.FundAccounts(
-		appcmd.AccountAddress,
-		"10000000utia",
-		"test",
-		appcmd.GetHomePath(),
-		fundAccs...)
-	if err != nil {
-		return err
+	// var i is the range we take on funding accounts in 1 block
+	for i := 0; i < len(fundAccs); i += 50 {
+		accsRange := fundAccs[i : i+50]
+		err = appcmd.FundAccounts(
+			appcmd.AccountAddress,
+			"10000000utia",
+			"test",
+			appcmd.GetHomePath(),
+			accsRange...)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.AccountsFundedState)

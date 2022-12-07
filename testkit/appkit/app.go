@@ -200,7 +200,7 @@ func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddr
 	args = append(args, amount,
 		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),
-		wrapFlag(flags.FlagGas), "1000000",
+		wrapFlag(flags.FlagGas), "2000000",
 		wrapFlag(flags.FlagFees), "100000utia",
 		wrapFlag(flags.FlagKeyringBackend),
 		krbackend,
