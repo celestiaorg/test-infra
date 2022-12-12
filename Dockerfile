@@ -20,7 +20,7 @@ FROM ${BUILD_BASE_IMAGE} AS builder
 # PLAN_DIR is the location containing the plan source inside the container.
 ENV PLAN_DIR /plan
 
-#ENV INFLUXDB_URL=http://94.130.224.187:8086/
+ENV INFLUXDB_URL=http://influxdb:8086/
 
 # SDK_DIR is the location containing the (optional) sdk source inside the container.
 ENV SDK_DIR /sdk

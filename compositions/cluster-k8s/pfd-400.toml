@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "pay-for-data"
-  total_instances = 1205
+  total_instances = 605
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -19,7 +19,7 @@
       seed = "5"
       validator = "100"
       bridge = "100"
-      light = "1000"
+      light = "400"
       submit-times = "12"
 
 [[groups]]
@@ -96,7 +96,7 @@
     memory = "300Mi"
     cpu = "200m"
   [groups.instances]
-    count = 1000
+    count = 400
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

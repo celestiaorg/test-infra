@@ -3,7 +3,6 @@ package common
 import (
 	"context"
 	"fmt"
-
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
@@ -18,6 +17,11 @@ import (
 
 func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
 	syncclient := initCtx.SyncClient
+
+	err := <-syncclient.MustBarrier(ctx, "validator-ready", runenv.IntParam("validator")).C
+	if err != nil {
+		return nil, err
+	}
 
 	appNode, err := GetValidatorInfo(ctx, syncclient, runenv.IntParam("validator"), int(initCtx.GroupSeq))
 	if err != nil {
