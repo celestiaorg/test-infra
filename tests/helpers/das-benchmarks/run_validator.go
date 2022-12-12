@@ -92,18 +92,20 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordFailure(lerr)
 	}
 
-	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+	for i := 0; i < runenv.IntParam("block-height"); i++ {
 		start := time.Now()
-		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
-		err = appcmd.PayForData(
-			appcmd.AccountAddress,
-			runenv.IntParam("msg-size"),
-			"test",
-			appcmd.GetHomePath(),
-		)
-		if err != nil {
-			runenv.RecordFailure(err)
-			return err
+		for j := 0; j < runenv.IntParam("submit-times"); j++ {
+			runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
+			err = appcmd.PayForData(
+				appcmd.AccountAddress,
+				runenv.IntParam("msg-size"),
+				"test",
+				appcmd.GetHomePath(),
+			)
+			if err != nil {
+				runenv.RecordFailure(err)
+				return err
+			}
 		}
 
 		s, h, err := appkit.GetLatestBlockSizeAndHeight(net.ParseIP("127.0.0.1"))

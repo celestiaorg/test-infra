@@ -29,7 +29,7 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "4Gi"
-    cpu = "1"
+    cpu = "2"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -49,8 +49,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "12Gi"
-    cpu = "4"
+    memory = "16Gi"
+    cpu = "6"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -62,16 +62,16 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "50"
-    bandwidth = "256Mib"
+    latency = "0"
+    bandwidth = "1Gi"
     role = "bridge"
 
 [[groups]]
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "2Gi"
-    cpu = "2000m"
+    memory = "8Gi"
+    cpu = "2"
   [groups.instances]
     count = 280
     percentage = 0.0
@@ -83,6 +83,6 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "50"
+    latency = "0"
     bandwidth = "256Mib"
     role = "light"

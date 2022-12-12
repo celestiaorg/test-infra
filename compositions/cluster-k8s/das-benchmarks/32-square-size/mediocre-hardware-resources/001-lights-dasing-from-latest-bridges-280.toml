@@ -41,7 +41,7 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "50"
+    latency = "0"
     bandwidth = "256Mib"
     role = "validator"
 
@@ -62,8 +62,8 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "50"
-    bandwidth = "256Mib"
+    latency = "0"
+    bandwidth = "1Gi"
     role = "bridge"
 
 [[groups]]
@@ -83,6 +83,6 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "50"
+    latency = "0"
     bandwidth = "256Mib"
     role = "light"
