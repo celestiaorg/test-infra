@@ -82,7 +82,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 			return nil, err
 		}
 
-		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
+		runenv.RecordMessage("Orchestrator has sent initial genesis")
 	} else {
 		initGenCh := make(chan string)
 		sub, err := syncclient.Subscribe(ctx, testkit.InitialGenesisTopic, initGenCh)

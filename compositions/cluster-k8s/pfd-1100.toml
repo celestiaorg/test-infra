@@ -85,7 +85,7 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "320Mib"
-      block-height = "30"
+      block-height = "40"
       latency = "0"
       role = "bridge"
 
@@ -108,6 +108,6 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "100Mib"
-      block-height = "30"
+      block-height = "40"
       latency = "0"
       role = "light"

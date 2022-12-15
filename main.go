@@ -9,18 +9,18 @@ import (
 
 var testcases = map[string]interface{}{
 	// Big Blocks Plan
-	"001-val-large-txs":   run.InitializedTestCaseFn(bigblocks.ValSubmitLargeTxs),
-	"002-da-sync":         run.InitializedTestCaseFn(bigblocks.SyncNodes),
-	"003-full-sync-past":  run.InitializedTestCaseFn(bigblocks.FullSyncPast),
-	"004-full-light-past": run.InitializedTestCaseFn(bigblocks.FullLightSyncPast),
-	"005-light-das-past":  run.InitializedTestCaseFn(bigblocks.LightDasPast),
+	"001-val-large-txs":   bigblocks.ValSubmitLargeTxs,
+	"002-da-sync":         bigblocks.SyncNodes,
+	"003-full-sync-past":  bigblocks.FullSyncPast,
+	"004-full-light-past": bigblocks.FullLightSyncPast,
+	"005-light-das-past":  bigblocks.LightDasPast,
 	// Pay For Data & Get Shares by Namespace Plan
 	// PayForDataAndGetShares is tracking TestCase key to know
 	// when to do shares checker scenario
-	"pay-for-data":            run.InitializedTestCaseFn(pfdgsbn.PayForDataAndGetShares),
-	"get-shares-by-namespace": run.InitializedTestCaseFn(pfdgsbn.PayForDataAndGetShares),
+	"pay-for-data":            pfdgsbn.PayForDataAndGetShares,
+	"get-shares-by-namespace": pfdgsbn.PayForDataAndGetShares,
 	// Block Reconstruction Plan
-	"reconstruction": run.InitializedTestCaseFn(blockrecon.BlockReconstruction),
+	"reconstruction": blockrecon.BlockReconstruction,
 }
 
 func main() {

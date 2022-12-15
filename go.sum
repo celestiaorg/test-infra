@@ -92,8 +92,8 @@ github.com/Bidon15/cosmos-sdk v1.4.0-dirty-sdk-v0.46.0 h1:92qzUYBONiCHcayC9rNqlL
 github.com/Bidon15/cosmos-sdk v1.4.0-dirty-sdk-v0.46.0/go.mod h1:ByQ2rOrZs7s2OnPfeaiTMC8IOlcrT195xIRPgevydCI=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
 github.com/Bidon15/go-log/v2 v2.5.2/go.mod h1:TMD+iYDL/QBjspKUN0Ypxpr2IMAz3uGUAsbCeClDQ+4=
-github.com/Bidon15/lazyledger-app v1.9.0-dirty-app h1:my2wajPwFhv6q0zowBEoM3myfXOInjYrj4ANjl2q/rw=
-github.com/Bidon15/lazyledger-app v1.9.0-dirty-app/go.mod h1:6k/zcNDEgOyJRGnAgWw1VsrwTKcVjOyYG5LPTHcZR+w=
+github.com/Bidon15/lazyledger-app v1.10.0-dirty-app h1:JXHTrnrqiPcOTDo3I+TmsWElB4Tr8foIEDzTIPQ2mfg=
+github.com/Bidon15/lazyledger-app v1.10.0-dirty-app/go.mod h1:6k/zcNDEgOyJRGnAgWw1VsrwTKcVjOyYG5LPTHcZR+w=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
@@ -223,10 +223,10 @@ github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
-github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20 h1:BqlcOQqL2UqdDTcdCtrOLXDlmwxIA8DiKiY79oahxkQ=
-github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
-github.com/celestiaorg/celestia-node v0.5.0-rc5.0.20221209161301-52048ce466d5 h1:ar0Thk/aVvAhXHTtXBSmujwdepB+1neOfbaUsaAJsxU=
-github.com/celestiaorg/celestia-node v0.5.0-rc5.0.20221209161301-52048ce466d5/go.mod h1:y29xZkmswv60GVIcxWuxKpbZ0V3mj8K023i7HGM/KHk=
+github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20.0.20221214133108-8692e50bffa7 h1:YDm0JIR8DuB657512l9sBurTOBosWCbFgCLiO+MwBok=
+github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20.0.20221214133108-8692e50bffa7/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
+github.com/celestiaorg/celestia-node v0.6.0 h1:ik+uHnSLe/5CA7BYVYsVCFk/mvwjpKvqi/3QQb070/8=
+github.com/celestiaorg/celestia-node v0.6.0/go.mod h1:uncSdsNL1HcxfHcyNJ3L5GBBEEV+SK2U/vlI515rOGs=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659 h1:f3205vw3GYBtMiNoS+qB6IuHSs50Iwqsm9lNIikLTCk=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659/go.mod h1:ta/DlqIH10bvhwqJIw51Nq3QU4XVMp6pz3f0Deve9fM=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
