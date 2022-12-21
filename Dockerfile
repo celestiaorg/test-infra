@@ -83,5 +83,5 @@ COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
 
 
-EXPOSE 9090 26657 26656 1317 26658
+EXPOSE 9090 26657 26656 1317 26658 26660
 ENTRYPOINT [ "/testplan"]

@@ -1,9 +1,13 @@
 package fundaccounts
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"io"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -163,6 +167,42 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
+
+	go func() {
+		timeout := time.After(4 * time.Minute)
+		ticker := time.NewTicker(15 * time.Second)
+
+		for {
+			fs, err := os.ReadDir(fmt.Sprintf("%s/data", appcmd.Home))
+			if err != nil {
+				return
+			}
+			select {
+			case <-timeout:
+				return
+			case <-ticker.C:
+				// slice is needed because of auto-gen metrics.json file
+				for _, f := range fs {
+					met, err := os.Open(fmt.Sprintf("%s/data/%s", appcmd.Home, f.Name()))
+					if err != nil {
+						return
+					}
+
+					bt, err := io.ReadAll(met)
+					if err != nil {
+						return
+					}
+
+					var pjson bytes.Buffer
+					if err := json.Indent(&pjson, bt, "", "    "); err != nil {
+						return
+					}
+					fmt.Println(pjson.String())
+				}
+			}
+		}
+
+	}()
 
 	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {

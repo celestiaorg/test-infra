@@ -142,31 +142,52 @@ func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, 
 		return "", err
 	}
 
-	return ak.execCmd(
-		[]string{
-			"gentx",
-			accName,
-			amount,
-			wrapFlag(flags.FlagOrchestratorAddress),
-			ak.AccountAddress,
-			wrapFlag(flags.FlagEVMAddress),
-			ethAddress.String(),
-			wrapFlag(flags.FlagKeyringBackend),
-			krbackend,
-			wrapFlag(flags.FlagChainID),
-			ak.ChainId,
-			wrapFlag(flags.FlagHome),
-			ak.Home,
-			wrapFlag(flags.FlagKeyringDir),
-			krpath,
-		},
-	)
+	args := []string{
+		"gentx",
+		accName,
+		amount,
+		wrapFlag(flags.FlagOrchestratorAddress),
+		ak.AccountAddress,
+		wrapFlag(flags.FlagEVMAddress),
+		ethAddress.String(),
+		wrapFlag(flags.FlagKeyringBackend),
+		krbackend,
+		wrapFlag(flags.FlagChainID),
+		ak.ChainId,
+		wrapFlag(flags.FlagHome),
+		ak.Home,
+		wrapFlag(flags.FlagKeyringDir),
+		krpath,
+	}
+
+	ak.Cmd.ResetFlags()
+
+	ak.m.Lock()
+
+	ak.Cmd.SetArgs(args)
+	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
+		return "", err
+	}
+
+	ak.m.Unlock()
+
+	return "", nil
 }
 
 func (ak *AppKit) CollectGenTxs() (string, error) {
-	return ak.execCmd(
-		[]string{"collect-gentxs", wrapFlag(flags.FlagHome), ak.Home},
-	)
+	args := []string{"collect-gentxs", wrapFlag(flags.FlagHome), ak.Home}
+	ak.Cmd.ResetFlags()
+
+	ak.m.Lock()
+
+	ak.Cmd.SetArgs(args)
+	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
+		return "", err
+	}
+
+	ak.m.Unlock()
+
+	return "", nil
 }
 
 func (ak *AppKit) GetNodeId() (string, error) {

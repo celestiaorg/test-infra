@@ -21,7 +21,8 @@ import (
 func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*appkit.AppKit, error) {
 	syncclient := initCtx.SyncClient
 
-	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	//home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	home := "/.celestia-app"
 	runenv.RecordMessage(home)
 
 	const chainId string = "private"
@@ -243,7 +244,7 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 		fmt.Println("Iteration of i -> ", i)
 		if randomizer <= peersRange*i {
 			return peers[peersRange*(i-1) : peersRange*i]
-		} else if i > 9 {
+		} else if i > peersRange-1 {
 			return peers[peersRange*(i-1):]
 		}
 	}
@@ -252,6 +253,9 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 
 func changeConfig(path string) error {
 	cfg := map[string]map[string]interface{}{
+		"mempool": {
+			"version": "v1",
+		},
 		"consensus": {
 			"timeout_propose":   "10s",
 			"timeout_prevote":   "1s",
@@ -259,7 +263,7 @@ func changeConfig(path string) error {
 			"timeout_commit":    "15s",
 		},
 		"rpc": {
-			"max_subscriptions_per_client": 100,
+			"max_subscriptions_per_client": 150,
 			"timeout_broadcast_tx_commit":  "40s",
 			"max_body_bytes":               6000000,
 			"max_header_bytes":             6048576,
@@ -269,6 +273,12 @@ func changeConfig(path string) error {
 			"recv_rate":                   10240000,
 			"max_packet_msg_payload_size": 1024,
 			"persistent_peers":            "",
+		},
+		"instrumentation": {
+			"prometheus":             true,
+			"prometheus_listen_addr": ":26660",
+			"max_open_connections":   100,
+			"namespace":              "default",
 		},
 	}
 

@@ -16,7 +16,7 @@
       execution-time = "15"
       latency = "0"
       msg-size = "64000"
-      persistent-peers = "10"
+      persistent-peers = "6"
       seed = "5"
       submit-times = "10"
       validator = "100"

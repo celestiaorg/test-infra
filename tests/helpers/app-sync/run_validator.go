@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/celestiaorg/test-infra/testkit"
+	"io"
 	"net"
+	"os"
 	"path/filepath"
 	"time"
 
@@ -119,6 +121,25 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
+	}
+
+	fs, err := os.ReadDir(fmt.Sprintf("%s/data", appcmd.Home))
+	if err != nil {
+		return err
+	}
+	// slice is needed because of auto-gen metrics.json file
+	for _, f := range fs {
+		met, err := os.Open(fmt.Sprintf("%s/data/%s", appcmd.Home, f.Name()))
+		if err != nil {
+			return err
+		}
+
+		bt, err := io.ReadAll(met)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(string(bt))
 	}
 
 	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)

@@ -15,7 +15,7 @@
       bandwidth = "256Mib"
       execution-time = "10"
       latency = "0"
-      msg-size = "180000"
+      msg-size = "160000"
       persistent-peers = "10"
       seed = "2"
       submit-times = "10"

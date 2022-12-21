@@ -223,8 +223,8 @@ github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
-github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20.0.20221214133108-8692e50bffa7 h1:YDm0JIR8DuB657512l9sBurTOBosWCbFgCLiO+MwBok=
-github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20.0.20221214133108-8692e50bffa7/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
+github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20-cat-6 h1:55NZHW0y5yhJq8sGNNuRnwvri+HXzUUnguDwQlajxKM=
+github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20-cat-6/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
 github.com/celestiaorg/celestia-node v0.6.0 h1:ik+uHnSLe/5CA7BYVYsVCFk/mvwjpKvqi/3QQb070/8=
 github.com/celestiaorg/celestia-node v0.6.0/go.mod h1:uncSdsNL1HcxfHcyNJ3L5GBBEEV+SK2U/vlI515rOGs=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659 h1:f3205vw3GYBtMiNoS+qB6IuHSs50Iwqsm9lNIikLTCk=

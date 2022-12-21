@@ -18,7 +18,7 @@
       light = "1"
       msg-size = "100000"
       namespace-id = "1"
-      persistent-peers = "3"
+      persistent-peers = "1"
       seed = "1"
       submit-times = "12"
       validator = "3"
