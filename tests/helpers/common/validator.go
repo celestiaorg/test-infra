@@ -173,7 +173,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	err = changeConfig(configPath)
+	err = changeConfig(configPath, "v2")
 	if err != nil {
 		return nil, err
 	}
@@ -251,10 +251,10 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 	return nil
 }
 
-func changeConfig(path string) error {
+func changeConfig(path, mempool string) error {
 	cfg := map[string]map[string]interface{}{
 		"mempool": {
-			"version": "v1",
+			"version": mempool,
 		},
 		"consensus": {
 			"timeout_propose":   "10s",
@@ -269,6 +269,8 @@ func changeConfig(path string) error {
 			"max_header_bytes":             6048576,
 		},
 		"p2p": {
+			"max_num_inbound_peers":       40,
+			"max_num_outbound_peers":      30,
 			"send_rate":                   10240000,
 			"recv_rate":                   10240000,
 			"max_packet_msg_payload_size": 1024,

@@ -71,8 +71,7 @@ func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid names
 		return err
 	}
 
-	allConcatData := bytes.Join(shares, nid)
-	if len(allConcatData) >= len(expectedData) {
+	if len(shares) >= len(expectedData) {
 		return nil
 	}
 
