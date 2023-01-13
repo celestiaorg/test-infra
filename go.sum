@@ -227,8 +227,6 @@ github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOC
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20-cat-simple-1 h1:jqe/AxfEUYSt4bpcnQGZbA7E0u+x7mt8/5h1VhHhv1I=
 github.com/celestiaorg/celestia-core v1.5.0-tm-v0.34.20-cat-simple-1/go.mod h1:f4R8qNJrP1CDH0SNwj4jA3NymBLQM4lNdx6Ijmfllbw=
-github.com/celestiaorg/celestia-node v0.6.2-rc1.0.20230110110511-e1eaa5f957e8 h1:pDdDwZkwEEo5w8JUbdPqM7sJam7/y0cSq4iLt0Rn87s=
-github.com/celestiaorg/celestia-node v0.6.2-rc1.0.20230110110511-e1eaa5f957e8/go.mod h1:9vJFhtDXnoua7YLBcCHgAtZfrt5VYdA0n+Z1Dg/Qa6A=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659 h1:f3205vw3GYBtMiNoS+qB6IuHSs50Iwqsm9lNIikLTCk=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659/go.mod h1:ta/DlqIH10bvhwqJIw51Nq3QU4XVMp6pz3f0Deve9fM=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
@@ -241,8 +239,10 @@ github.com/celestiaorg/nmt v0.11.0 h1:iqTaNwnVzM3njBmPklpHzb3A4Xy/JKahoclRPbAzxN
 github.com/celestiaorg/nmt v0.11.0/go.mod h1:NN3W8EEoospv8EHCw50DDNWwPLpJkFHoEFiqCEcNCH4=
 github.com/celestiaorg/quantum-gravity-bridge v1.2.0 h1:l/LEEUP+x8MhhXB8rrWkyUVFZgQj1Ur/TAwUpnyLK38=
 github.com/celestiaorg/quantum-gravity-bridge v1.2.0/go.mod h1:6WOajINTDEUXpSj5UZzod16UZ96ZVB/rFNKyM+Mt1gI=
-github.com/celestiaorg/rsmt2d v0.7.0 h1:r8fybOWhE2/VJ2XEJ6BncnYTSlLYx2c7dQDUD+5hBqg=
-github.com/celestiaorg/rsmt2d v0.7.0/go.mod h1:hhlsTi6G3+X5jOP/8Lb/d7i5y2XNFmnyMddYbFSmrgo=
+github.com/celestiaorg/rsmt2d v0.8.0 h1:ZUxTCELZCM9zMGKNF3cT+rUqMddXMeiuyleSJPZ3Wn4=
+github.com/celestiaorg/rsmt2d v0.8.0/go.mod h1:hhlsTi6G3+X5jOP/8Lb/d7i5y2XNFmnyMddYbFSmrgo=
+github.com/celestiaorg/utils v0.0.0-20230111201732-2d8b5f8774ad h1:DHLh9QR6vWe47XsNFw5HNoKYXZBcrMgQtEDeoFo2dtY=
+github.com/celestiaorg/utils v0.0.0-20230111201732-2d8b5f8774ad/go.mod h1:vQTh7MHnvpIeCQZ2/Ph+w7K1R2UerDheZbgJEJD2hSU=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
@@ -375,6 +375,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2U
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/deepmap/oapi-codegen v1.6.0/go.mod h1:ryDa9AgbELGeB+YEXE1dR53yAjHwFvE9iAUlWl9Al3M=
 github.com/deepmap/oapi-codegen v1.8.2/go.mod h1:YLgSKSDv/bZQB7N4ws6luhozi3cEdRktEqrX88CvjIw=
+github.com/derrandz/celestia-node v0.4.2-0.20230111204700-3b59ccfad6b1 h1:7ctb8wRlP10+9UNJx/CpZsJISJzOLrOvsJk3XgU8fEE=
+github.com/derrandz/celestia-node v0.4.2-0.20230111204700-3b59ccfad6b1/go.mod h1:AsbNQ7cUapaSRy+2uqSV+jMiDUarkRk2vquRIlhNzbk=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f h1:U5y3Y5UE0w7amNe7Z5G/twsBW0KEalRQXZzf8ufSh9I=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f/go.mod h1:xH/i4TFMt8koVQZ6WFms69WAsDWr2XsYL3Hkl7jkoLE=
 github.com/dgraph-io/badger v1.5.5-0.20190226225317-8115aed38f8f/go.mod h1:VZxzAIRPHRVNRKRo6AXrX9BJegn6il06VMTZVJYCIjQ=

@@ -1,0 +1,10 @@
+[aws]
+    region = "eu-west-1"
+[daemon.scheduler]
+    task_timeout_min = 20
+[runners."cluster:k8s"]
+    run_timeout_min = 20
+    autoscaler_enabled = true
+[client]
+    endpoint = "http://adf7b1d20d50d4580b20d17fbf717e5e-654985447.eu-west-1.elb.amazonaws.com:80"
+    user = "vscode"

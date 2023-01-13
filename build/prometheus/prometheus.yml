@@ -1,0 +1,10 @@
+global:
+  scrape_interval: 5s
+  scrape_timeout: 3s
+
+scrape_configs:
+  - job_name: 'collector'
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - 'otel-collector:8889'

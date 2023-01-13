@@ -13,6 +13,7 @@ import (
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
@@ -49,7 +50,19 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
 
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, cfg)
+	nd, err := nodekit.NewNode(
+		ndhome,
+		node.Bridge,
+		cfg,
+		nodebuilder.WithMetrics(
+			[]otlpmetrichttp.Option{
+				otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+				otlpmetrichttp.WithInsecure(),
+			},
+			nodekit.BridgeNodeType,
+		),
+	)
+
 	if err != nil {
 		return nil, err
 	}

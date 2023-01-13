@@ -4,6 +4,8 @@ go 1.19
 
 replace (
 	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.10.0-dirty-app
+	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.4.2-0.20230111204700-3b59ccfad6b1
+	github.com/celestiaorg/utils => github.com/celestiaorg/utils v0.0.0-20230111201732-2d8b5f8774ad // uses an unmerged PR, delete when celestiaorg/utils PR#5 is merged
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.4.0-dirty-sdk-v0.46.0
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
@@ -28,6 +30,7 @@ require (
 	github.com/celestiaorg/nmt v0.11.0
 	github.com/libp2p/go-libp2p v0.24.1
 	github.com/tendermint/tendermint v0.35.4
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.31.0
 	go.uber.org/fx v1.18.2
 )
 
@@ -55,7 +58,8 @@ require (
 	github.com/celestiaorg/go-libp2p-messenger v0.1.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.2.0 // indirect
-	github.com/celestiaorg/rsmt2d v0.7.0 // indirect
+	github.com/celestiaorg/rsmt2d v0.8.0 // indirect
+	github.com/celestiaorg/utils v0.0.1 // indirect
 	github.com/cenkalti/backoff/v4 v4.1.3 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
@@ -284,7 +288,6 @@ require (
 	go.opentelemetry.io/otel v1.11.1 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.10.0 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.31.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.31.0 // indirect
 	go.opentelemetry.io/otel/metric v0.33.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.10.0 // indirect
 	go.opentelemetry.io/otel/sdk/metric v0.31.0 // indirect
