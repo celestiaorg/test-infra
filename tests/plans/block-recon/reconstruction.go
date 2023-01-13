@@ -1,6 +1,9 @@
 package blockrecon
 
 import (
+	"context"
+	"github.com/celestiaorg/test-infra/testkit"
+	appsync "github.com/celestiaorg/test-infra/tests/helpers/app-sync"
 	nodesync "github.com/celestiaorg/test-infra/tests/helpers/node-sync"
 	reconstruction "github.com/celestiaorg/test-infra/tests/helpers/reconstruction"
 	"github.com/testground/sdk-go/run"
@@ -12,6 +15,8 @@ import (
 // More information under docs/test-plans/004-Block-Reconstruction
 func BlockReconstruction(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
+	case "seed":
+		err = appsync.RunSeed(runenv, initCtx)
 	case "validator":
 		err = nodesync.RunAppValidator(runenv, initCtx)
 	case "bridge":
@@ -23,8 +28,11 @@ func BlockReconstruction(runenv *runtime.RunEnv, initCtx *run.InitContext) (err 
 	}
 
 	if err != nil {
+		runenv.RecordFailure(err)
+		initCtx.SyncClient.MustSignalAndWait(context.Background(), testkit.FinishState, runenv.TestInstanceCount)
 		return err
 	}
+
 	runenv.RecordSuccess()
 	return nil
 }

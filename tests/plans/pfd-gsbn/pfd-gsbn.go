@@ -1,6 +1,9 @@
 package pfdgsbn
 
 import (
+	"context"
+	"github.com/celestiaorg/test-infra/testkit"
+	appsync "github.com/celestiaorg/test-infra/tests/helpers/app-sync"
 	fundaccounts "github.com/celestiaorg/test-infra/tests/helpers/fund-accs"
 
 	"github.com/testground/sdk-go/run"
@@ -14,6 +17,8 @@ import (
 // GetSharesByNamespace Checker
 func PayForDataAndGetShares(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
+	case "seed":
+		err = appsync.RunSeed(runenv, initCtx)
 	case "validator":
 		err = fundaccounts.RunAppValidator(runenv, initCtx)
 	case "bridge":
@@ -25,8 +30,11 @@ func PayForDataAndGetShares(runenv *runtime.RunEnv, initCtx *run.InitContext) (e
 	}
 
 	if err != nil {
+		runenv.RecordFailure(err)
+		initCtx.SyncClient.MustSignalAndWait(context.Background(), testkit.FinishState, runenv.TestInstanceCount)
 		return err
 	}
+
 	runenv.RecordSuccess()
 	return nil
 }

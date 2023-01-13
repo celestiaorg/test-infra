@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"fmt"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"io"
 	"net"
 	"os"
@@ -20,7 +21,8 @@ import (
 func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*appkit.AppKit, error) {
 	syncclient := initCtx.SyncClient
 
-	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	//home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
+	home := "/.celestia-app"
 	runenv.RecordMessage(home)
 
 	const chainId string = "private"
@@ -76,15 +78,15 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 			return nil, err
 		}
 
-		_, err = syncclient.Publish(ctx, testkit.InitialGenenesisTopic, string(bt))
+		_, err = syncclient.Publish(ctx, testkit.InitialGenesisTopic, string(bt))
 		if err != nil {
 			return nil, err
 		}
 
-		runenv.RecordMessage("Orchestrator has sent initial genesis with accounts")
+		runenv.RecordMessage("Orchestrator has sent initial genesis")
 	} else {
 		initGenCh := make(chan string)
-		sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
+		sub, err := syncclient.Subscribe(ctx, testkit.InitialGenesisTopic, initGenCh)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +105,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	}
 
 	for _, v := range accounts {
-		_, err := cmd.AddGenAccount(v, "1000000000000000utia")
+		_, err := cmd.AddGenAccount(v, "10000000000000000utia")
 		if err != nil {
 			return nil, err
 		}
@@ -171,7 +173,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	err = changeConfig(configPath)
+	err = changeConfig(configPath, "v2")
 	if err != nil {
 		return nil, err
 	}
@@ -181,22 +183,20 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	if initCtx.GroupSeq <= int64(runenv.IntParam("persistent-peers")) {
-		nodeId, err := cmd.GetNodeId()
-		if err != nil {
-			return nil, err
-		}
+	nodeId, err := cmd.GetNodeId()
+	if err != nil {
+		return nil, err
+	}
 
-		_, err = syncclient.Publish(
-			ctx,
-			testkit.ValidatorPeerTopic,
-			&appkit.ValidatorNode{
-				PubKey: nodeId,
-				IP:     ip},
-		)
-		if err != nil {
-			return nil, err
-		}
+	_, err = syncclient.Publish(
+		ctx,
+		testkit.ValidatorPeerTopic,
+		&appkit.ValidatorNode{
+			PubKey: nodeId,
+			IP:     ip},
+	)
+	if err != nil {
+		return nil, err
 	}
 
 	valCh := make(chan *appkit.ValidatorNode)
@@ -205,31 +205,57 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	var persPeers []string
-	for i := 0; i < runenv.IntParam("persistent-peers"); i++ {
+	var peers []appkit.ValidatorNode
+	for i := 0; i < runenv.IntParam("validator"); i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
 				return nil, err
 			}
 		case val := <-valCh:
-			runenv.RecordMessage("Validator Received: %s, %s", val.IP, val.PubKey)
 			if !val.IP.Equal(ip) {
-				persPeers = append(persPeers, fmt.Sprintf("%s@%s", val.PubKey, val.IP.To4().String()))
-			}
-
-			err = appkit.AddPersistentPeers(configPath, persPeers)
-			if err != nil {
-				return nil, err
+				peers = append(peers, *val)
 			}
 		}
 	}
+	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
+
+	randomizer := tmrand.Intn(runenv.IntParam("validator"))
+	runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
+	peersRange := runenv.IntParam("persistent-peers")
+	runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
+	randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
+	if randPeers == nil {
+		return nil, fmt.Errorf("no peers added for validator's addrbook, got %s", randPeers)
+	}
+
+	err = appkit.AddPeersToAddressBook(home, randPeers)
+	if err != nil {
+		return nil, err
+	}
+
+	runenv.RecordMessage("Added %d to the address book", len(randPeers))
 
 	return cmd, nil
 }
 
-func changeConfig(path string) error {
-	cfg := map[string]map[string]string{
+func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.ValidatorNode) []appkit.ValidatorNode {
+	for i := 1; i <= peersRange; i++ {
+		fmt.Println("Iteration of i -> ", i)
+		if randomizer <= peersRange*i {
+			return peers[peersRange*(i-1) : peersRange*i]
+		} else if i > peersRange-1 {
+			return peers[peersRange*(i-1):]
+		}
+	}
+	return nil
+}
+
+func changeConfig(path, mempool string) error {
+	cfg := map[string]map[string]interface{}{
+		"mempool": {
+			"version": mempool,
+		},
 		"consensus": {
 			"timeout_propose":   "10s",
 			"timeout_prevote":   "1s",
@@ -237,9 +263,24 @@ func changeConfig(path string) error {
 			"timeout_commit":    "15s",
 		},
 		"rpc": {
-			"timeout_broadcast_tx_commit": "30s",
-			"max_body_bytes":              "1000000",
-			"max_header_bytes":            "1048576",
+			"max_subscriptions_per_client": 150,
+			"timeout_broadcast_tx_commit":  "40s",
+			"max_body_bytes":               6000000,
+			"max_header_bytes":             6048576,
+		},
+		"p2p": {
+			"max_num_inbound_peers":       40,
+			"max_num_outbound_peers":      30,
+			"send_rate":                   10240000,
+			"recv_rate":                   10240000,
+			"max_packet_msg_payload_size": 1024,
+			"persistent_peers":            "",
+		},
+		"instrumentation": {
+			"prometheus":             true,
+			"prometheus_listen_addr": ":26660",
+			"max_open_connections":   100,
+			"namespace":              "default",
 		},
 	}
 

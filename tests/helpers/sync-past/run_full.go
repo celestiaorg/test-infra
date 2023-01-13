@@ -99,7 +99,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	if nd.HeaderServ.IsSyncing() {
+	if nd.HeaderServ.IsSyncing(ctx) {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 

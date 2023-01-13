@@ -5,19 +5,21 @@
 [global]
   plan = "celestia"
   case = "001-val-large-txs"
-  total_instances = 80
+  total_instances = 83
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
-
-[global.run.test_params]
-  execution-time = "10"
-  latency = "0"
-  bandwidth = "320Mib"
-  validator = "80"
-  persistent-peers = "10"
-  submit-times = "10"
-  msg-size = "90000"
+  [global.run]
+    artifact = ""
+    [global.run.test_params]
+      bandwidth = "320Mib"
+      execution-time = "10"
+      latency = "0"
+      msg-size = "90000"
+      persistent-peers = "10"
+      seed = "3"
+      submit-times = "10"
+      validator = "80"
 
 [[groups]]
   id = "validators"
@@ -27,6 +29,24 @@
     cpu = "4"
   [groups.instances]
     count = 80
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+
+[[groups]]
+  id = "seeds"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "4Gi"
+    cpu = "3"
+  [groups.instances]
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
