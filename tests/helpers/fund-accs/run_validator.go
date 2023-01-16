@@ -1,7 +1,14 @@
 package fundaccounts
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"io"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit"
@@ -53,12 +60,56 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("starting........")
-	go appcmd.StartNode("error")
+	if initCtx.GroupSeq == 1 {
+		ip, err := netclient.GetDataNetworkIP()
+		if err != nil {
+			return err
+		}
+
+		_, err = syncclient.Publish(ctx, testkit.CurlGenesisState, ip.To4().String())
+		if err != nil {
+			return err
+		}
+
+		go appcmd.StartNode("info")
+	}
+
+	seedCh := make(chan *appkit.ValidatorNode)
+	sub, err := syncclient.Subscribe(ctx, testkit.SeedNodeTopic, seedCh)
+	if err != nil {
+		return err
+	}
+
+	var seedPeers []string
+	for i := 0; i < runenv.IntParam("seed"); i++ {
+		select {
+		case err := <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case seed := <-seedCh:
+			seedPeers = append(seedPeers, fmt.Sprintf("%s@%s", seed.PubKey, seed.IP.To4().String()))
+		}
+	}
+
+	configPath := filepath.Join(appcmd.Home, "config", "config.toml")
+	err = appkit.AddSeedPeers(configPath, seedPeers)
+	if err != nil {
+		return err
+	}
+
+	if initCtx.GroupSeq != 1 {
+		runenv.RecordMessage("starting........")
+		go appcmd.StartNode("info")
+	}
 
 	// wait for a new block to be produced
-	// RPC is also being initialized...
 	time.Sleep(1 * time.Minute)
+
+	_, err = syncclient.SignalEntry(ctx, "validator-ready")
+	if err != nil {
+		return err
+	}
 
 	runenv.RecordMessage("publishing app-validator address")
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
@@ -66,11 +117,19 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	var prefix int
+	if runenv.TestGroupID == "validators-v2" {
+		prefix = 50
+	} else {
+		prefix = 0
+	}
+
+	appId := int(initCtx.GroupSeq) + prefix
 	_, err = syncclient.Publish(
 		ctx,
 		testkit.AppNodeTopic,
 		&testkit.AppNodeInfo{
-			ID: int(initCtx.GroupSeq),
+			ID: appId,
 			IP: ip,
 		},
 	)
@@ -80,12 +139,12 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	accsCh := make(chan string)
 	runenv.RecordMessage("start funding celestia-node accounts")
-	sub, err := syncclient.Subscribe(ctx, testkit.FundAccountTopic, accsCh)
+	sub, err = syncclient.Subscribe(ctx, testkit.FundAccountTopic, accsCh)
 	if err != nil {
 		return err
 	}
 
-	total := runenv.TestInstanceCount - runenv.IntParam("validator")
+	total := runenv.TestInstanceCount - runenv.IntParam("validator") - runenv.IntParam("seed")
 	var fundAccs []string
 	for i := 0; i < total; i++ {
 		select {
@@ -94,25 +153,64 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 				return err
 			}
 		case account := <-accsCh:
-			runenv.RecordMessage(account)
 			fundAccs = append(fundAccs, account)
 		}
 	}
 
-	err = appcmd.FundAccounts(
-		appcmd.AccountAddress,
-		"10000000utia",
-		"test",
-		appcmd.GetHomePath(),
-		fundAccs...)
-	if err != nil {
-		return err
+	// var i is the range we take on funding accounts in 1 block
+	for i := 0; i < len(fundAccs); i += 50 {
+		accsRange := fundAccs[i : i+50]
+		err = appcmd.FundAccounts(
+			appcmd.AccountAddress,
+			"10000000utia",
+			"test",
+			appcmd.GetHomePath(),
+			accsRange...)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.AccountsFundedState)
 	if err != nil {
 		return err
 	}
+
+	go func() {
+		timeout := time.After(4 * time.Minute)
+		ticker := time.NewTicker(15 * time.Second)
+
+		for {
+			fs, err := os.ReadDir(fmt.Sprintf("%s/data", appcmd.Home))
+			if err != nil {
+				return
+			}
+			select {
+			case <-timeout:
+				return
+			case <-ticker.C:
+				// slice is needed because of auto-gen metrics.json file
+				for _, f := range fs {
+					met, err := os.Open(fmt.Sprintf("%s/data/%s", appcmd.Home, f.Name()))
+					if err != nil {
+						return
+					}
+
+					bt, err := io.ReadAll(met)
+					if err != nil {
+						return
+					}
+
+					var pjson bytes.Buffer
+					if err := json.Indent(&pjson, bt, "", "    "); err != nil {
+						return
+					}
+					fmt.Println(pjson.String())
+				}
+			}
+		}
+
+	}()
 
 	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {

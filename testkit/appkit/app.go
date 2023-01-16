@@ -3,6 +3,8 @@ package appkit
 import (
 	"bytes"
 	"fmt"
+	"github.com/tendermint/tendermint/p2p"
+	"github.com/tendermint/tendermint/p2p/pex"
 	"io"
 	"net"
 	"net/http"
@@ -30,7 +32,7 @@ type ValidatorNode struct {
 
 type AppKit struct {
 	m              sync.Mutex
-	home           string
+	Home           string
 	AccountAddress string
 	ChainId        string
 	Cmd            *cobra.Command
@@ -42,7 +44,7 @@ func wrapFlag(str string) string {
 
 func New(path, chainId string) *AppKit {
 	return &AppKit{
-		home:    path,
+		Home:    path,
 		ChainId: chainId,
 		Cmd:     appcmd.NewRootCmd(),
 	}
@@ -77,7 +79,7 @@ func (ak *AppKit) execCmd(args []string) (output string, err error) {
 }
 
 func (ak *AppKit) GetHomePath() string {
-	return ak.home
+	return ak.Home
 }
 
 func (ak *AppKit) InitChain(moniker string) (string, error) {
@@ -88,7 +90,7 @@ func (ak *AppKit) InitChain(moniker string) (string, error) {
 			wrapFlag(flags.FlagChainID),
 			ak.ChainId,
 			wrapFlag(flags.FlagHome),
-			ak.home,
+			ak.Home,
 		},
 	)
 }
@@ -102,7 +104,7 @@ func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
 			wrapFlag(flags.FlagKeyringBackend),
 			krbackend,
 			wrapFlag(flags.FlagHome),
-			ak.home,
+			ak.Home,
 			wrapFlag(flags.FlagKeyringDir),
 			krpath,
 		},
@@ -119,7 +121,7 @@ func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
 			wrapFlag(flags.FlagKeyringBackend),
 			krbackend,
 			wrapFlag(flags.FlagHome),
-			ak.home,
+			ak.Home,
 			wrapFlag(flags.FlagKeyringDir),
 			krpath,
 		},
@@ -129,7 +131,7 @@ func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
 func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
 	return ak.execCmd(
 		[]string{"add-genesis-account", addr, amount,
-			wrapFlag(flags.FlagHome), ak.home,
+			wrapFlag(flags.FlagHome), ak.Home,
 		},
 	)
 }
@@ -140,36 +142,57 @@ func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, 
 		return "", err
 	}
 
-	return ak.execCmd(
-		[]string{
-			"gentx",
-			accName,
-			amount,
-			wrapFlag(flags.FlagOrchestratorAddress),
-			ak.AccountAddress,
-			wrapFlag(flags.FlagEVMAddress),
-			ethAddress.String(),
-			wrapFlag(flags.FlagKeyringBackend),
-			krbackend,
-			wrapFlag(flags.FlagChainID),
-			ak.ChainId,
-			wrapFlag(flags.FlagHome),
-			ak.home,
-			wrapFlag(flags.FlagKeyringDir),
-			krpath,
-		},
-	)
+	args := []string{
+		"gentx",
+		accName,
+		amount,
+		wrapFlag(flags.FlagOrchestratorAddress),
+		ak.AccountAddress,
+		wrapFlag(flags.FlagEVMAddress),
+		ethAddress.String(),
+		wrapFlag(flags.FlagKeyringBackend),
+		krbackend,
+		wrapFlag(flags.FlagChainID),
+		ak.ChainId,
+		wrapFlag(flags.FlagHome),
+		ak.Home,
+		wrapFlag(flags.FlagKeyringDir),
+		krpath,
+	}
+
+	ak.Cmd.ResetFlags()
+
+	ak.m.Lock()
+
+	ak.Cmd.SetArgs(args)
+	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
+		return "", err
+	}
+
+	ak.m.Unlock()
+
+	return "", nil
 }
 
 func (ak *AppKit) CollectGenTxs() (string, error) {
-	return ak.execCmd(
-		[]string{"collect-gentxs", wrapFlag(flags.FlagHome), ak.home},
-	)
+	args := []string{"collect-gentxs", wrapFlag(flags.FlagHome), ak.Home}
+	ak.Cmd.ResetFlags()
+
+	ak.m.Lock()
+
+	ak.Cmd.SetArgs(args)
+	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
+		return "", err
+	}
+
+	ak.m.Unlock()
+
+	return "", nil
 }
 
 func (ak *AppKit) GetNodeId() (string, error) {
 	return ak.execCmd(
-		[]string{"tendermint", "show-node-id", wrapFlag(flags.FlagHome), ak.home},
+		[]string{"tendermint", "show-node-id", wrapFlag(flags.FlagHome), ak.Home},
 	)
 }
 
@@ -181,7 +204,7 @@ func (ak *AppKit) StartNode(loglvl string) error {
 		[]string{
 			"start",
 			wrapFlag(flags.FlagHome),
-			ak.home,
+			ak.Home,
 			wrapFlag(flags.FlagLogLevel),
 			loglvl,
 			wrapFlag(flags.FlagLogFormat),
@@ -198,14 +221,14 @@ func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddr
 	args = append(args, amount,
 		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),
-		wrapFlag(flags.FlagGas), "1000000",
+		wrapFlag(flags.FlagGas), "2000000",
 		wrapFlag(flags.FlagFees), "100000utia",
 		wrapFlag(flags.FlagKeyringBackend),
 		krbackend,
 		wrapFlag(flags.FlagChainID),
 		ak.ChainId,
 		wrapFlag(flags.FlagHome),
-		ak.home,
+		ak.Home,
 		wrapFlag(flags.FlagKeyringDir),
 		krpath,
 	)
@@ -230,12 +253,37 @@ func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, krpath string) e
 		wrapFlag(flags.FlagChainID),
 		ak.ChainId,
 		wrapFlag(flags.FlagHome),
-		ak.home,
+		ak.Home,
 		wrapFlag(flags.FlagKeyringDir),
 		krpath,
 	})
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
+}
+
+func GetGenesisState(uri string) (*coretypes.ResultGenesis, error) {
+	resp, err := http.Get(uri)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var rpcResponse types.RPCResponse
+	if err := rpcResponse.UnmarshalJSON(body); err != nil {
+		return nil, err
+	}
+
+	var genState *coretypes.ResultGenesis
+	if err := tmjson.Unmarshal(rpcResponse.Result, &genState); err != nil {
+		return nil, err
+	}
+
+	return genState, nil
 }
 
 func getResultBlockResponse(uri string) (*coretypes.ResultBlock, error) {
@@ -319,6 +367,7 @@ func AddSeedPeers(path string, peers []string) error {
 		}
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
+
 	return updateConfig(path, "p2p.seeds", peersStr.String())
 }
 
@@ -335,6 +384,33 @@ func AddPersistentPeers(path string, peers []string) error {
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
 	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
+}
+
+func AddPeersToAddressBook(path string, peers []ValidatorNode) error {
+	var filePath string = fmt.Sprintf("%s/config/addrbook.json", path)
+
+	_, err := os.Create(filePath)
+	if err != nil {
+		return err
+	}
+	addrBook := pex.NewAddrBook(filePath, false)
+
+	for _, peer := range peers {
+		if peer.IP != nil {
+			netAddr := p2p.NetAddress{
+				ID:   p2p.ID(peer.PubKey),
+				IP:   peer.IP,
+				Port: 26656,
+			}
+			err = addrBook.AddAddress(&netAddr, &netAddr)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	addrBook.Save()
+	return nil
 }
 
 func ChangeRPCServerAddress(path string, ip net.IP) error {

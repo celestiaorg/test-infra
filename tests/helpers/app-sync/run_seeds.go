@@ -3,7 +3,7 @@ package appsync
 import (
 	"context"
 	"fmt"
-	"os"
+	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"path/filepath"
 	"time"
 
@@ -16,11 +16,9 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-// TODO(@Bidon15): seed nodes are not working as expected
-// Now this code is not used anywhere in test-plan/cases
-// More info to follow up: https://github.com/tendermint/tendermint/issues/9289
+// RunSeed configures a tendermint full node running with seed settings
 func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*time.Duration(runenv.IntParam("execution-time")))
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -55,40 +53,94 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	runenv.RecordMessage(home)
 
-	cmd := appkit.New(home, "tia-test")
+	cmd := appkit.New(home, "private")
+	configPath := filepath.Join(home, "config", "config.toml")
+
+	moniker := fmt.Sprintf("seed-%d", initCtx.GroupSeq)
+	_, err = cmd.InitChain(moniker)
+	if err != nil {
+		return err
+	}
+	runenv.RecordMessage("Chain initialised")
+
+	valCh := make(chan *appkit.ValidatorNode)
+	sub, err := syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+
+	if err != nil {
+		return err
+	}
+
+	var peers []appkit.ValidatorNode
+	for i := 0; i < runenv.IntParam("validator"); i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case val := <-valCh:
+			peers = append(peers, *val)
+		}
+	}
+	runenv.RecordMessage("Received %d Validator peers", len(peers))
+
+	randomizer := tmrand.Intn(runenv.IntParam("validator"))
+	peersRange := runenv.IntParam("validator") / runenv.IntParam("seed")
+	randPeers := common.GetRandomisedPeers(randomizer, peersRange, peers)
+	if randPeers == nil {
+		return fmt.Errorf("no peers added for seed's addrbook, got %s", randPeers)
+	}
+
+	err = appkit.AddPeersToAddressBook(home, randPeers)
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("Added %d to the address book", len(randPeers))
+
+	ipCh := make(chan *string)
+	sub, err = syncclient.Subscribe(ctx, testkit.CurlGenesisState, ipCh)
+	if err != nil {
+		return err
+	}
+
+	var uri string
+	select {
+	case err := <-sub.Done():
+		if err != nil {
+			return err
+		}
+	case ip := <-ipCh:
+		runenv.RecordMessage("curling genesis state from this validator's ip - %s", *ip)
+		time.Sleep(30 * time.Second)
+
+		// We need to curl the instance 1 with RPC to get the genesis.json file
+		// Only 1 validator must fire up to provide the RPC
+		uri = fmt.Sprintf("http://%s:26657/genesis", *ip)
+	}
+
+	genState, err := appkit.GetGenesisState(uri)
+	if err != nil {
+		return err
+	}
+
+	err = genState.Genesis.SaveAs(fmt.Sprintf("%s/config/genesis.json", home))
+	if err != nil {
+		return err
+	}
 
 	nodeId, err := cmd.GetNodeId()
 	if err != nil {
 		return err
 	}
 
-	initGenCh := make(chan string)
-	sub, err := syncclient.Subscribe(ctx, testkit.InitialGenenesisTopic, initGenCh)
-	if err != nil {
-		return err
-	}
-	select {
-	case err = <-sub.Done():
-		if err != nil {
-			return err
-		}
-	case initGen := <-initGenCh:
-		err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
-		if err != nil {
-			return err
-		}
-	}
-	runenv.RecordMessage("Validator has received the initial genesis")
-
-	configPath := filepath.Join(home, "config", "config.toml")
-	err = appkit.ChangeConfigParam(configPath, "p2p", "seed_mode", true)
+	err = changeConfig(configPath)
 	if err != nil {
 		return err
 	}
 
 	_, err = syncclient.Publish(
 		ctx,
-		testkit.ValidatorPeerTopic,
+		testkit.SeedNodeTopic,
 		&appkit.ValidatorNode{
 			PubKey: nodeId,
 			IP:     config.IPv4.IP},
@@ -99,10 +151,33 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	go cmd.StartNode("info")
 
-	// // wait for a new block to be produced
-	time.Sleep(1 * time.Minute)
+	// wait and crawl
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
+	if err != nil {
+		return err
+	}
 
-	runenv.RecordSuccess()
+	return nil
+}
 
+func changeConfig(path string) error {
+	cfg := map[string]map[string]interface{}{
+		"p2p": {
+			"seed_mode":                   true,
+			"max_num_inbound_peers":       100,
+			"max_num_outbound_peers":      100,
+			"max_packet_msg_payload_size": 1024,
+			"persistent_peers":            "",
+		},
+	}
+
+	for i, j := range cfg {
+		for k, v := range j {
+			err := appkit.ChangeConfigParam(path, i, k, v)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }

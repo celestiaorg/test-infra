@@ -3,6 +3,7 @@ package common
 import (
 	"bytes"
 	"context"
+	"cosmossdk.io/math"
 	"fmt"
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-node/header"
@@ -47,7 +48,8 @@ func GetRandomMessageBySize(size int) []byte {
 
 // SubmitData calls a node.StateService SubmitPayForData() method with recording a txLog output.
 func SubmitData(ctx context.Context, runenv *runtime.RunEnv, nd *nodebuilder.Node, nid namespace.ID, data []byte) error {
-	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, gasLimit)
+	fee := math.NewInt(30000)
+	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, fee, gasLimit)
 	if err != nil {
 		return err
 	}
@@ -69,8 +71,7 @@ func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid names
 		return err
 	}
 
-	allConcatData := bytes.Join(shares, nid)
-	if len(allConcatData) >= len(expectedData) {
+	if len(shares) >= len(expectedData) {
 		return nil
 	}
 

@@ -5,20 +5,44 @@
 [global]
   plan = "celestia"
   case = "reconstruction"
-  total_instances = 359
+  total_instances = 364
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
+  [global.run]
+    artifact = ""
+    [global.run.test_params]
+      bridge = "5"
+      execution-time = "20"
+      full = "3"
+      light = "350"
+      msg-size = "10000"
+      persistent-peers = "5"
+      seed = "1"
+      submit-times = "21"
+      validator = "5"
 
-[global.run.test_params]
-  execution-time = "20"
-  persistent-peers = "3"
-  submit-times = "21"
-  msg-size = "10000"
-  validator = "3"
-  bridge = "3"
-  full = "3"
-  light = "350"
+[[groups]]
+  id = "seeds"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "4Gi"
+    cpu = "3"
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+    [groups.run.test_params]
+      bandwidth = "256Mib"
+      latency = "50"
+      role = "seed"
 
 [[groups]]
   id = "validators"
@@ -36,10 +60,11 @@
     go_version = "1.19"
   [groups.build]
   [groups.run]
+    artifact = ""
     [groups.run.test_params]
-    latency = "50"
-    bandwidth = "256Mib"
-    role = "validator"
+      bandwidth = "256Mib"
+      latency = "50"
+      role = "validator"
 
 [[groups]]
   id = "bridges"
@@ -57,11 +82,12 @@
     go_version = "1.19"
   [groups.build]
   [groups.run]
+    artifact = ""
     [groups.run.test_params]
-    latency = "50"
-    bandwidth = "256Mib"
-    block-height = "5"
-    role = "bridge"
+      bandwidth = "256Mib"
+      block-height = "5"
+      latency = "50"
+      role = "bridge"
 
 [[groups]]
   id = "fulls"
@@ -79,11 +105,12 @@
     go_version = "1.19"
   [groups.build]
   [groups.run]
+    artifact = ""
     [groups.run.test_params]
-    latency = "50"
-    bandwidth = "256Mib"
-    block-height = "5"
-    role = "full"
+      bandwidth = "256Mib"
+      block-height = "5"
+      latency = "50"
+      role = "full"
 
 [[groups]]
   id = "lights"
@@ -101,8 +128,9 @@
     go_version = "1.19"
   [groups.build]
   [groups.run]
+    artifact = ""
     [groups.run.test_params]
-    latency = "50"
-    bandwidth = "256Mib"
-    block-height = "5"
-    role = "light"
+      bandwidth = "256Mib"
+      block-height = "5"
+      latency = "50"
+      role = "light"

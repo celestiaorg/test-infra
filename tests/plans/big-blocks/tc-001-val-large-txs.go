@@ -1,6 +1,8 @@
 package bigblocks
 
 import (
+	"context"
+	"github.com/celestiaorg/test-infra/testkit"
 	appsync "github.com/celestiaorg/test-infra/tests/helpers/app-sync"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -12,10 +14,16 @@ func ValSubmitLargeTxs(runenv *runtime.RunEnv, initCtx *run.InitContext) (err er
 	switch runenv.TestGroupID {
 	case "validators":
 		err = appsync.RunValidator(runenv, initCtx)
-	// we don't have seeds rn. More info in the func
 	case "seeds":
 		err = appsync.RunSeed(runenv, initCtx)
 	}
 
+	if err != nil {
+		runenv.RecordFailure(err)
+		initCtx.SyncClient.MustSignalAndWait(context.Background(), testkit.FinishState, runenv.TestInstanceCount)
+		return err
+	}
+
+	runenv.RecordSuccess()
 	return err
 }

@@ -2,7 +2,10 @@ package appsync
 
 import (
 	"context"
+	"fmt"
+	"github.com/celestiaorg/test-infra/testkit"
 	"net"
+	"path/filepath"
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit/appkit"
@@ -51,11 +54,51 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("starting........")
-	go appcmd.StartNode("info")
+	if initCtx.GroupSeq == 1 {
+		ip, err := netclient.GetDataNetworkIP()
+		if err != nil {
+			return err
+		}
 
-	// // wait for a new block to be produced
-	time.Sleep(1 * time.Minute)
+		_, err = syncclient.Publish(ctx, testkit.CurlGenesisState, ip.To4().String())
+		if err != nil {
+			return err
+		}
+
+		go appcmd.StartNode("info")
+	}
+
+	seedCh := make(chan *appkit.ValidatorNode)
+	sub, err := syncclient.Subscribe(ctx, testkit.SeedNodeTopic, seedCh)
+	if err != nil {
+		return err
+	}
+
+	var seedPeers []string
+	for i := 0; i < runenv.IntParam("seed"); i++ {
+		select {
+		case err := <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case seed := <-seedCh:
+			seedPeers = append(seedPeers, fmt.Sprintf("%s@%s", seed.PubKey, seed.IP.To4().String()))
+		}
+	}
+
+	configPath := filepath.Join(appcmd.Home, "config", "config.toml")
+	err = appkit.AddSeedPeers(configPath, seedPeers)
+	if err != nil {
+		return err
+	}
+
+	if initCtx.GroupSeq != 1 {
+		runenv.RecordMessage("starting........")
+		go appcmd.StartNode("info")
+	}
+
+	// wait for a new block to be produced
+	time.Sleep(2 * time.Minute)
 
 	for i := 0; i < runenv.IntParam("submit-times"); i++ {
 		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
@@ -78,8 +121,10 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
 	}
 
-	time.Sleep(30 * time.Second)
-	runenv.RecordSuccess()
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
