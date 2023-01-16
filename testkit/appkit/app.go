@@ -368,7 +368,6 @@ func AddSeedPeers(path string, peers []string) error {
 		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
 	}
 
-	fmt.Println(peersStr.String())
 	return updateConfig(path, "p2p.seeds", peersStr.String())
 }
 

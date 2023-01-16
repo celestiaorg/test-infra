@@ -81,7 +81,7 @@ func RunSeed(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			peers = append(peers, *val)
 		}
 	}
-	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
+	runenv.RecordMessage("Received %d Validator peers", len(peers))
 
 	randomizer := tmrand.Intn(runenv.IntParam("validator"))
 	peersRange := runenv.IntParam("validator") / runenv.IntParam("seed")
