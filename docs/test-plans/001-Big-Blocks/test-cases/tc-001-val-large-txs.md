@@ -22,7 +22,5 @@
 
 | Number of Validators<br />`I` |            Bandwidth / Latency per validator<br />`J`             | KB of random data<br />`X` | Submit amount<br />`Y` |
 |:-----------------------------:|:-----------------------------------------------------------------:|:--------------------------:|:----------------------:|
-|              20               | 1. 256MiB / 0ms <br /> 2. 256MiB / 100ms <br /> 3. 256MiB / 200ms |            380             |           10           |
 |              40               |  1. 256MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |            180             |           10           |
-|              80               |  1. 320MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |             90             |           10           |
 |              100              |  1. 320MiB / 0ms <br />2. 320MiB / 100ms <br />3. 320MiB / 200ms  |             70             |           10           |

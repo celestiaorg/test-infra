@@ -19,7 +19,7 @@ be applied for them, too as we are having for current implementation(Go)
 
 ## In-Scope
 
-- Max 4 MB block size
+- Max 8 MB block size
 - Celestia App Instances
   - We are covering here only `validator` mode
   - 40/100 validators’ set
