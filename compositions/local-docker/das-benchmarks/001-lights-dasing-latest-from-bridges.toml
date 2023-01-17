@@ -16,6 +16,7 @@
 [global.run.test_params]
   execution-time = "4"
   persistent-peers = "1"
+  block-height = "10"
   submit-times = "10"
   msg-size = "700000"
   bridge = "1"

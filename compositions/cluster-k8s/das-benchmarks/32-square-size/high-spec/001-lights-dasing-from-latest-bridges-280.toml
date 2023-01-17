@@ -5,19 +5,22 @@
 [global]
   plan = "celestia"
   case = "001-lights-dasing-latest-from-bridges"
-  total_instances = 502
+  total_instances = 282
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
 
+# we define 1 validator that produces 8mb blocks
+# the msg-size does not result in exactly 8mb
+# because we are accounting for padding
 [global.run.test_params]
   execution-time = "10"
   persistent-peers = "1"
   submit-times = "10"
-  msg-size = "700000"
+  msg-size = "600000"
   validator = "1"
   bridge = "1"
-  light = "500"
+  light = "280"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
 
@@ -25,8 +28,8 @@
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "1"
+    memory = "12Gi"
+    cpu = "4"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -59,18 +62,18 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "50"
-    bandwidth = "256Mib"
+    latency = "0"
+    bandwidth = "1Gi"
     role = "bridge"
 
 [[groups]]
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "2Gi"
-    cpu = "2000m"
+    memory = "12Gi"
+    cpu = "4"
   [groups.instances]
-    count = 500
+    count = 280
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -80,6 +83,6 @@
   [groups.build]
   [groups.run]
     [groups.run.test_params]
-    latency = "50"
+    latency = "0"
     bandwidth = "256Mib"
     role = "light"

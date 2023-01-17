@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "001-lights-dasing-latest-from-bridges"
-  total_instances = 102
+  total_instances = 1002
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -17,10 +17,10 @@
   execution-time = "10"
   persistent-peers = "1"
   submit-times = "10"
-  msg-size = "700000"
+  msg-size = "600000"
   validator = "1"
   bridge = "1"
-  light = "100"
+  light = "1000"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
 
@@ -49,8 +49,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "8Gi"
-    cpu = "2"
+    memory = "4Gi"
+    cpu = "1"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -71,9 +71,9 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "1Gi"
-    cpu = "1000m"
+    cpu = "2000m"
   [groups.instances]
-    count = 100
+    count = 1000
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

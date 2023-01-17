@@ -48,7 +48,14 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	appcmd, err := common.BuildValidator(ctx, runenv, initCtx)
+	// false to disable peer discovery since we are runnign a singular validator
+	appcmd, err := common.BuildValidator(ctx, runenv, initCtx, false)
+	if err != nil {
+		return err
+	}
+
+	// signal startup
+	_, err = syncclient.SignalEntry(ctx, testkit.ValidatorReadyTopic)
 	if err != nil {
 		return err
 	}
@@ -92,28 +99,25 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordFailure(lerr)
 	}
 
-	for i := 0; i < runenv.IntParam("block-height"); i++ {
+	for j := 0; j < runenv.IntParam("submit-times"); j++ {
 		start := time.Now()
-		for j := 0; j < runenv.IntParam("submit-times"); j++ {
-			runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
-			err = appcmd.PayForData(
-				appcmd.AccountAddress,
-				runenv.IntParam("msg-size"),
-				"test",
-				appcmd.GetHomePath(),
-			)
-			if err != nil {
-				runenv.RecordFailure(err)
-				return err
-			}
+		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
+		err = appcmd.PayForData(
+			appcmd.AccountAddress,
+			runenv.IntParam("msg-size"),
+			"test",
+			appcmd.GetHomePath(),
+		)
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
 		}
 
-		s, h, err := appkit.GetLatestBlockSizeAndHeight(net.ParseIP("127.0.0.1"))
+		_, h, err := appkit.GetLatestBlockSizeAndHeight(net.ParseIP("127.0.0.1"))
 		if err != nil {
 			runenv.RecordMessage("err in last size call, %s", err.Error())
 		}
 
-		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
 		runenv.R().RecordPoint(fmt.Sprintf("validator.time_to_produce_block,height=%v", h), float64(time.Since(start).Milliseconds()))
 	}
 

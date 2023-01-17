@@ -96,12 +96,30 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	runenv.RecordMessage("Starting light node")
 	err = nd.Start(ctx)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	runenv.R().Counter("light-nodes-counter").Inc(1)
+
+	// wait for the bridge node
+	l, err := syncclient.Barrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge"))
+	if err != nil {
+		runenv.RecordFailure(err)
+	}
+	lerr := <-l.C
+	if lerr != nil {
+		runenv.RecordFailure(lerr)
+	}
+
+	// signal startup
+	_, err = syncclient.SignalEntry(ctx, testkit.LightNodesStartedState)
+	if err != nil {
+		return err
+	}
 
 	// wait for the core network to reach height 1
 	_, err = nd.HeaderServ.GetByHeight(ctx, uint64(1))
@@ -114,11 +132,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	err = nd.DASer.WaitCatchUp(ctx)
 	if err != nil {
 		runenv.RecordFailure(fmt.Errorf("Error while waiting for the DASer to catch up, %s", err))
-		return err
-	}
-
-	_, err = syncclient.SignalEntry(ctx, testkit.LightNodesStartedState)
-	if err != nil {
 		return err
 	}
 

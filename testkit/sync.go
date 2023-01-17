@@ -55,4 +55,5 @@ var (
 	AccountsFundedState      = sync.State("accounts-funded")
 	FinishState              = sync.State("test-finished")
 	LightNodesStartedState   = sync.State("light-nodes-started")
+	ValidatorReadyTopic      = sync.State("validator-ready")
 )

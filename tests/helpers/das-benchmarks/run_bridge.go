@@ -59,6 +59,20 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	_, err = syncclient.SignalEntry(ctx, testkit.BridgeStartedState)
+	if err != nil {
+		return err
+	}
+
+	l, err := syncclient.Barrier(ctx, testkit.LightNodesStartedState, runenv.IntParam("light"))
+	if err != nil {
+		runenv.RecordFailure(err)
+	}
+	lerr := <-l.C
+	if lerr != nil {
+		runenv.RecordFailure(lerr)
+	}
+
 	for i := 0; i < runenv.IntParam("block-height"); i++ {
 		start := time.Now()
 		// After reaching a dedicated block-height, we can signal other node types
@@ -76,7 +90,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		)
 	}
 
-	if nd.HeaderServ.IsSyncing() {
+	if nd.HeaderServ.IsSyncing(ctx) {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
 

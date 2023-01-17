@@ -4,7 +4,7 @@ go 1.19
 
 replace (
 	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.10.0-dirty-app
-	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.4.2-0.20230111204700-3b59ccfad6b1
+	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.4.2-0.20230117150958-aa544810308d
 	github.com/celestiaorg/utils => github.com/celestiaorg/utils v0.0.0-20230111201732-2d8b5f8774ad // uses an unmerged PR, delete when celestiaorg/utils PR#5 is merged
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.4.0-dirty-sdk-v0.46.0
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
