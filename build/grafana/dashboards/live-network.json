@@ -1058,10 +1058,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -1124,10 +1120,6 @@
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
           },
@@ -1392,7 +1384,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -1472,10 +1465,9 @@
     "list": [
       {
         "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "12D3KooWHg8gqNfAD2XRpAudvvpVmy77sXeAC3LuebiqXsaBUuxM",
+          "value": "12D3KooWHg8gqNfAD2XRpAudvvpVmy77sXeAC3LuebiqXsaBUuxM"
         },
         "datasource": {
           "type": "prometheus",
@@ -1550,8 +1542,8 @@
     "type": "timepicker"
   },
   "timezone": "browser",
-  "title": "Live Network Light Nodes Metrics",
+  "title": "Live Network Light Nodes Metrics -",
   "uid": "Fccs8xxTacVj",
-  "version": 8,
+  "version": 11,
   "weekStart": ""
 }
