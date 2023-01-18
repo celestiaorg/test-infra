@@ -19,6 +19,7 @@ func LightsDasingLatest(runenv *runtime.RunEnv, initCtx *run.InitContext) (err e
 	}
 
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 

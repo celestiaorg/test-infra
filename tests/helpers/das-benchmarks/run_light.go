@@ -2,8 +2,8 @@ package dasbenchmarks
 
 import (
 	"context"
-	"time"
 	"fmt"
+	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -78,15 +78,16 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	trustedPeers := []string{bridgeNode.Maddr}
 	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
+	optlOpts := []otlpmetrichttp.Option{
+		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+		otlpmetrichttp.WithInsecure(),
+	}
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Light,
 		cfg,
 		nodebuilder.WithMetrics(
-			[]otlpmetrichttp.Option{
-				otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-				otlpmetrichttp.WithInsecure(),
-			},
+			optlOpts,
 			nodekit.LightNodeType,
 		),
 		nodebuilder.WithBlackboxMetrics(),
@@ -133,7 +134,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// let the chain move!
 	for i := 1; i < runenv.IntParam("block-height"); i++ {
 		nd.DASer.WaitCatchUp(ctx) // wait for the daser to catch up on every height
 		// wait for the core network to reach height 1
