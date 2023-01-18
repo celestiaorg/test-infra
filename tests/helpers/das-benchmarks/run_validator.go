@@ -2,7 +2,6 @@ package dasbenchmarks
 
 import (
 	"context"
-	"fmt"
 	"net"
 	"time"
 
@@ -100,7 +99,6 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	for j := 0; j < runenv.IntParam("submit-times"); j++ {
-		start := time.Now()
 		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
 		err = appcmd.PayForData(
 			appcmd.AccountAddress,
@@ -113,12 +111,10 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			return err
 		}
 
-		_, h, err := appkit.GetLatestBlockSizeAndHeight(net.ParseIP("127.0.0.1"))
+		_, _, err := appkit.GetLatestBlockSizeAndHeight(net.ParseIP("127.0.0.1"))
 		if err != nil {
 			runenv.RecordMessage("err in last size call, %s", err.Error())
 		}
-
-		runenv.R().RecordPoint(fmt.Sprintf("validator.time_to_produce_block,height=%v", h), float64(time.Since(start).Milliseconds()))
 	}
 
 	time.Sleep(30 * time.Second)

@@ -2,8 +2,8 @@ package dasbenchmarks
 
 import (
 	"context"
-	"fmt"
 	"time"
+	"fmt"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -103,8 +103,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.R().Counter("light-nodes-counter").Inc(1)
-
 	// wait for the bridge node
 	l, err := syncclient.Barrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge"))
 	if err != nil {
@@ -137,19 +135,8 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	// let the chain move!
 	for i := 1; i < runenv.IntParam("block-height"); i++ {
-		start := time.Now()
 		nd.DASer.WaitCatchUp(ctx) // wait for the daser to catch up on every height
-		stats, err := nd.DASer.SamplingStats(ctx)
-		if err != nil {
-			runenv.RecordFailure(err)
-		} else {
-			runenv.R().Gauge("daser-head").Update(
-				float64(stats.SampledChainHead),
-			)
-			runenv.R().RecordPoint(fmt.Sprintf("das.time_to_catch_up,height=%v", stats.SampledChainHead), float64(time.Since(start).Milliseconds()))
-		}
-
-		// wait for the core network to reach height 1ß
+		// wait for the core network to reach height 1
 		myHdr, err := nd.HeaderServ.GetByHeight(ctx, uint64(i+1))
 		if err != nil {
 			runenv.RecordFailure(fmt.Errorf("Error: failed to sync headers, %s", err))
