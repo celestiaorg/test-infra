@@ -571,7 +571,7 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 4,
+        "w": 3,
         "x": 6,
         "y": 7
       },
@@ -640,8 +640,8 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 5,
-        "x": 10,
+        "w": 3,
+        "x": 9,
         "y": 7
       },
       "id": 123134,
@@ -677,6 +677,76 @@
       ],
       "title": "% of DAS Requests > 1s",
       "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lW0MKED4k"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 1000
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 3,
+        "x": 12,
+        "y": 7
+      },
+      "id": 123161,
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
+      "pluginVersion": "9.2.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "lW0MKED4k"
+          },
+          "editorMode": "code",
+          "expr": "avg by (height) (testground_das_sample_time_hist_sum{exported_instance=\"$light_node_id\"}/testground_das_sample_time_hist_count{exported_instance=\"$light_node_id\"})",
+          "format": "heatmap",
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Avg DASing time (ms)",
+      "type": "gauge"
     },
     {
       "datasource": {
@@ -1249,14 +1319,14 @@
             "uid": "lW0MKED4k"
           },
           "editorMode": "code",
-          "expr": "testground_p2p_bandwidth_total_inbound_sum{exported_instance=\"$light_node_id\"}/testground_p2p_bandwidth_total_inbound_count{exported_instance=\"$light_node_id\"}",
+          "expr": "testground_p2p_bandwidth_total_outbound_sum{exported_instance=\"$light_node_id\"}/testground_p2p_bandwidth_total_outbound_count{exported_instance=\"$light_node_id\"}",
           "hide": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Total IN BW",
+      "title": "Total OUT BW",
       "type": "timeseries"
     },
     {
@@ -1323,7 +1393,7 @@
         "x": 12,
         "y": 28
       },
-      "id": 123147,
+      "id": 123159,
       "options": {
         "legend": {
           "calcs": [],
@@ -1343,13 +1413,264 @@
             "uid": "lW0MKED4k"
           },
           "editorMode": "code",
-          "expr": "testground_p2p_bandwidth_total_outbound_sum{exported_instance=\"$light_node_id\"}/testground_p2p_bandwidth_total_inbound_count{exported_instance=\"$light_node_id\"}",
+          "expr": "testground_p2p_bandwidth_total_inbound_sum{exported_instance=\"$light_node_id\"}/testground_p2p_bandwidth_total_inbound_count{exported_instance=\"$light_node_id\"}",
+          "hide": false,
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "Total OUT BW",
+      "title": "Total IN BW",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lW0MKED4k"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 3,
+        "x": 0,
+        "y": 37
+      },
+      "id": 123158,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "lW0MKED4k"
+          },
+          "editorMode": "code",
+          "expr": "count(count by (peer_id) (testground_p2p_total_inbound_by_peer_sum{exported_instance=\"$light_node_id\"}))",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "# Peers Of Current Instance",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lW0MKED4k"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 11,
+        "x": 3,
+        "y": 37
+      },
+      "id": 123147,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "9.2.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "lW0MKED4k"
+          },
+          "editorMode": "code",
+          "expr": "testground_p2p_total_outbound_by_peer_sum{exported_instance=\"$light_node_id\"}/testground_p2p_total_outbound_by_peer_count{exported_instance=\"$light_node_id\"}",
+          "format": "time_series",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total OUT BW by Peer",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lW0MKED4k"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 0,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 10,
+        "x": 14,
+        "y": 37
+      },
+      "id": 123160,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "lW0MKED4k"
+          },
+          "editorMode": "code",
+          "expr": "testground_p2p_total_inbound_by_peer_sum{exported_instance=\"$light_node_id\"}/testground_p2p_total_inbound_by_peer_count{exported_instance=\"$light_node_id\"}",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Total IN BW by Peer",
       "type": "timeseries"
     },
     {
@@ -1400,7 +1721,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 45
       },
       "id": 123127,
       "options": {
@@ -1465,9 +1786,10 @@
     "list": [
       {
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "12D3KooWHg8gqNfAD2XRpAudvvpVmy77sXeAC3LuebiqXsaBUuxM",
-          "value": "12D3KooWHg8gqNfAD2XRpAudvvpVmy77sXeAC3LuebiqXsaBUuxM"
+          "text": "None",
+          "value": ""
         },
         "datasource": {
           "type": "prometheus",
@@ -1544,6 +1866,6 @@
   "timezone": "browser",
   "title": "Live Network Light Nodes Metrics -",
   "uid": "Fccs8xxTacVj",
-  "version": 11,
+  "version": 15,
   "weekStart": ""
 }
