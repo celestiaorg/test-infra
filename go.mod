@@ -26,8 +26,8 @@ require (
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
-	github.com/celestiaorg/celestia-node v0.6.2-rc1.0.20230110110511-e1eaa5f957e8
 	github.com/celestiaorg/nmt v0.12.0
+	github.com/celestiaorg/celestia-node v0.6.2
 	github.com/libp2p/go-libp2p v0.24.1
 	github.com/tendermint/tendermint v0.35.4
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.34.0
