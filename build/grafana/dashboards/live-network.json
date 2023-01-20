@@ -97,6 +97,95 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 2,
+        "x": 2,
+        "y": 0
+      },
+      "id": 123163,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "lW0MKED4k"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "testground_head",
+          "format": "table",
+          "instant": true,
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Network Head",
+      "transformations": [
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Time"
+              }
+            ]
+          }
+        },
+        {
+          "id": "reduce",
+          "options": {
+            "reducers": [
+              "max"
+            ]
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lW0MKED4k"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "mode": "palette-classic"
           },
           "custom": {
@@ -136,8 +225,8 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 13,
-        "x": 2,
+        "w": 11,
+        "x": 4,
         "y": 0
       },
       "id": 123145,
@@ -455,7 +544,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "testground_node_share_blackbox_eds_size_sum{exported_instance=\"$light_node_id\"}",
+          "expr": "testground_node_share_blackbox_eds_size_sum",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -523,7 +612,7 @@
           },
           "editorMode": "code",
           "exemplar": false,
-          "expr": "(testground_node_share_blackbox_eds_size_sum{exported_instance=\"$light_node_id\"})/2",
+          "expr": "(testground_node_share_blackbox_eds_size_sum)/2",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -1786,10 +1875,9 @@
     "list": [
       {
         "current": {
-          "isNone": true,
           "selected": false,
-          "text": "None",
-          "value": ""
+          "text": "12D3KooWF9PnoopchmXBC7RyRFDQyJXRbP218Fidoa3qR8RWqdhR",
+          "value": "12D3KooWF9PnoopchmXBC7RyRFDQyJXRbP218Fidoa3qR8RWqdhR"
         },
         "datasource": {
           "type": "prometheus",
@@ -1866,6 +1954,6 @@
   "timezone": "browser",
   "title": "Live Network Light Nodes Metrics -",
   "uid": "Fccs8xxTacVj",
-  "version": 15,
+  "version": 17,
   "weekStart": ""
 }
