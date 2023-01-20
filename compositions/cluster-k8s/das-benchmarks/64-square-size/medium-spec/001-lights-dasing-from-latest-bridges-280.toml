@@ -14,14 +14,14 @@
 # the msg-size does not result in exactly 8mb
 # because we are accounting for padding
 [global.run.test_params]
-  execution-time = "10"
+  execution-time = "45"
   persistent-peers = "1"
-  submit-times = "20"
+  submit-times = "150"
   msg-size = "700000"
   validator = "1"
   bridge = "1"
   light = "280"
-  block-height = "30"
+  block-height = "150"
   otel-collector-address = "178.128.163.171:4318"
 
 [[groups]]
