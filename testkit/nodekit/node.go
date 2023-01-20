@@ -23,7 +23,10 @@ func NewConfig(
 	trustedHash string,
 ) *nodebuilder.Config {
 	cfg := nodebuilder.DefaultConfig(tp)
-	cfg.P2P.ListenAddresses = []string{fmt.Sprintf("/ip4/%s/tcp/2121", IP)}
+	cfg.P2P.ListenAddresses = []string{
+		fmt.Sprintf("/ip4/%s/udp/2121/quic-v1", IP),
+		fmt.Sprintf("/ip4/%s/tcp/2121", IP),
+	}
 	cfg.Header.TrustedPeers = trustedPeers
 	cfg.Header.TrustedHash = trustedHash
 
