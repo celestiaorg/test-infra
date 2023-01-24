@@ -49,7 +49,7 @@ func GetRandomMessageBySize(size int) []byte {
 // SubmitData calls a node.StateService SubmitPayForData() method with recording a txLog output.
 func SubmitData(ctx context.Context, runenv *runtime.RunEnv, nd *nodebuilder.Node, nid namespace.ID, data []byte) error {
 	fee := math.NewInt(30000)
-	tx, err := nd.StateServ.SubmitPayForData(ctx, nid, data, fee, gasLimit)
+	tx, err := nd.StateServ.SubmitPayForBlob(ctx, nid, data, fee, gasLimit)
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,9 @@ func VerifyDataInNamespace(ctx context.Context, nd *nodebuilder.Node, nid namesp
 		return err
 	}
 
-	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(eh.Height+1))
+	waitH := eh.Height()
+	waitH++
+	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(waitH))
 	if err != nil {
 		return err
 	}
