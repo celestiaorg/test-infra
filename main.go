@@ -14,11 +14,11 @@ var testcases = map[string]interface{}{
 	"003-full-sync-past":  bigblocks.FullSyncPast,
 	"004-full-light-past": bigblocks.FullLightSyncPast,
 	"005-light-das-past":  bigblocks.LightDasPast,
-	// Pay For Data & Get Shares by Namespace Plan
-	// PayForDataAndGetShares is tracking TestCase key to know
+	// Pay For Blob & Get Shares by Namespace Plan
+	// PayForBlobAndGetShares is tracking TestCase key to know
 	// when to do shares checker scenario
-	"pay-for-data":            pfdgsbn.PayForDataAndGetShares,
-	"get-shares-by-namespace": pfdgsbn.PayForDataAndGetShares,
+	"pay-for-blob":            pfdgsbn.PayForBlobAndGetShares,
+	"get-shares-by-namespace": pfdgsbn.PayForBlobAndGetShares,
 	// Block Reconstruction Plan
 	"reconstruction": blockrecon.BlockReconstruction,
 }
