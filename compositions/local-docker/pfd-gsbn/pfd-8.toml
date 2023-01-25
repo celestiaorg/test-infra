@@ -4,7 +4,7 @@
 
 [global]
   plan = "celestia"
-  case = "pay-for-data"
+  case = "pay-for-blob"
   total_instances = 8
   builder = "docker:generic"
   runner = "local:docker"

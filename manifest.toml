@@ -102,7 +102,7 @@ instances = { min = 4, max = 3000, default = 12 }
     role = { type = "string" }
 
 [[testcases]]
-name = "pay-for-data"
+name = "pay-for-blob"
 instances = { min = 4, max = 3000, default = 12 }
     [testcases.params]
     execution-time = { type = "int" }
