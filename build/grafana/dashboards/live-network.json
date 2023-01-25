@@ -186,6 +186,134 @@
       "fieldConfig": {
         "defaults": {
           "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 3,
+        "x": 4,
+        "y": 0
+      },
+      "id": 123165,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "vertical",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "/^Height$/",
+          "values": false
+        },
+        "textMode": "auto"
+      },
+      "pluginVersion": "9.2.4",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "lW0MKED4k"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "count_values(\"testground_das_sampled_chain_head\", testground_das_sampled_chain_head{exported_instance=\"$light_node_id\"})",
+          "format": "table",
+          "instant": true,
+          "interval": "5m",
+          "legendFormat": "__auto",
+          "range": false,
+          "refId": "A"
+        }
+      ],
+      "title": "Current Sample Head",
+      "transformations": [
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Value": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "testground_das_sampled_chain_head": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {},
+            "indexByName": {
+              "Value": 0,
+              "testground_das_sampled_chain_head": 1
+            },
+            "renameByName": {
+              "Value": "Count",
+              "testground_das_sampled_chain_head": "Height"
+            }
+          }
+        },
+        {
+          "id": "groupBy",
+          "options": {
+            "fields": {
+              "Count": {
+                "aggregations": [],
+                "operation": "groupby"
+              },
+              "Height": {
+                "aggregations": [],
+                "operation": "groupby"
+              }
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "desc": false,
+                "field": "Height"
+              }
+            ]
+          }
+        }
+      ],
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "lW0MKED4k"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
             "mode": "palette-classic"
           },
           "custom": {
@@ -225,8 +353,8 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 11,
-        "x": 4,
+        "w": 8,
+        "x": 7,
         "y": 0
       },
       "id": 123145,
@@ -1035,7 +1163,7 @@
           "refId": "A"
         }
       ],
-      "title": "DASing time overview (all instances)",
+      "title": "DASing time across network (s)",
       "transformations": [
         {
           "id": "groupBy",
@@ -1840,7 +1968,7 @@
             "uid": "lW0MKED4k"
           },
           "editorMode": "code",
-          "expr": "(avg by (height) (testground_node_header_blackbox_block_time_sum{exported_instance=\"$light_node_id\"}))/1000",
+          "expr": "(avg by (height) (testground_node_header_blackbox_block_time_sum{exported_instance=\"$light_node_id\"}/testground_node_header_blackbox_block_time_count{exported_instance=\"$light_node_id\"}))/1000",
           "format": "table",
           "legendFormat": "__auto",
           "range": true,
@@ -1875,9 +2003,10 @@
     "list": [
       {
         "current": {
+          "isNone": true,
           "selected": false,
-          "text": "12D3KooWF9PnoopchmXBC7RyRFDQyJXRbP218Fidoa3qR8RWqdhR",
-          "value": "12D3KooWF9PnoopchmXBC7RyRFDQyJXRbP218Fidoa3qR8RWqdhR"
+          "text": "None",
+          "value": ""
         },
         "datasource": {
           "type": "prometheus",
@@ -1954,6 +2083,6 @@
   "timezone": "browser",
   "title": "Live Network Light Nodes Metrics -",
   "uid": "Fccs8xxTacVj",
-  "version": 17,
+  "version": 22,
   "weekStart": ""
 }

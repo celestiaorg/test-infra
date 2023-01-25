@@ -3,8 +3,9 @@ package common
 import (
 	"bytes"
 	"context"
-	"cosmossdk.io/math"
 	"fmt"
+
+	"cosmossdk.io/math"
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder"

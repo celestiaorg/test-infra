@@ -50,6 +50,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Core.GRPCPort = "9090"
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
+	// cfg.P2P.Bootstrapper = true
 
 	optlOpts := []otlpmetrichttp.Option{
 		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),

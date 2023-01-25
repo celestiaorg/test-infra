@@ -82,6 +82,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
 		otlpmetrichttp.WithInsecure(),
 	}
+
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Light,
@@ -90,7 +91,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			optlOpts,
 			nodekit.LightNodeType,
 		),
-		nodebuilder.WithBlackboxMetrics(),
+		// nodebuilder.WithBlackboxMetrics(),
 	)
 
 	if err != nil {
