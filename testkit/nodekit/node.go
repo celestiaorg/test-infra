@@ -4,9 +4,6 @@ import (
 	"fmt"
 	"net"
 
-	"github.com/celestiaorg/celestia-app/app"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -45,13 +42,6 @@ func NewNode(
 	cfg *nodebuilder.Config,
 	options ...fx.Option,
 ) (*nodebuilder.Node, error) {
-	// This is necessary to ensure that the account addresses are correctly prefixed
-	// as in the celestia application.
-	sdkcfg := sdk.GetConfig()
-	sdkcfg.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	sdkcfg.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	sdkcfg.Seal()
-
 	err := nodebuilder.Init(*cfg, path, tp)
 	if err != nil {
 		return nil, err
