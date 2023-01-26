@@ -4,6 +4,7 @@ go 1.19
 
 replace (
 	github.com/celestiaorg/celestia-app => github.com/Bidon15/lazyledger-app v1.12.0-dirty-app
+	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.7.1-rc1-dirty
 	github.com/cosmos/cosmos-sdk => github.com/Bidon15/cosmos-sdk v1.6.1-dirty-sdk-v0.46.7
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
