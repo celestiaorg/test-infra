@@ -85,8 +85,8 @@ github.com/Bidon15/cosmos-sdk v1.6.1-dirty-sdk-v0.46.7 h1:8kHqMnOcDCFWDBl0fxYtzH
 github.com/Bidon15/cosmos-sdk v1.6.1-dirty-sdk-v0.46.7/go.mod h1:lqm5pkQ/lvNhcQcRSONveduTrVTBBHKUraz4wdP0ztY=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
 github.com/Bidon15/go-log/v2 v2.5.2/go.mod h1:TMD+iYDL/QBjspKUN0Ypxpr2IMAz3uGUAsbCeClDQ+4=
-github.com/Bidon15/lazyledger-app v1.12.0-dirty-app h1:zlFXxFot2hDJkvnZ2Y+O7vGFOLhCJYe+RbJPc9vStMw=
-github.com/Bidon15/lazyledger-app v1.12.0-dirty-app/go.mod h1:1VLYgvVX7GQ4OD+NoymwzCEqjNdm9woG06hDx2tKA2E=
+github.com/Bidon15/lazyledger-app v1.12.1-dirty-app h1:oTA12KCwl6ospLrdwF9G+yGw9lDbuUnsrQc9ISNtE8Y=
+github.com/Bidon15/lazyledger-app v1.12.1-dirty-app/go.mod h1:1VLYgvVX7GQ4OD+NoymwzCEqjNdm9woG06hDx2tKA2E=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
