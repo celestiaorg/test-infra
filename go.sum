@@ -83,12 +83,10 @@ github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOEl
 github.com/Azure/go-autorest v11.1.2+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
 github.com/Bidon15/celestia-node v0.7.1-rc2-dirty h1:A+tkMG7OHK12nPKv2O+vifj72BoMY99aWhK9KVgfs9g=
 github.com/Bidon15/celestia-node v0.7.1-rc2-dirty/go.mod h1:VcjQL6Uny+PXC1y5wsQ84eiBxNbrsVd6oAG4JcHbGdk=
-github.com/Bidon15/cosmos-sdk v1.6.1-dirty-sdk-v0.46.7 h1:8kHqMnOcDCFWDBl0fxYtzH7ske3E3Zq2aMpxu1uKMxM=
-github.com/Bidon15/cosmos-sdk v1.6.1-dirty-sdk-v0.46.7/go.mod h1:lqm5pkQ/lvNhcQcRSONveduTrVTBBHKUraz4wdP0ztY=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
 github.com/Bidon15/go-log/v2 v2.5.2/go.mod h1:TMD+iYDL/QBjspKUN0Ypxpr2IMAz3uGUAsbCeClDQ+4=
-github.com/Bidon15/lazyledger-app v1.12.0-dirty-app h1:zlFXxFot2hDJkvnZ2Y+O7vGFOLhCJYe+RbJPc9vStMw=
-github.com/Bidon15/lazyledger-app v1.12.0-dirty-app/go.mod h1:1VLYgvVX7GQ4OD+NoymwzCEqjNdm9woG06hDx2tKA2E=
+github.com/Bidon15/lazyledger-app v1.12.1-dirty-app h1:oTA12KCwl6ospLrdwF9G+yGw9lDbuUnsrQc9ISNtE8Y=
+github.com/Bidon15/lazyledger-app v1.12.1-dirty-app/go.mod h1:1VLYgvVX7GQ4OD+NoymwzCEqjNdm9woG06hDx2tKA2E=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/BurntSushi/toml v1.2.1 h1:9F2/+DoOYIOksmaJFPw1tGFy1eDnIJXg+UHjuD8lTak=
 github.com/BurntSushi/toml v1.2.1/go.mod h1:CxXYINrC8qIiEnFrOxCa7Jy5BFHlXnUU2pbicEuybxQ=
@@ -216,6 +214,8 @@ github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOC
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/celestiaorg/celestia-core v1.13.0-tm-v0.34.23 h1:nMg928RIanyA2ICN3PHpIE6jgg+008BtD5XmxeObEhM=
 github.com/celestiaorg/celestia-core v1.13.0-tm-v0.34.23/go.mod h1:Iu2XuSzF+QG3rzd60/sGhhk3n4wOAm8YyadU80KlcMs=
+github.com/celestiaorg/cosmos-sdk v1.6.0-sdk-v0.46.7 h1:wP4RRK9zbVBlQXqRqJXji09e9UUFpNpwL2zorHwbJhQ=
+github.com/celestiaorg/cosmos-sdk v1.6.0-sdk-v0.46.7/go.mod h1:MkOIxmKiICA4d8yPWo/590S4fqpaLXfocz0xn1fxBp4=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659 h1:f3205vw3GYBtMiNoS+qB6IuHSs50Iwqsm9lNIikLTCk=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659/go.mod h1:ta/DlqIH10bvhwqJIw51Nq3QU4XVMp6pz3f0Deve9fM=
 github.com/celestiaorg/go-libp2p-messenger v0.1.0 h1:rFldTa3ZWcRRn8E2bRWS94Qp1GFYXO2a0uvqpIey1B8=
