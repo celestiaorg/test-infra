@@ -54,7 +54,7 @@ func NewNode(
 	if err != nil {
 		return nil, err
 	}
-	return nodebuilder.NewWithConfig(tp, p2p.Private, store, cfg, options...)
+	return nodebuilder.NewWithConfig(tp, p2p.Arabica, store, cfg, options...)
 
 }
 

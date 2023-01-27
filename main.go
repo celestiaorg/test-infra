@@ -24,6 +24,7 @@ var testcases = map[string]interface{}{
 	"reconstruction": blockrecon.BlockReconstruction,
 	// DAS Benchmarks Plan
 	"das-benchmarks": dasbenchs.LightsDasingLatest,
+	"flood-arabica":  bigblocks.RunLightNode,
 }
 
 func main() {

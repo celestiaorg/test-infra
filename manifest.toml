@@ -172,3 +172,14 @@ instances = { min = 30, max = 1002, default = 30 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+
+[[testcases]]
+name = "flood-arabica"
+instances = { min = 4, max = 3000, default = 12 }
+    [testcases.params]
+        execution-time = { type = "int" }
+        latency = { type = "int", default = 0}
+        bandwidth = { type = "string", default = "256Mib"}
+        light = { type = "int", default = 3}
+        block-height = { type = "int" }
+        role = { type = "string" }
