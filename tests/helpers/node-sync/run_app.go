@@ -135,7 +135,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	for i := 0; i < runenv.IntParam("submit-times"); i++ {
 		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
-		err = appcmd.PayForData(
+		err = appcmd.PayForBlob(
 			appcmd.AccountAddress,
 			runenv.IntParam("msg-size"),
 			"test",

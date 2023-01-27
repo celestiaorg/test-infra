@@ -22,7 +22,6 @@ import (
 func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext, options ...any) (*appkit.AppKit, error) {
 	syncclient := initCtx.SyncClient
 
-	//home := fmt.Sprintf("/.celestia-app-%d", initCtx.GroupSeq)
 	home := "/.celestia-app"
 	runenv.RecordMessage(home)
 
