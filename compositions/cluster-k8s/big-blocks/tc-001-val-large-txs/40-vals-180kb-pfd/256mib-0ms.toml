@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "001-val-large-txs"
-  total_instances = 42
+  total_instances = 45
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -17,7 +17,7 @@
       latency = "0"
       msg-size = "180000"
       persistent-peers = "10"
-      seed = "2"
+      seed = "5"
       submit-times = "10"
       validator = "40"
 
@@ -46,7 +46,7 @@
     memory = "4Gi"
     cpu = "3"
   [groups.instances]
-    count = 2
+    count = 5
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

@@ -46,7 +46,7 @@ func GetRandomMessageBySize(size int) []byte {
 	return tmrand.Bytes(size)
 }
 
-// SubmitData calls a node.StateService SubmitPayForData() method with recording a txLog output.
+// SubmitData calls a node.StateService SubmitPayForBlob() method with recording a txLog output.
 func SubmitData(ctx context.Context, runenv *runtime.RunEnv, nd *nodebuilder.Node, nid namespace.ID, data []byte) error {
 	fee := math.NewInt(30000)
 	tx, err := nd.StateServ.SubmitPayForBlob(ctx, nid, data, fee, gasLimit)

@@ -117,14 +117,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	var prefix int
-	if runenv.TestGroupID == "validators-v2" {
-		prefix = 50
-	} else {
-		prefix = 0
-	}
-
-	appId := int(initCtx.GroupSeq) + prefix
+	appId := int(initCtx.GroupSeq)
 	_, err = syncclient.Publish(
 		ctx,
 		testkit.AppNodeTopic,
