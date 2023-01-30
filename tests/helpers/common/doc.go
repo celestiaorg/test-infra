@@ -14,12 +14,12 @@ please use `common.BuildValidator`. This Func does:
 In addition, the func returns initialized cobra cmd, so you can continue
 operating with the validator
 
-Default: network.LinkShape{
-	Bandwidth: common.GetBandwidthValue(runenv.StringParam("bandwidth")),
-}
+	Default: network.LinkShape{
+		Bandwidth: common.GetBandwidthValue(runenv.StringParam("bandwidth")),
+	}
 
 appcmd, err := common.BuildValidator(ctx, runenv, initCtx)
-appcmd.PayForData(...)
+appcmd.PayForBlob(...)
 
 In order to eliminate the boilerplate code of creating a bridge node,
 please use `common.BuildBridge`. This Func does:

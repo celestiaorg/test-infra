@@ -239,10 +239,10 @@ func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddr
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func (ak *AppKit) PayForData(accAdr string, msg int, krbackend, krpath string) error {
+func (ak *AppKit) PayForBlob(accAdr string, msg int, krbackend, krpath string) error {
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
-		"tx", "payment", "payForData", fmt.Sprint(msg),
+		"tx", "blob", "payForBlob", fmt.Sprint(msg),
 		wrapFlag(flags.FlagFrom), accAdr,
 		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),

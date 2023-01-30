@@ -2,10 +2,9 @@ package nodekit
 
 import (
 	"fmt"
-	"net"
-
 	"github.com/celestiaorg/celestia-app/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"net"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
@@ -23,7 +22,10 @@ func NewConfig(
 	trustedHash string,
 ) *nodebuilder.Config {
 	cfg := nodebuilder.DefaultConfig(tp)
-	cfg.P2P.ListenAddresses = []string{fmt.Sprintf("/ip4/%s/tcp/2121", IP)}
+	cfg.P2P.ListenAddresses = []string{
+		fmt.Sprintf("/ip4/%s/udp/2121/quic-v1", IP),
+		fmt.Sprintf("/ip4/%s/tcp/2121", IP),
+	}
 	cfg.Header.TrustedPeers = trustedPeers
 	cfg.Header.TrustedHash = trustedHash
 
@@ -51,8 +53,8 @@ func NewNode(
 	if err != nil {
 		return nil, err
 	}
+	return nodebuilder.NewWithConfig(tp, p2p.Private, store, cfg, options...)
 
-	return nodebuilder.New(tp, p2p.Private, store, options...)
 }
 
 func SetLoggersLevel(lvl string) error {

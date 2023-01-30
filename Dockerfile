@@ -78,6 +78,8 @@ RUN apk add --no-cache bash gcompat
 # PLAN_DIR is the location containing the plan source inside the build container.
 ENV PLAN_DIR /plan
 ENV GOLOG_OUTPUT stdout
+# HOME ENV is crucial for app/sdk -> remove at your OWN RISK!
+ENV HOME /
 
 COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
