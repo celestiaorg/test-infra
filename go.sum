@@ -360,8 +360,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2U
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/deepmap/oapi-codegen v1.6.0/go.mod h1:ryDa9AgbELGeB+YEXE1dR53yAjHwFvE9iAUlWl9Al3M=
 github.com/deepmap/oapi-codegen v1.8.2/go.mod h1:YLgSKSDv/bZQB7N4ws6luhozi3cEdRktEqrX88CvjIw=
-github.com/derrandz/celestia-node v0.4.2-0.20230201161632-26fcb19b3c1a h1:uRWPVZ+DDp+qQWoK2kYVGQKmdUsPJE8axVJigf4Hd6E=
-github.com/derrandz/celestia-node v0.4.2-0.20230201161632-26fcb19b3c1a/go.mod h1:eF/xNx8ZtlG+2TSZbr5CKF5IW6BxCTf2ucOTU/uKeac=
+github.com/derrandz/celestia-node v0.4.2-0.20230201200720-e4b65b45e0be h1:PmYjt7/QCQR9eWUsxkFAeObqd4X9ca5VAUh6GPYge48=
+github.com/derrandz/celestia-node v0.4.2-0.20230201200720-e4b65b45e0be/go.mod h1:qsbhxiLHpHMBnO5u0Ji79o5CTpPPIUIWuCBf18UAQSs=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f h1:U5y3Y5UE0w7amNe7Z5G/twsBW0KEalRQXZzf8ufSh9I=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f/go.mod h1:xH/i4TFMt8koVQZ6WFms69WAsDWr2XsYL3Hkl7jkoLE=
 github.com/dgraph-io/badger v1.5.5-0.20190226225317-8115aed38f8f/go.mod h1:VZxzAIRPHRVNRKRo6AXrX9BJegn6il06VMTZVJYCIjQ=
