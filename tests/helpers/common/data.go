@@ -8,6 +8,7 @@ import (
 	"github.com/celestiaorg/celestia-app/pkg/appconsts"
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"github.com/celestiaorg/celestia-node/state"
 	"github.com/celestiaorg/nmt/namespace"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
 	"github.com/testground/sdk-go/runtime"
@@ -96,6 +97,19 @@ func VerifyDataInNamespace(ctx context.Context, nd *nodebuilder.Node, nid namesp
 	err = CheckSharesByNamespace(ctx, nd, nid, eh, data)
 	if err != nil {
 		return err
+	}
+	return nil
+}
+
+// CheckBalanceDeduction checks if the balance of a node has been deducted after a successful pfb
+func CheckBalanceDeduction(ctx context.Context, nd *nodebuilder.Node, bal *state.Balance) error {
+	latestbal, err := nd.StateServ.Balance(ctx)
+	if err != nil {
+		return err
+	}
+
+	if latestbal.IsGTE(*bal) {
+		return fmt.Errorf("no balance deducted from the %s node", nd.Type.String())
 	}
 	return nil
 }

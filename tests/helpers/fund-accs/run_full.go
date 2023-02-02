@@ -153,6 +153,11 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 
+	err = common.CheckBalanceDeduction(ctx, nd, bal)
+	if err != nil {
+		return err
+	}
+
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
