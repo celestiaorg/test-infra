@@ -3,7 +3,7 @@ module github.com/celestiaorg/test-infra
 go 1.19
 
 replace (
-	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics
+	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.6.3-0.20230208143929-e8a13a1b0073
 	github.com/celestiaorg/utils => github.com/celestiaorg/utils v0.0.0-20230111201732-2d8b5f8774ad // uses an unmerged PR, delete when celestiaorg/utils PR#5 is merged
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
@@ -59,7 +59,6 @@ require (
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.3.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.8.0 // indirect
-	github.com/celestiaorg/utils v0.0.0-00010101000000-000000000000 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

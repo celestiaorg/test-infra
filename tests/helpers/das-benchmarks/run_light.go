@@ -94,7 +94,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			optlOpts,
 			node.Light,
 		),
-		nodebuilder.WithBlackboxMetrics(),
+		// nodebuilder.WithBlackboxMetrics(),
 	)
 
 	if err != nil {
