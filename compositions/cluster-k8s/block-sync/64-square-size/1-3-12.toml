@@ -1,11 +1,11 @@
 [metadata]
-  name = "block-sync"
+  name = "blocksyncbench-latest"
   author = "derrandz"
 
 [global]
   plan = "celestia"
-  case = "blocksyncs"
-  total_instances = 102
+  case = "blocksyncbench-latest"
+  total_instances = 16
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -73,7 +73,7 @@
     memory = "8Gi"
     cpu = "1"
   [groups.instances]
-    count = 100
+    count = 12
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
