@@ -2,9 +2,10 @@ package nodekit
 
 import (
 	"fmt"
+	"net"
+
 	"github.com/celestiaorg/celestia-app/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"net"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"

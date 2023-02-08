@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"fmt"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
@@ -13,12 +14,13 @@ import (
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
 	syncclient := initCtx.SyncClient
 
-	err := <-syncclient.MustBarrier(ctx, "validator-ready", runenv.IntParam("validator")).C
+	err := <-syncclient.MustBarrier(ctx, testkit.ValidatorReadyTopic, runenv.IntParam("validator")).C
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +51,21 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
 
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, cfg)
+	optlOpts := []otlpmetrichttp.Option{
+		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+		otlpmetrichttp.WithInsecure(),
+	}
+
+	nd, err := nodekit.NewNode(
+		ndhome,
+		node.Bridge,
+		cfg,
+		nodebuilder.WithMetrics(
+			optlOpts,
+			node.Bridge,
+		),
+	)
+
 	if err != nil {
 		return nil, err
 	}

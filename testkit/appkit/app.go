@@ -3,14 +3,15 @@ package appkit
 import (
 	"bytes"
 	"fmt"
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/p2p/pex"
 	"io"
 	"net"
 	"net/http"
 	"os"
 	"strings"
 	"sync"
+
+	"github.com/tendermint/tendermint/p2p"
+	"github.com/tendermint/tendermint/p2p/pex"
 
 	"github.com/celestiaorg/celestia-app/app"
 	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
@@ -146,7 +147,6 @@ func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, 
 		"gentx",
 		accName,
 		amount,
-		wrapFlag(flags.FlagOrchestratorAddress),
 		ak.AccountAddress,
 		wrapFlag(flags.FlagEVMAddress),
 		ethAddress.String(),
@@ -242,7 +242,7 @@ func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddr
 func (ak *AppKit) PayForBlob(accAdr string, msg int, krbackend, krpath string) error {
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
-		"tx", "blob", "payForBlob", fmt.Sprint(msg),
+		"tx", "blob", "testRandBlob", fmt.Sprint(msg),
 		wrapFlag(flags.FlagFrom), accAdr,
 		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),
@@ -331,6 +331,17 @@ func GetLatestsBlockSize(ip net.IP) (int, error) {
 	}
 
 	return resBlock.Block.Size(), nil
+}
+
+func GetLatestBlockSizeAndHeight(ip net.IP) (int, uint64, error) {
+	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
+
+	resBlock, err := getResultBlockResponse(uri)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	return resBlock.Block.Size(), uint64(resBlock.Block.Height), nil
 }
 
 func updateConfig(path, key string, value interface{}) error {
