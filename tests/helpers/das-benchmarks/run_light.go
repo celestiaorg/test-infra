@@ -25,6 +25,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -54,12 +55,14 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err = netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	bridgeCh := make(chan *testkit.BridgeNodeInfo)
 	_, err = syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -73,6 +76,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -94,6 +98,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -108,10 +113,12 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	l, err := syncclient.Barrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge"))
 	if err != nil {
 		runenv.RecordFailure(err)
+		return err
 	}
 	lerr := <-l.C
 	if lerr != nil {
 		runenv.RecordFailure(lerr)
+		return lerr
 	}
 
 	// signal startup
@@ -146,13 +153,15 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err = nd.Stop(ctx)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
-	return err
+	return nil
 }

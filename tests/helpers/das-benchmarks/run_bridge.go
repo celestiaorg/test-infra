@@ -22,6 +22,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -51,26 +52,31 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err = netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	nd, err := common.BuildBridge(ctx, runenv, initCtx)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.BridgeStartedState)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	l, err := syncclient.Barrier(ctx, testkit.LightNodesStartedState, runenv.IntParam("light"))
 	if err != nil {
 		runenv.RecordFailure(err)
+		return err
 	}
 	lerr := <-l.C
 	if lerr != nil {
 		runenv.RecordFailure(lerr)
+		return lerr
 	}
 
 	for i := 0; i < runenv.IntParam("block-height"); i++ {
@@ -94,11 +100,13 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err = nd.Stop(ctx)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 

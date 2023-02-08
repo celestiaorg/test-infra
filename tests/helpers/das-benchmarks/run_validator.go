@@ -48,18 +48,21 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err := netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	// false to disable peer discovery since we are runnign a singular validator
 	appcmd, err := common.BuildValidator(ctx, runenv, initCtx, false)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
 	// signal startup
 	_, err = syncclient.SignalEntry(ctx, testkit.ValidatorReadyTopic)
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -74,6 +77,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -87,6 +91,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 
 	if err != nil {
+		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -96,10 +101,12 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	l, err := syncclient.Barrier(ctx, testkit.LightNodesStartedState, runenv.IntParam("light"))
 	if err != nil {
 		runenv.RecordFailure(err)
+		return err
 	}
 	lerr := <-l.C
 	if lerr != nil {
 		runenv.RecordFailure(lerr)
+		return lerr
 	}
 
 	for j := 0; j < runenv.IntParam("submit-times"); j++ {
@@ -124,10 +131,12 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	l, err = syncclient.Barrier(ctx, testkit.FinishState, runenv.IntParam("light")+runenv.IntParam("bridge"))
 	if err != nil {
 		runenv.RecordFailure(err)
+		return err
 	}
 	lerr = <-l.C
 	if lerr != nil {
 		runenv.RecordFailure(lerr)
+		return lerr
 	}
 	runenv.RecordSuccess()
 
