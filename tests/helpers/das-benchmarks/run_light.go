@@ -88,7 +88,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,
-			nodekit.LightNodeType,
+			node.Light,
 		),
 		nodebuilder.WithBlackboxMetrics(),
 	)

@@ -62,7 +62,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,
-			nodekit.BridgeNodeType,
+			node.Bridge,
 		),
 	)
 

@@ -2,9 +2,10 @@ package nodekit
 
 import (
 	"fmt"
+	"net"
+
 	"github.com/celestiaorg/celestia-app/app"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"net"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
@@ -13,12 +14,6 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 
 	"go.uber.org/fx"
-)
-
-var (
-	BridgeNodeType = node.Bridge
-	FullNodeType   = node.Full
-	LightNodeType  = node.Light
 )
 
 func NewConfig(

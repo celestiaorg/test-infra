@@ -95,7 +95,7 @@ ifeq (,${COMPOSITION})
 	@printf "you must specify a testplan, example:\n\t make COMMAND COMPOSITION=pdf-8\n\n"
 	exit 1
 endif
-.phony: check-composition-arg
+.PHONY: check-composition-arg
 
 ## check-composition-arg: check if composition env var was provided
 check-name-arg:
@@ -133,7 +133,7 @@ tg-run-composition: check-testplan-arg check-runner-arg check-composition-arg
 ## tg-run-composition: runs a specific composition by name given a testplan and a runner
 tg-run-composition-no-wait: check-testplan-arg check-runner-arg check-composition-arg
 	@testground run composition \
-		-f compositions/${RUNNER}/${TESTPLAN}/${COMPOSITION}.toml \
+		-f compositions/${RUNNER}/${TESTPLAN}/${COMPOSITION}.toml 
 .PHONY: tg-run-testplan
 
 ## telemetry-infra-up: launches the telemetry infrastructure up
@@ -152,7 +152,7 @@ ifeq (,${POD_NAME})
 	@printf "you must specify a podname, example:\n\t make COMMAND POD_NAME=influxdb\n\n"
 	exit 1
 endif
-.phony: check-podname-arg
+.PHONY: check-podname-arg
 
 
 ## check-docker: Check if docker is installed on the machine
