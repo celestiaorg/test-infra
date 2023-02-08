@@ -4,7 +4,7 @@
 
 [global]
   plan = "celestia"
-  case = "001-lights-dasing-latest-from-bridges"
+  case = "das-benchmarks"
   total_instances = 802
   builder = "docker:generic"
   runner = "cluster:k8s"

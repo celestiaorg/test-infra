@@ -23,7 +23,7 @@ var testcases = map[string]interface{}{
 	// Block Reconstruction Plan
 	"reconstruction": blockrecon.BlockReconstruction,
 	// DAS Benchmarks Plan
-	"001-lights-dasing-latest-from-bridges": dasbenchs.LightsDasingLatest,
+	"das-benchmarks": dasbenchs.LightsDasingLatest,
 }
 
 func main() {

@@ -158,7 +158,7 @@ instances = { min = 4, max = 3000, default = 12 }
     role = { type = "string" }
 
 [[testcases]]
-name = "001-lights-dasing-latest-from-bridges"
+name = "das-benchmarks"
 instances = { min = 30, max = 1002, default = 30 }
     [testcases.params]
     execution-time = { type = "int" }
