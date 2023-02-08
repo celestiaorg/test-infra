@@ -1,6 +1,9 @@
 package dasbenchs
 
 import (
+	"context"
+
+	"github.com/celestiaorg/test-infra/testkit"
 	dasbenchmarks "github.com/celestiaorg/test-infra/tests/helpers/das-benchmarks"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -20,10 +23,10 @@ func LightsDasingLatest(runenv *runtime.RunEnv, initCtx *run.InitContext) (err e
 
 	if err != nil {
 		runenv.RecordFailure(err)
-		return err
+		initCtx.SyncClient.SignalEntry(context.Background(), testkit.FinishState)
+		return
 	}
 
 	runenv.RecordSuccess()
-
-	return nil
+	return
 }

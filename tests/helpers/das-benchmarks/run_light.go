@@ -137,24 +137,10 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	for i := 1; i < runenv.IntParam("block-height"); i++ {
 		nd.DASer.WaitCatchUp(ctx) // wait for the daser to catch up on every height
 		// wait for the core network to reach height 1
-		myHdr, err := nd.HeaderServ.GetByHeight(ctx, uint64(i+1))
+		_, err := nd.HeaderServ.GetByHeight(ctx, uint64(i+1))
 		if err != nil {
 			runenv.RecordFailure(fmt.Errorf("Error: failed to sync headers, %s", err))
 			return err
-		}
-
-		coreNetHdr, err := nd.HeaderServ.SyncerHead(ctx) // for metrics
-		if err != nil {
-			runenv.RecordFailure(fmt.Errorf("Error: failed to sync headers, %s", err))
-			return err
-		}
-
-		if coreNetHdr.RawHeader.Height != myHdr.RawHeader.Height {
-			runenv.RecordMessage(
-				"Light node lagging behind core network!",
-				"core network height=", coreNetHdr.RawHeader.Height,
-				"light node height=", myHdr.RawHeader.Height,
-			)
 		}
 	}
 

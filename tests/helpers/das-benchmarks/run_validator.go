@@ -100,7 +100,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	for j := 0; j < runenv.IntParam("submit-times"); j++ {
 		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
-		err = appcmd.PayForData(
+		err = appcmd.PayForBlob(
 			appcmd.AccountAddress,
 			runenv.IntParam("msg-size"),
 			"test",
@@ -117,7 +117,14 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 
-	time.Sleep(30 * time.Second)
+	l, err = syncclient.Barrier(ctx, testkit.FinishState, runenv.IntParam("light")+runenv.IntParam("bridge"))
+	if err != nil {
+		runenv.RecordFailure(err)
+	}
+	lerr = <-l.C
+	if lerr != nil {
+		runenv.RecordFailure(lerr)
+	}
 	runenv.RecordSuccess()
 
 	return nil
