@@ -3,7 +3,7 @@ module github.com/celestiaorg/test-infra
 go 1.19
 
 replace (
-	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.4.2-0.20230202230649-5c4e0c179d7c
+	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics
 	github.com/celestiaorg/utils => github.com/celestiaorg/utils v0.0.0-20230111201732-2d8b5f8774ad // uses an unmerged PR, delete when celestiaorg/utils PR#5 is merged
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659

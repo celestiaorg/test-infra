@@ -364,8 +364,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2U
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/deepmap/oapi-codegen v1.6.0/go.mod h1:ryDa9AgbELGeB+YEXE1dR53yAjHwFvE9iAUlWl9Al3M=
 github.com/deepmap/oapi-codegen v1.8.2/go.mod h1:YLgSKSDv/bZQB7N4ws6luhozi3cEdRktEqrX88CvjIw=
-github.com/derrandz/celestia-node v0.4.2-0.20230202230649-5c4e0c179d7c h1:sG2dFcOqZrY9L2FiKeMNJuBla7rMDUP21EJCvImmfr8=
-github.com/derrandz/celestia-node v0.4.2-0.20230202230649-5c4e0c179d7c/go.mod h1:gU987g6n/EbrPJ9apbiStlUbA2xur9cLirysJWj6Kss=
+github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics h1:EllRxOKC7fXNO7Js8hOmdxxYHfO3JehBCRrQ+P+Rwp0=
+github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics/go.mod h1:JIg6wsZ/W2lZv22zfv5PkdOOFsu4bEBVlrPdIHWJjfM=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f h1:U5y3Y5UE0w7amNe7Z5G/twsBW0KEalRQXZzf8ufSh9I=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f/go.mod h1:xH/i4TFMt8koVQZ6WFms69WAsDWr2XsYL3Hkl7jkoLE=
 github.com/dgraph-io/badger v1.5.5-0.20190226225317-8115aed38f8f/go.mod h1:VZxzAIRPHRVNRKRo6AXrX9BJegn6il06VMTZVJYCIjQ=
@@ -1887,7 +1887,6 @@ go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.34.0 h1:kpskzLZ60cJ48SJ4ux
 go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.34.0/go.mod h1:4+x3i62TEegDHuzNva0bMcAN8oUi5w4liGb1d/VgPYo=
 go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.34.0 h1:t4Ajxj8JGjxkqoBtbkCOY2cDUl9RwiNE9LPQavooi9U=
 go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.34.0/go.mod h1:WO7omosl4P7JoanH9NgInxDxEn2F2M5YinIh8EyeT8w=
-go.opentelemetry.io/otel/exporters/stdout/stdoutmetric v0.34.0 h1:O1E9/qhspQSz3O6/dSGLNBND2TO9mUaSvlhcKJMv278=
 go.opentelemetry.io/otel/metric v0.20.0/go.mod h1:598I5tYlH1vzBjn+BTuhzTCSb/9debfNp6R3s7Pr1eU=
 go.opentelemetry.io/otel/metric v0.34.0 h1:MCPoQxcg/26EuuJwpYN1mZTeCYAUGx8ABxfW07YkjP8=
 go.opentelemetry.io/otel/metric v0.34.0/go.mod h1:ZFuI4yQGNCupurTXCwkeD/zHBt+C2bR7bw5JqUm/AP8=
