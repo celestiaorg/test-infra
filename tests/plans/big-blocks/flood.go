@@ -64,11 +64,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("My IP is %d", ip)
 
 	cfg := nodebuilder.DefaultConfig(node.Light)
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Light,
-		cfg,
-	)
+	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg)
 	if err != nil {
 		return err
 	}

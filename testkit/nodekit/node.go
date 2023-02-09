@@ -33,12 +33,7 @@ func NewConfig(
 	return cfg
 }
 
-func NewNode(
-	path string,
-	tp node.Type,
-	cfg *nodebuilder.Config,
-	options ...fx.Option,
-) (*nodebuilder.Node, error) {
+func NewNode(path string, tp node.Type, network string, cfg *nodebuilder.Config, options ...fx.Option) (*nodebuilder.Node, error) {
 	// This is necessary to ensure that the account addresses are correctly prefixed
 	// as in the celestia application.
 	sdkcfg := sdk.GetConfig()
@@ -54,7 +49,7 @@ func NewNode(
 	if err != nil {
 		return nil, err
 	}
-	return nodebuilder.NewWithConfig(tp, p2p.Arabica, store, cfg, options...)
+	return nodebuilder.NewWithConfig(tp, p2p.Network(network), store, cfg, options...)
 
 }
 

@@ -56,15 +56,11 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		otlpmetrichttp.WithInsecure(),
 	}
 
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Bridge,
-		cfg,
-		nodebuilder.WithMetrics(
+	nd, err := nodekit.NewNode(ndhome, node.Bridge,
+		runenv.StringParam("p2p-network"), cfg, nodebuilder.WithMetrics(
 			optlOpts,
 			node.Bridge,
-		),
-	)
+		))
 
 	if err != nil {
 		return nil, err

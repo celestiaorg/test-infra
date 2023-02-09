@@ -28,6 +28,7 @@ instances = { min = 1, max = 200, default = 3 }
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "002-da-sync"
@@ -46,6 +47,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "003-full-sync-past"
@@ -64,6 +66,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "004-full-light-past"
@@ -82,6 +85,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "005-light-das-past"
@@ -100,6 +104,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "pay-for-blob"
@@ -119,6 +124,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "get-shares-by-namespace"
@@ -138,6 +144,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "reconstruction"
@@ -156,6 +163,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "das-benchmarks"
@@ -172,6 +180,7 @@ instances = { min = 30, max = 1002, default = 30 }
     light = { type = "int", default = 3}
     block-height = { type = "int" }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
 
 [[testcases]]
 name = "flood-arabica"
@@ -183,3 +192,4 @@ instances = { min = 4, max = 3000, default = 12 }
         light = { type = "int", default = 3}
         block-height = { type = "int" }
         role = { type = "string" }
+        p2p-network = { type = "string", default = "arabica-4" }

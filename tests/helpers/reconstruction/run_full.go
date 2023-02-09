@@ -100,11 +100,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return peers
 	}(bridgeNodes)
 	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNodes[0].TrustedHash)
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Full,
-		cfg,
-	)
+	nd, err := nodekit.NewNode(ndhome, node.Full, runenv.StringParam("p2p-network"), cfg)
 	if err != nil {
 		return err
 	}
