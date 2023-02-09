@@ -4,7 +4,7 @@ Testing scenarios and network infrastructure for the Celestia Network
 
 ## Pre-Requisites
 
-Please install `docker` and [testground](https://docs.testground.ai/v/master/getting-started) to execute network tests.
+Please install `docker` and [testground](https://github.com/testground/testground#getting-started) to execute network tests.
 
 ## Go requirements
 
