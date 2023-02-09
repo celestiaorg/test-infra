@@ -81,6 +81,8 @@ github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v0.3.0/go.mod h1:tPaiy8S5bQ
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78/go.mod h1:LmzpDX56iTiv29bbRTIsUNlaFfuhWRQBWjQdVyAevI8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-autorest v11.1.2+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
+github.com/Bidon15/celestia-node v0.7.0-rc2-blackbox-metrics h1:STDc4Sc5cEY9NHyUZ78eqV9UQQ7rng5En+kbHyyoKl4=
+github.com/Bidon15/celestia-node v0.7.0-rc2-blackbox-metrics/go.mod h1:Nde8GeioSkdjtgKmNNiQtFc3lhvumJ3DHo6TzPb8XlA=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
 github.com/Bidon15/go-log/v2 v2.5.2/go.mod h1:TMD+iYDL/QBjspKUN0Ypxpr2IMAz3uGUAsbCeClDQ+4=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
@@ -364,8 +366,6 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2U
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/deepmap/oapi-codegen v1.6.0/go.mod h1:ryDa9AgbELGeB+YEXE1dR53yAjHwFvE9iAUlWl9Al3M=
 github.com/deepmap/oapi-codegen v1.8.2/go.mod h1:YLgSKSDv/bZQB7N4ws6luhozi3cEdRktEqrX88CvjIw=
-github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics h1:EllRxOKC7fXNO7Js8hOmdxxYHfO3JehBCRrQ+P+Rwp0=
-github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics/go.mod h1:JIg6wsZ/W2lZv22zfv5PkdOOFsu4bEBVlrPdIHWJjfM=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f h1:U5y3Y5UE0w7amNe7Z5G/twsBW0KEalRQXZzf8ufSh9I=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f/go.mod h1:xH/i4TFMt8koVQZ6WFms69WAsDWr2XsYL3Hkl7jkoLE=
 github.com/dgraph-io/badger v1.5.5-0.20190226225317-8115aed38f8f/go.mod h1:VZxzAIRPHRVNRKRo6AXrX9BJegn6il06VMTZVJYCIjQ=

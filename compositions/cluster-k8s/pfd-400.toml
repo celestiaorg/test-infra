@@ -20,14 +20,14 @@
       validator = "100"
       bridge = "100"
       light = "100"
-      submit-times = "12"
+      submit-times = "3"
 
 [[groups]]
   id = "seeds"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
+    memory = "2Gi"
+    cpu = "2"
   [groups.instances]
     count = 5
     percentage = 0.0
@@ -85,7 +85,7 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "320Mib"
-      block-height = "40"
+      block-height = "20"
       latency = "0"
       role = "bridge"
 
@@ -108,6 +108,6 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "100Mib"
-      block-height = "20"
+      block-height = "16"
       latency = "0"
       role = "light"

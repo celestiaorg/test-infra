@@ -157,10 +157,16 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 
+	err = common.CheckBalanceDeduction(ctx, nd, bal)
+	if err != nil {
+		return err
+	}
+
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}
+
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
 		return err
