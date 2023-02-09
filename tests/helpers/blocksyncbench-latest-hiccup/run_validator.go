@@ -1,4 +1,4 @@
-package blocksyncbenchlatest
+package blocksyncbenchlatesthiccup
 
 import (
 	"context"
@@ -122,7 +122,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 
-	l, err = syncclient.Barrier(ctx, testkit.FinishState, runenv.IntParam("light")+runenv.IntParam("bridge"))
+	l, err = syncclient.Barrier(ctx, testkit.FinishState, runenv.IntParam("full")+runenv.IntParam("bridge"))
 	if err != nil {
 		runenv.RecordFailure(err)
 		return err

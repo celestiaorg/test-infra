@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -12,6 +13,7 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -70,10 +72,34 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	trustedPeers := []string{bridgeNode.Maddr}
 	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+
+	switch runenv.StringParam("getter") {
+	case "ipld":
+		cfg.Share.NoCascade = true
+		cfg.Share.DefaultGetter = "ipld"
+
+	case "shrex":
+		cfg.Share.NoCascade = true
+		cfg.Share.DefaultGetter = "shrex"
+
+	default:
+		if runenv.IntParam("use-ipld-fallback") == 0 {
+			cfg.Share.UseIPLDFallback = false
+		}
+	}
+
+	optlOpts := []otlpmetrichttp.Option{
+		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+		otlpmetrichttp.WithInsecure(),
+	}
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
 		cfg,
+		nodebuilder.WithMetrics(
+			optlOpts,
+			node.Light,
+		),
 	)
 	if err != nil {
 		return err

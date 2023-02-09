@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "blocksyncbench-latest"
-  total_instances = 16
+  total_instances = 37
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -17,10 +17,10 @@
   execution-time = "20"
   persistent-peers = "1"
   submit-times = "10"
-  msg-size = "600000"
+  msg-size = "800000"
   validator = "1"
-  bridge = "3"
-  full = "100"
+  bridge = "4"
+  full = "32"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
 
@@ -52,7 +52,7 @@
     memory = "8Gi"
     cpu = "1"
   [groups.instances]
-    count = 3
+    count = 4
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -73,7 +73,7 @@
     memory = "8Gi"
     cpu = "1"
   [groups.instances]
-    count = 12
+    count = 32
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
