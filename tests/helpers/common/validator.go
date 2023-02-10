@@ -226,6 +226,7 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
 	randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
 	if randPeers == nil {
+		runenv.RecordMessage("No peers added to the address book")
 		return cmd, nil
 	}
 
@@ -245,14 +246,9 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 		return nil
 	}
 
-	//tmrand.Intn can return 0, so we need to make sure that randomizer is not 0
-	if randomizer == 0 {
-		randomizer = 1
-	}
-
 	// if peersRange is 1, then only one peer is added to the address book
 	if peersRange == 1 {
-		return []appkit.ValidatorNode{peers[randomizer-1]}
+		return []appkit.ValidatorNode{peers[randomizer]}
 	}
 
 	// if peersRange is equal to the number of peers, then all peers are added to the address book
@@ -260,7 +256,7 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 		return peers
 	}
 
-	startIndex := (randomizer - 1) * peersRange
+	startIndex := randomizer * peersRange
 	endIndex := startIndex + peersRange
 	if endIndex > len(peers) {
 		endIndex = len(peers)
