@@ -1,4 +1,4 @@
-package dasbenchmarks
+package blocksyncbenchlatest
 
 import (
 	"context"
@@ -16,7 +16,7 @@ import (
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
@@ -25,7 +25,6 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
@@ -48,120 +47,92 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	config.IPv4 = runenv.TestSubnet
 
 	// using the assigned `GlobalSequencer` id per each of instance
-	// to fill in the last 2 octects of the new IP address for the instance
+	// to fill in the last 2 octets of the new IP address for the instance
 	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
 	ipD := byte(initCtx.GlobalSeq)
 	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
 
 	err = netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
-	bridgeCh := make(chan *testkit.BridgeNodeInfo)
-	_, err = syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
+	bridgeNode, err := common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
-	bridgeNode := <-bridgeCh
-	if bridgeNode == nil {
-		bridgeNode = <-bridgeCh
-	}
-
-	ndhome := fmt.Sprintf("/.celestia-light-%d", initCtx.GlobalSeq)
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
 
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
 	trustedPeers := []string{bridgeNode.Maddr}
-	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
+	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+
+	switch runenv.StringParam("getter") {
+	case "ipld":
+		cfg.Share.NoCascade = true
+		cfg.Share.DefaultGetter = "ipld"
+
+	case "shrex":
+		cfg.Share.NoCascade = true
+		cfg.Share.DefaultGetter = "shrex"
+
+	default:
+		if runenv.IntParam("use-ipld-fallback") == 0 {
+			cfg.Share.UseIPLDFallback = false
+		}
+	}
+
 	optlOpts := []otlpmetrichttp.Option{
 		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
 		otlpmetrichttp.WithInsecure(),
 	}
 	nd, err := nodekit.NewNode(
 		ndhome,
-		node.Light,
+		node.Full,
 		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Light,
 		),
-		// nodebuilder.WithBlackboxMetrics(),
 	)
-
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
-	runenv.RecordMessage("Starting light node")
+	runenv.RecordMessage("Starting full node")
 	err = nd.Start(ctx)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
-	// wait for the bridge node
-	l, err := syncclient.Barrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge"))
-	if err != nil {
-		runenv.RecordFailure(err)
-		return err
-	}
-	lerr := <-l.C
-	if lerr != nil {
-		runenv.RecordFailure(lerr)
-		return lerr
-	}
-
-	// signal startup
-	_, err = syncclient.SignalEntry(ctx, testkit.LightNodesStartedState)
+	runenv.RecordMessage("Full node is syncing")
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
 	}
+	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
+		runenv.IntParam("block-height"),
+		eh.Commit.BlockID.Hash.String())
 
-	// wait for the core network to reach height 1
-	_, err = nd.HeaderServ.GetByHeight(ctx, uint64(1))
-	if err != nil {
-		runenv.RecordFailure(fmt.Errorf("Error: failed to wait for core network, %s", err))
-		return err
-	}
-
-	// wait for the daser to catch up with the current height of the core network
-	err = nd.DASer.WaitCatchUp(ctx)
-	if err != nil {
-		runenv.RecordFailure(fmt.Errorf("Error while waiting for the DASer to catch up, %s", err))
-		return err
-	}
-
-	for i := 1; i < runenv.IntParam("block-height"); i++ {
-		nd.DASer.WaitCatchUp(ctx) // wait for the daser to catch up on every height
-		// wait for the core network to reach height 1
-		_, err := nd.HeaderServ.GetByHeight(ctx, uint64(i+1))
-		if err != nil {
-			runenv.RecordFailure(fmt.Errorf("Error: failed to sync headers, %s", err))
-			return err
-		}
+	if nd.HeaderServ.IsSyncing(ctx) {
+		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 
 	err = nd.Stop(ctx)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
-	return nil
+	return err
 }

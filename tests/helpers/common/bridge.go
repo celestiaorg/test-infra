@@ -130,5 +130,35 @@ func GetBridgeNode(ctx context.Context, syncclient sync.Client, id int64, amount
 			}
 		}
 	}
+}
 
+func GetBridgeNodes(
+	ctx context.Context,
+	syncclient sync.Client,
+	id int64,
+	amountOfBridges int,
+) (
+	bridges []*testkit.BridgeNodeInfo,
+	err error,
+) {
+
+	bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
+	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
+	if err != nil {
+		return nil, err
+	}
+
+	for i := 0; i < amountOfBridges; i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return nil, fmt.Errorf("no bridge address has been sent to this light node to connect to")
+			}
+		case b := <-bridgeCh:
+			fmt.Printf("Received Bridge ID = %d", b.ID)
+			bridges = append(bridges, b)
+		}
+	}
+
+	return bridges, nil
 }
