@@ -193,3 +193,4 @@ instances = { min = 4, max = 3000, default = 12 }
         block-height = { type = "int" }
         role = { type = "string" }
         p2p-network = { type = "string", default = "arabica-4" }
+        rest-endpoint = { type = "string", default = "https://rpc.limani.celestia-devops.dev/" }

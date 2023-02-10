@@ -35,6 +35,6 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "100Mib"
-      block-height = "1000"
+      block-height = "10000"
       latency = "0"
       role = "light"

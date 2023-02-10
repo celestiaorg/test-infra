@@ -1,4 +1,4 @@
-package bigblocks
+package arabica
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
@@ -21,7 +22,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -55,16 +56,36 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
-	runenv.RecordMessage(ndhome)
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	// first we query limani for latest block in arabica
+	restEndpoint := runenv.StringParam("rest-endpoint")
+	uri := fmt.Sprintf("http://%s/block", restEndpoint)
+	resBlock, err := appkit.GetResponse(uri)
 	if err != nil {
 		return err
 	}
-	runenv.RecordMessage("My IP is %d", ip)
+
+	query := fmt.Sprintf("%s?height=%d", uri, 1)
+	// if the latest height is greater than `block-height`, then we query
+	// for hash of the (block-`block-height`) to set it as trusted hash later on
+	if resBlock.Block.Height > int64(runenv.IntParam("block-height")) {
+		height := resBlock.Block.Height - int64(runenv.IntParam("block-height"))
+		query = fmt.Sprintf("%s?height=%d", uri, height)
+	}
+
+	resp, err := appkit.GetResponse(query)
+	if err != nil {
+		return err
+	}
+
+	trustedHash := resp.BlockID.Hash.String()
+
+	netId := runenv.StringParam("p2p-network")
+	ndHome := fmt.Sprintf("/.celestia-light-%s", netId)
+	runenv.RecordMessage(ndHome)
 
 	cfg := nodebuilder.DefaultConfig(node.Light)
-	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg)
+	cfg.Header.TrustedHash = trustedHash
+	nd, err := nodekit.NewNode(ndHome, node.Light, netId, cfg)
 	if err != nil {
 		return err
 	}
@@ -74,7 +95,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
+	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(resBlock.Block.Height))
 	if err != nil {
 		return err
 	}
@@ -84,6 +105,11 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	if nd.HeaderServ.IsSyncing(ctx) {
 		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
+	}
+
+	err = nd.DASer.WaitCatchUp(ctx)
+	if err != nil {
+		return err
 	}
 
 	err = nd.Stop(ctx)
