@@ -9,7 +9,7 @@ import (
 // full node IDs that respects the following format: idA-idB-idC
 // These IDs are meant to represent the order of the full node in its GroupSeq
 // Returns a map to ease-up the process of lookup.
-func ParseFullNodeEntryPointsKey(key string) (map[int]int, error) {
+func ParseNodeEntryPointsKey(key string) (map[int]int, error) {
 	entryPointsIDs := make(map[int]int, 0)
 	res := strings.Split(key, "-")
 	for _, ID := range res {

@@ -1,11 +1,11 @@
 [metadata]
-  name = "blocksyncbench-latest"
+  name = "blocksyncbench-latest-hiccup"
   author = "derrandz"
 
 [global]
   plan = "celestia"
-  case = "blocksyncbench-latest"
-  total_instances = 209
+  case = "blocksyncbench-latest-hiccup"
+  total_instances = 37
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -16,15 +16,16 @@
 [global.run.test_params]
   execution-time = "20"
   persistent-peers = "1"
-  submit-times = "10"
-  msg-size = "600000"
+  msg-size = "800000"
   validator = "1"
-  bridge = "8"
-  full = "200"
+  bridge = "4"
+  full = "32"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
+  getter = "ipld"
   hiccup-height = "10"
-  fullnode-entrypoints = "1"
+  fullnode-entrypoints = "3"
+  bridgenode-entrypoints = "1"
 
 [[groups]]
   id = "validators"
@@ -54,7 +55,7 @@
     memory = "8Gi"
     cpu = "1"
   [groups.instances]
-    count = 8
+    count = 4
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -75,7 +76,7 @@
     memory = "8Gi"
     cpu = "1"
   [groups.instances]
-    count = 200
+    count = 32
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

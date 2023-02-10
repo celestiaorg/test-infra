@@ -64,3 +64,5 @@ func SetLoggersLevel(lvl string) error {
 
 	return nil
 }
+
+// func SetModuleLoggerLevel(module, lvl string)

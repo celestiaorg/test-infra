@@ -24,6 +24,7 @@
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
   getter = "shrex"
+  use-ipld-fallback = "0"
 
 [[groups]]
   id = "validators"

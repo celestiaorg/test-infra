@@ -138,7 +138,6 @@ func GetBridgeNodes(
 	id int64,
 	amountOfBridges int,
 ) (
-	bridge *testkit.BridgeNodeInfo,
 	bridges []*testkit.BridgeNodeInfo,
 	err error,
 ) {
@@ -146,22 +145,20 @@ func GetBridgeNodes(
 	bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
 	sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	for {
+	for i := 0; i < amountOfBridges; i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
-				return nil, nil, fmt.Errorf("no bridge address has been sent to this light node to connect to")
+				return nil, fmt.Errorf("no bridge address has been sent to this light node to connect to")
 			}
-			return bridge, bridges, nil
 		case b := <-bridgeCh:
-			fmt.Printf("Received Bridge ID = %d", bridge.ID)
-			if (int(id) % amountOfBridges) == (bridge.ID % amountOfBridges) {
-				bridge = b
-				bridges = append(bridges, b)
-			}
+			fmt.Printf("Received Bridge ID = %d", b.ID)
+			bridges = append(bridges, b)
 		}
 	}
+
+	return bridges, nil
 }

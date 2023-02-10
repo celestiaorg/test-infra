@@ -103,7 +103,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	for j := 0; j < runenv.IntParam("submit-times"); j++ {
+	for j := 0; j < runenv.IntParam("block-height"); j++ {
 		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
 		err = appcmd.PayForBlob(
 			appcmd.AccountAddress,

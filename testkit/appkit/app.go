@@ -242,7 +242,7 @@ func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddr
 func (ak *AppKit) PayForBlob(accAdr string, msg int, krbackend, krpath string) error {
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
-		"tx", "blob", "testRandBlob", fmt.Sprint(msg),
+		"tx", "blob", "TestRandBlob", fmt.Sprint(msg),
 		wrapFlag(flags.FlagFrom), accAdr,
 		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
 		wrapFlag(flags.FlagSkipConfirmation),

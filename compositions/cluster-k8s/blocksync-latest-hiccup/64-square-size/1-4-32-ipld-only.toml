@@ -1,10 +1,10 @@
 [metadata]
-  name = "blocksyncbench-latest"
+  name = "blocksyncbench-latest-hiccup"
   author = "derrandz"
 
 [global]
   plan = "celestia"
-  case = "blocksyncbench-latest"
+  case = "blocksyncbench-latest-hiccup"
   total_instances = 37
   builder = "docker:generic"
   runner = "cluster:k8s"
@@ -17,14 +17,16 @@
   execution-time = "20"
   persistent-peers = "1"
   submit-times = "10"
-  msg-size = "800000"
+  msg-size = "600000"
   validator = "1"
   bridge = "4"
   full = "32"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
-  getter = ""
-  use-ipld-fallback = "1"
+  getter = "ipld"
+  hiccup-height = "10"
+  fullnode-entrypoints = "3"
+  bridgenode-entrypoints = "1"
 
 [[groups]]
   id = "validators"

@@ -24,7 +24,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -70,11 +70,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 
-	if bridgeNode == nil {
-		runenv.RecordFailure(fmt.Errorf("Failed to pick bridge node, picking up the first available bridge."))
-		bridgeNode = bridgeNodes[0]
-	}
-
 	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
 
@@ -113,7 +108,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			optlOpts,
 			node.Light,
 		),
-		nodebuilder.WithBlackboxMetrics(),
 	)
 	if err != nil {
 		return err

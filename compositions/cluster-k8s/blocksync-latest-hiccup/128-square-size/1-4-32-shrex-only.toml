@@ -1,10 +1,10 @@
 [metadata]
-  name = "blocksyncbench-latest"
+  name = "blocksyncbench-latest-hiccup"
   author = "derrandz"
 
 [global]
   plan = "celestia"
-  case = "blocksyncbench-latest"
+  case = "blocksyncbench-latest-hiccup"
   total_instances = 37
   builder = "docker:generic"
   runner = "cluster:k8s"
@@ -16,15 +16,16 @@
 [global.run.test_params]
   execution-time = "20"
   persistent-peers = "1"
-  submit-times = "10"
   msg-size = "800000"
   validator = "1"
-  bridge = "4"
+  bridge = "3"
   full = "32"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
-  getter = ""
-  use-ipld-fallback = "1"
+  getter = "shrex"
+  hiccup-height = "10"
+  fullnode-entrypoints = "10" # list node ids as follows :idA-idB-idC
+  bridgenode-entrypoints = "1" # list node ids as follows: idA-idB-idC
 
 [[groups]]
   id = "validators"
