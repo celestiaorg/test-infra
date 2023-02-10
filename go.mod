@@ -24,7 +24,9 @@ require (
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
-	github.com/celestiaorg/celestia-node v0.6.2
+	//please use replace directive to use a local version of celestia-node
+	//until we get sealing merged in upcoming releases
+	github.com/celestiaorg/celestia-node v0.7.0-rc1
 	github.com/celestiaorg/nmt v0.14.0
 	github.com/libp2p/go-libp2p v0.24.1
 	github.com/tendermint/tendermint v0.35.4

@@ -92,8 +92,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
 
-	// TODO(@Bidon15): Check in the cluster if we can reproduce this issue
-	// https://github.com/celestiaorg/celestia-node/issues/1219
 	bal, err := nd.StateServ.Balance(ctx)
 	if err != nil {
 		return err
@@ -118,6 +116,11 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 	}
 
+	err = common.CheckBalanceDeduction(ctx, nd, bal)
+	if err != nil {
+		return err
+	}
+	
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
