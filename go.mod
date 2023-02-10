@@ -3,7 +3,7 @@ module github.com/celestiaorg/test-infra
 go 1.19
 
 replace (
-	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics.0.20230210113405-7d172e82f5ce
+	github.com/celestiaorg/celestia-node => github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics.0.20230210134749-d9dbe2764f14
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
