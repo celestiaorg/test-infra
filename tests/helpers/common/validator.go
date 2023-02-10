@@ -19,7 +19,7 @@ import (
 	"github.com/testground/sdk-go/sync"
 )
 
-func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext, options ...any) (*appkit.AppKit, error) {
+func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*appkit.AppKit, error) {
 	syncclient := initCtx.SyncClient
 
 	home := "/.celestia-app"
@@ -205,58 +205,68 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	// hacky way to make `true` the default behavior
-	discoverPeers := true
-	if len(options) > 0 {
-		discoverPeers = false
-	}
-
-	if discoverPeers {
-		runenv.RecordMessage("Discovering peers")
-		var peers []appkit.ValidatorNode
-		for i := 0; i < runenv.IntParam("validator"); i++ {
-			select {
-			case err = <-sub.Done():
-				if err != nil {
-					return nil, err
-				}
-			case val := <-valCh:
-				if !val.IP.Equal(ip) {
-					peers = append(peers, *val)
-				}
+	runenv.RecordMessage("Discovering peers")
+	var peers []appkit.ValidatorNode
+	for i := 0; i < runenv.IntParam("validator"); i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return nil, err
+			}
+		case val := <-valCh:
+			if !val.IP.Equal(ip) {
+				peers = append(peers, *val)
 			}
 		}
-		runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
-		randomizer := tmrand.Intn(runenv.IntParam("validator"))
-		runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
-		peersRange := runenv.IntParam("persistent-peers")
-		runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
-		randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
-		if randPeers == nil {
-			return nil, fmt.Errorf("no peers added for validator's addrbook, got %s", randPeers)
-		}
-
-		err = appkit.AddPeersToAddressBook(home, randPeers)
-		if err != nil {
-			return nil, err
-		}
-
-		runenv.RecordMessage("Added %d to the address book", len(randPeers))
 	}
+	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
+	randomizer := tmrand.Intn(runenv.IntParam("validator"))
+	runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
+	peersRange := runenv.IntParam("persistent-peers")
+	runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
+	randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
+	if randPeers == nil {
+		return cmd, nil
+	}
+
+	err = appkit.AddPeersToAddressBook(home, randPeers)
+	if err != nil {
+		return nil, err
+	}
+
+	runenv.RecordMessage("Added %d to the address book", len(randPeers))
 
 	return cmd, nil
 }
 
 func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.ValidatorNode) []appkit.ValidatorNode {
-	for i := 1; i <= peersRange; i++ {
-		fmt.Println("Iteration of i -> ", i)
-		if randomizer <= peersRange*i {
-			return peers[peersRange*(i-1) : peersRange*i]
-		} else if i > peersRange-1 {
-			return peers[peersRange*(i-1):]
-		}
+	// if the test-case wants only a single validator, then we return nil
+	if peersRange == 0 || randomizer > len(peers) {
+		return nil
 	}
-	return nil
+
+	//tmrand.Intn can return 0, so we need to make sure that randomizer is not 0
+	if randomizer == 0 {
+		randomizer = 1
+	}
+
+	// if peersRange is 1, then only one peer is added to the address book
+	if peersRange == 1 {
+		return []appkit.ValidatorNode{peers[randomizer-1]}
+	}
+
+	// if peersRange is equal to the number of peers, then all peers are added to the address book
+	if peersRange == len(peers) {
+		return peers
+	}
+
+	startIndex := (randomizer - 1) * peersRange
+	endIndex := startIndex + peersRange
+	if endIndex > len(peers) {
+		endIndex = len(peers)
+	}
+
+	return peers[startIndex:endIndex]
 }
 
 func changeConfig(path, mempool string) error {

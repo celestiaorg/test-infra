@@ -15,7 +15,7 @@
 # because we are accounting for padding
 [global.run.test_params]
   execution-time = "10"
-  persistent-peers = "1"
+
   submit-times = "20"
   msg-size = "700000"
   validator = "1"

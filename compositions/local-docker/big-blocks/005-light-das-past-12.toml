@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "005-light-das-past"
-  total_instances = 12
+  total_instances = 13
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
@@ -16,9 +16,32 @@
   submit-times = "42"
   msg-size = "100000"
   validator = "3"
+  seed = "1"
   bridge = "3"
   full = "3"
   light = "3"
+
+  [[groups]]
+    id = "seeds"
+    builder = "docker:generic"
+    [groups.resources]
+      memory = ""
+      cpu = ""
+    [groups.instances]
+      count = 1
+      percentage = 0.0
+    [groups.build_config]
+      build_base_image = "golang:1.19.1"
+      enable_go_build_cache = true
+      enabled = true
+      go_version = "1.19"
+    [groups.build]
+    [groups.run]
+      artifact = ""
+    [groups.run.test_params]
+      bandwidth = "256Mib"
+      latency = "0"
+      role = "seed"
 
 [[groups]]
   id = "validators"
