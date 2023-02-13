@@ -97,11 +97,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Light,
-		cfg,
-	)
+	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg)
 	if err != nil {
 		return err
 	}

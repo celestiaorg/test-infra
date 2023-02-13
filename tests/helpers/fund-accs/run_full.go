@@ -87,11 +87,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
 
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Full,
-		cfg,
-	)
+	nd, err := nodekit.NewNode(ndhome, node.Full, runenv.StringParam("p2p-network"), cfg)
 	if err != nil {
 		return err
 	}

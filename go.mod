@@ -3,8 +3,7 @@ module github.com/celestiaorg/test-infra
 go 1.19
 
 replace (
-	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.7.0-rc2-blackbox-metrics
-	github.com/celestiaorg/utils => github.com/celestiaorg/utils v0.0.0-20230111201732-2d8b5f8774ad // uses an unmerged PR, delete when celestiaorg/utils PR#5 is merged
+	github.com/celestiaorg/celestia-node => github.com/Bidon15/celestia-node v0.7.0-rc3-blackbox-metrics
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
@@ -15,7 +14,8 @@ replace (
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
-	github.com/celestiaorg/celestia-app v0.12.0-rc6
+	github.com/celestiaorg/celestia-app v0.12.0-rc7
+	github.com/celestiaorg/utils v0.1.0 // indirect
 	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/spf13/cobra v1.6.1
@@ -25,9 +25,7 @@ require (
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
-	//please use replace directive to use a local version of celestia-node
-	//until we get sealing merged in upcoming releases
-	github.com/celestiaorg/celestia-node v0.7.0-rc1
+	github.com/celestiaorg/celestia-node v0.7.0-rc3.0.20230213112043-4c98c2084744
 	github.com/celestiaorg/nmt v0.14.0
 	github.com/libp2p/go-libp2p v0.24.1
 	github.com/tendermint/tendermint v0.35.4
@@ -61,7 +59,6 @@ require (
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.3.0 // indirect
 	github.com/celestiaorg/rsmt2d v0.8.0 // indirect
-	github.com/celestiaorg/utils v0.0.0-00010101000000-000000000000 // indirect
 	github.com/cenkalti/backoff/v4 v4.2.0 // indirect
 	github.com/cespare/xxhash v1.1.0 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/celestiaorg/test-infra/tests/plans/arabica"
 	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
 	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
 	dasbenchs "github.com/celestiaorg/test-infra/tests/plans/das-benchmarks"
@@ -24,6 +25,8 @@ var testcases = map[string]interface{}{
 	"reconstruction": blockrecon.BlockReconstruction,
 	// DAS Benchmarks Plan
 	"das-benchmarks": dasbenchs.LightsDasingLatest,
+	// Arabica Nightly Plan
+	"flood-arabica": arabica.RunLightNode,
 }
 
 func main() {

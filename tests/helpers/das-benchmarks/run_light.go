@@ -89,6 +89,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Light,
+		runenv.StringParam("p2p-network"),
 		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,
