@@ -58,7 +58,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	// first we query limani for latest block in arabica
 	restEndpoint := runenv.StringParam("rest-endpoint")
-	uri := fmt.Sprintf("http://%s/block", restEndpoint)
+	uri := fmt.Sprintf("%s/block", restEndpoint)
 	resBlock, err := appkit.GetResponse(uri)
 	if err != nil {
 		return err
@@ -85,6 +85,8 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	cfg := nodebuilder.DefaultConfig(node.Light)
 	cfg.Header.TrustedHash = trustedHash
+	cfg.DASer.SampleFrom = uint64(resp.Block.Height)
+
 	nd, err := nodekit.NewNode(ndHome, node.Light, netId, cfg)
 	if err != nil {
 		return err
@@ -99,13 +101,9 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
+	runenv.RecordMessage("Reached Block# %d contains Hash: %s",
+		resBlock.Block.Height,
 		eh.Commit.BlockID.Hash.String())
-
-	if nd.HeaderServ.IsSyncing(ctx) {
-		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
-	}
 
 	err = nd.DASer.WaitCatchUp(ctx)
 	if err != nil {
