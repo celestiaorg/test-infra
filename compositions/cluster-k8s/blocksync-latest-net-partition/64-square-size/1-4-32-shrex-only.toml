@@ -1,11 +1,11 @@
 [metadata]
-  name = "blocksyncbench-latest-hiccup"
+  name = "blocksyncbench-latest-net-parition"
   author = "derrandz"
 
 [global]
   plan = "celestia"
-  case = "blocksyncbench-latest-hiccup"
-  total_instances = 37
+  case = "blocksyncbench-latest-net-parition"
+  total_instances = 36
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -16,7 +16,6 @@
 [global.run.test_params]
   execution-time = "20"
   persistent-peers = "1"
-  submit-times = "10"
   msg-size = "600000"
   validator = "1"
   bridge = "3"
@@ -24,9 +23,11 @@
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
   getter = "shrex"
-  hiccup-height = "10"
-  fullnode-entrypoints = "1-2-10"
-  bridgenode-entrypoints = "1"
+  network-parition-height = "10"
+  fullnode-entrypoints-list = "3" # provide string list of fullnode id as follows: 10-1-44-31 (this equals [10, 1, 44, 31]
+  bridgenode-entrypoints-list = "1" # provide a string list of bridge node ids as follows: 1-2-5-19-3 (this equals [1,2,5,19,3]
+  peers-limit = "6"
+  interconnect-bridges = "0"
 
 [[groups]]
   id = "validators"
@@ -54,9 +55,9 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "8Gi"
-    cpu = "1"
+    cpu = "3"
   [groups.instances]
-    count = 4
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -75,7 +76,7 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "8Gi"
-    cpu = "1"
+    cpu = "3500m"
   [groups.instances]
     count = 32
     percentage = 0.0

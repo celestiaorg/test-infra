@@ -1,4 +1,4 @@
-package blocksyncbenchlatesthiccup
+package blocksyncbenchlatestnetpartition
 
 import (
 	"context"
@@ -8,6 +8,7 @@ import (
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
+	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -77,6 +78,17 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if lerr != nil {
 		runenv.RecordFailure(lerr)
 		return lerr
+	}
+
+	runenv.RecordMessage("Connecting to other bridge nodes")
+	if runenv.IntParam("interconnect-bridges") == 1 {
+		bridgeNodes, _ := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
+		for _, bridge := range bridgeNodes {
+			if bridge.AddrInfo.ID != host.InfoFromHost(nd.Host).ID {
+				nd.Host.Connect(ctx, bridge.AddrInfo)
+				runenv.RecordMessage("Connected to Bridge:", bridge.AddrInfo.Addrs)
+			}
+		}
 	}
 
 	for i := 0; i < runenv.IntParam("block-height"); i++ {

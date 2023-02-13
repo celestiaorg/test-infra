@@ -51,6 +51,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
 	cfg.P2P.Bootstrapper = true
+	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
 	optlOpts := []otlpmetrichttp.Option{
 		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
@@ -83,8 +84,9 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 
 	runenv.RecordMessage("Reached Block#2 contains Hash: %s", eh.Commit.BlockID.Hash.String())
 
+	bridgeAddrInfo := host.InfoFromHost(nd.Host)
 	//create a new subscription to publish bridge's multiaddress to full/light nodes
-	addrs, err := peer.AddrInfoToP2pAddrs(host.InfoFromHost(nd.Host))
+	addrs, err := peer.AddrInfoToP2pAddrs(bridgeAddrInfo)
 	if err != nil {
 		return nil, err
 	}
@@ -99,6 +101,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 			ID:          int(initCtx.GroupSeq),
 			Maddr:       addrs[0].String(),
 			TrustedHash: h,
+			AddrInfo:    *bridgeAddrInfo,
 		},
 	)
 	if err != nil {
@@ -136,7 +139,6 @@ func GetBridgeNode(ctx context.Context, syncclient sync.Client, id int64, amount
 func GetBridgeNodes(
 	ctx context.Context,
 	syncclient sync.Client,
-	id int64,
 	amountOfBridges int,
 ) (
 	bridges []*testkit.BridgeNodeInfo,

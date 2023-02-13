@@ -1,10 +1,10 @@
 [metadata]
-  name = "blocksyncbench-latest-hiccup"
+  name = "blocksyncbench-latest-net-parition"
   author = "derrandz"
 
 [global]
   plan = "celestia"
-  case = "blocksyncbench-latest-hiccup"
+  case = "blocksyncbench-latest-net-parition"
   total_instances = 37
   builder = "docker:generic"
   runner = "cluster:k8s"
@@ -16,17 +16,18 @@
 [global.run.test_params]
   execution-time = "20"
   persistent-peers = "1"
-  msg-size = "800000"
+  msg-size = "600000"
   validator = "1"
   bridge = "4"
   full = "32"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
-  getter = ""
-  hiccup-height = "10"
-  fullnode-entrypoints = "1"
-  bridgenode-entrypoints = "1"
-  use-ipld-fallback = "1"
+  getter = "ipld"
+  network-parition-height = "10"
+  fullnode-entrypoints-list = "3" # provide string list of fullnode id as follows: 10-1-44-31 (this equals [10, 1, 44, 31]
+  bridgenode-entrypoints-list = "1" # provide a string list of bridge node ids as follows: 1-2-5-19-3 (this equals [1,2,5,19,3]
+  peers-limit = "6"
+  interconnect-bridges = "0"
 
 [[groups]]
   id = "validators"

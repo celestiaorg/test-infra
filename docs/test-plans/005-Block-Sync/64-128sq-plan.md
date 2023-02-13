@@ -37,14 +37,14 @@ For all cases, the singular validator will be connected to all three bridges.
 
 Y Full nodes all connected to different bridges from amongst the existing Y bridges, and connected amongst themselves (_peerLimit is set to Z_) such that full nodes are syncing latest blocks as they are being produced.
 
-### Case 2 - Syncing Latest with Hiccups:
+### Case 2 - Syncing Latest with network partitions:
 
-Y Full nodes all connected to different bridges from amongst the existing X bridges, and connected amongst themselves (_peerLimit is set to Z_) such that full nodes are syncing latest blocks as they are being produced, with random full nodes being disconnecting from Bridge node a given random `hiccup-height`.
+Y Full nodes all connected to different bridges from amongst the existing X bridges, and connected amongst themselves (_peerLimit is set to Z_) such that full nodes are syncing latest blocks as they are being produced, with random full nodes being disconnecting from Bridge node a given random `partition-height`.
 
 ### Case 3 - Syncing Historical:
 
 Y Full nodes all connected to different bridges from amongst the existing X bridges, and connected amongst themselves (_peerLimit is set to Z_) such that full nodes do not come alive until bridge nodes have synced up to `target-height` from core network, to produce historical syncing behavior
 
-### Case 3 - Syncing Historical with Hiccups:
+### Case 3 - Syncing Historical with network partitions:
 
-Y Full nodes all connected to different bridges from amongst the existing X bridges, and connected amongst themselves (_peerLimit is set to Z_) such that full nodes do not come alive until bridge nodes have synced up to `target-height` from core network, to produce historical syncing behavior, with random full nodes being disconnecting from Bridge node a given random `hiccup-height`.
+Y Full nodes all connected to different bridges from amongst the existing X bridges, and connected amongst themselves (_peerLimit is set to Z_) such that full nodes do not come alive until bridge nodes have synced up to `target-height` from core network, to produce historical syncing behavior, with random full nodes being disconnecting from Bridge node a given random `partition-height`.

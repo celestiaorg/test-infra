@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/testground/sdk-go/sync"
 )
 
@@ -31,6 +32,7 @@ type BridgeNodeInfo struct {
 	ID          int
 	Maddr       string
 	TrustedHash string
+	AddrInfo    peer.AddrInfo
 }
 
 type FullNodeInfo struct {

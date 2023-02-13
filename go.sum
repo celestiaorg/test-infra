@@ -364,8 +364,8 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2U
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/deepmap/oapi-codegen v1.6.0/go.mod h1:ryDa9AgbELGeB+YEXE1dR53yAjHwFvE9iAUlWl9Al3M=
 github.com/deepmap/oapi-codegen v1.8.2/go.mod h1:YLgSKSDv/bZQB7N4ws6luhozi3cEdRktEqrX88CvjIw=
-github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics.0.20230210142621-514e8d3f335e h1:IbLzxxfpZIAgX5J5idCSj0STrF55CJt8QmNWUptVqKE=
-github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics.0.20230210142621-514e8d3f335e/go.mod h1:RLF7MYdfftlehfPT47q1W7T+HeE77LhxsPMQjwVhnsI=
+github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics.0.20230213113250-6919f87f25b2 h1:hZgRudfsckM+U7x9yuNt4oFaVCH+LaOsMeHfSP6Wa78=
+github.com/derrandz/celestia-node v0.7.0-rc1-blackbox-metrics.0.20230213113250-6919f87f25b2/go.mod h1:dPKHAWfxf334I9TAfhuPHdcvv8kvMUfabG8Zw/11hW8=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f h1:U5y3Y5UE0w7amNe7Z5G/twsBW0KEalRQXZzf8ufSh9I=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f/go.mod h1:xH/i4TFMt8koVQZ6WFms69WAsDWr2XsYL3Hkl7jkoLE=
 github.com/dgraph-io/badger v1.5.5-0.20190226225317-8115aed38f8f/go.mod h1:VZxzAIRPHRVNRKRo6AXrX9BJegn6il06VMTZVJYCIjQ=
@@ -952,6 +952,8 @@ github.com/jmespath/go-jmespath/internal/testify v1.5.1/go.mod h1:L3OGu8Wl2/fWfC
 github.com/jmhodges/levigo v1.0.0 h1:q5EC36kV79HWeTBWsod3mG11EgStG3qArTKcvlksN1U=
 github.com/jmhodges/levigo v1.0.0/go.mod h1:Q6Qx+uH3RAqyK4rFQroq9RL7mdkABMcfhEI+nNuzMJQ=
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
+github.com/jonboulle/clockwork v0.3.1-0.20230117163003-a89700cec744 h1:fJ+REXDOpsMqA2spt3wAq3HGJJvWnNitGK2KVZTos+8=
+github.com/jonboulle/clockwork v0.3.1-0.20230117163003-a89700cec744/go.mod h1:xgRqUGwRcjKCO1vbZUEtSLrqKoPSsUpK7fnezOII0kc=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
 github.com/jrick/logrotate v1.0.0/go.mod h1:LNinyqDIJnpAur+b8yyulnQw/wDuN1+BYKlTRt3OuAQ=
 github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=

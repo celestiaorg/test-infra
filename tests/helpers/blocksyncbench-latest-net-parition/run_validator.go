@@ -1,4 +1,4 @@
-package blocksyncbenchlatesthiccup
+package blocksyncbenchlatestnetpartition
 
 import (
 	"context"

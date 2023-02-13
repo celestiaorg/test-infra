@@ -173,7 +173,6 @@ instances = { min = 30, max = 1002, default = 30 }
     block-height = { type = "int" }
     role = { type = "string" }
 
-
 [[testcases]]
 name = "blocksyncbench-latest"
 instances = { min = 16, max = 1002, default = 16 }
@@ -183,17 +182,14 @@ instances = { min = 16, max = 1002, default = 16 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 1}
     persistent-peers = { type = "int", default = 3}
-    submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000 }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 12}
     block-height = { type = "int", default = 30 }
     role = { type = "string" }
 
-
-
 [[testcases]]
-name = "blocksyncbench-latest-hiccup"
+name = "blocksyncbench-latest-net-partition"
 instances = { min = 16, max = 1002, default = 16 }
     [testcases.params]
     execution-time = { type = "int" }
@@ -201,7 +197,21 @@ instances = { min = 16, max = 1002, default = 16 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 1}
     persistent-peers = { type = "int", default = 3}
-    submit-times = { type = "int", default = 4}
+    msg-size = { type = "int", default = 10000 }
+    bridge = { type = "int", default = 3}
+    full = { type = "int", default = 12}
+    block-height = { type = "int", default = 30 }
+    role = { type = "string" }
+
+[[testcases]]
+name = "blocksyncbench-historical"
+instances = { min = 16, max = 1002, default = 16 }
+    [testcases.params]
+    execution-time = { type = "int" }
+    latency = { type = "int", default = 60}
+    bandwidth = { type = "string", default = "256Mib"}
+    validator = { type = "int", default = 1}
+    persistent-peers = { type = "int", default = 3}
     msg-size = { type = "int", default = 10000 }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 12}

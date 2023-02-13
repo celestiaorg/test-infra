@@ -1,4 +1,4 @@
-package blocksyncbenchlatesthiccup
+package blocksyncbenchlatestnetpartition
 
 import (
 	"context"
@@ -58,7 +58,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeNodes, err := common.GetBridgeNodes(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
+	bridgeNodes, err := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
 	if err != nil {
 		return err
 	}
@@ -83,8 +83,12 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	trustedPeers := []string{bridgeNode.Maddr}
+	trustedPeers := []string{}
+	for _, bridge := range bridgeNodes {
+		trustedPeers = append(trustedPeers, bridge.Maddr)
+	}
 	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
 	switch runenv.StringParam("getter") {
 	case "ipld":
@@ -127,20 +131,20 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	runenv.RecordMessage("Full node is syncing")
 
-	hh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("hiccup-height")))
+	hh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("network-partition-height")))
 	if err != nil {
 		return err
 	}
 
-	entryPointsMap, err := common.ParseNodeEntryPointsKey(runenv.StringParam("fullnode-entrypoints"))
+	entryPointsMap, err := common.ParseNodeEntryPointsKey(runenv.StringParam("fullnode-entrypoints-list"))
 	if err != nil {
 		return err
 	}
 
-	bridgesEntrypointsMap, err := common.ParseNodeEntryPointsKey(runenv.StringParam("bridgenode-entrypoints"))
+	bridgesEntrypointsMap, err := common.ParseNodeEntryPointsKey(runenv.StringParam("bridgenode-entrypoints-list"))
 	_, stayConnected := entryPointsMap[int(initCtx.GroupSeq)]
 	if !stayConnected {
-		runenv.RecordMessage("Reach hiccup height.",
+		runenv.RecordMessage("Reach network partition height.",
 			"Blacklisting bridge IPs for FullNode %d", int(initCtx.GroupSeq))
 
 		for order, v := range bridgeNodes {

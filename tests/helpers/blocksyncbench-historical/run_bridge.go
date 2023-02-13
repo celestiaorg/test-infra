@@ -1,4 +1,4 @@
-package blocksyncbenchlatesthiccup
+package blocksyncbenchhistorical
 
 import (
 	"context"
@@ -11,14 +11,17 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"go.opentelemetry.io/otel/metric"
 )
 
-func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext, _ metric.Meter) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
 	)
 	defer cancel()
+
+	// runenv.D().Counter("bridge_nodes_reached_target_height").Clear()
 
 	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
@@ -92,6 +95,14 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			runenv.IntParam("block-height"),
 			eh.Commit.BlockID.Hash.String(),
 		)
+		if int64(runenv.IntParam("target-height")) == eh.RawHeader.Height {
+			_, err := syncclient.SignalEntry(ctx, testkit.PastBlocksGeneratedState)
+			if err != nil {
+				runenv.RecordFailure(err)
+			}
+
+			// runenv.D().Counter("bridge_nodes_reached_target_height").Inc(1)
+		}
 	}
 
 	if nd.HeaderServ.IsSyncing(ctx) {
@@ -110,5 +121,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
+	// runenv.D().Counter("bridge_nodes_reached_target_height").Clear() // clear the state for the next run
 	return nil
 }

@@ -1,4 +1,4 @@
-package blocksyncbenchlatesthiccup
+package blocksyncbenchhistorical
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
+	"go.opentelemetry.io/otel/metric"
 
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/testground/sdk-go/network"
@@ -14,7 +15,7 @@ import (
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext, _ metric.Meter) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),

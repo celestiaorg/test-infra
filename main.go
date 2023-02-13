@@ -28,7 +28,7 @@ var testcases = map[string]interface{}{
 	// BlockSync Benchmarks - Syncing Latest
 	"blocksyncbench-latest": blocksync.BlockSyncLatest,
 	// BlockSync Benchmarks - Syncing Latest With Network Hiccups
-	"blocksyncbench-latest-hiccup": blocksync.BlockSyncLatestWithHiccups,
+	"blocksyncbench-latest-net-hiccup": blocksync.BlockSyncLatestWithNetworkPartitions,
 	// BlockSync Benchmarks - Syncing Historical
 	"blocksyncbench-historical": blocksync.BlockSyncHistorical,
 	// BlockSync Benchmarks - Syncing Historical With Network Hiccups
