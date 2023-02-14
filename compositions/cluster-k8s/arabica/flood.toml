@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "flood-arabica"
-  total_instances = 140
+  total_instances = 160
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -13,17 +13,17 @@
     artifact = ""
     [global.run.test_params]
       execution-time = "20"
-      light = "140"
+      light = "160"
 
 
 [[groups]]
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "300Mi"
-    cpu = "200m"
+    memory = "400Mi"
+    cpu = "250m"
   [groups.instances]
-    count = 140
+    count = 160
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
