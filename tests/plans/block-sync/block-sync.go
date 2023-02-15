@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/celestiaorg/test-infra/testkit"
-	"github.com/celestiaorg/test-infra/testkit/optlkit"
-	blocksyncbenchhistorical "github.com/celestiaorg/test-infra/tests/helpers/blocksyncbench-historical"
-	blocksyncbenchlatest "github.com/celestiaorg/test-infra/tests/helpers/blocksyncbench-latest"
-	blocksyncbenchlatestnetpartition "github.com/celestiaorg/test-infra/tests/helpers/blocksyncbench-latest-net-parition"
+	blocksynchistorical "github.com/celestiaorg/test-infra/tests/helpers/blocksync/historical"
+	blocksynclatest "github.com/celestiaorg/test-infra/tests/helpers/blocksync/latest"
+	blocksynclatestnetpartition "github.com/celestiaorg/test-infra/tests/helpers/blocksync/latest-net-parition"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 // BlockSyncLatest represents a testcase of W validator, X bridges, Y full nodes that
@@ -20,11 +18,11 @@ import (
 func BlockSyncLatest(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
 	case "validator":
-		err = blocksyncbenchlatest.RunValidator(runenv, initCtx)
+		err = blocksynclatest.RunValidator(runenv, initCtx)
 	case "bridge":
-		err = blocksyncbenchlatest.RunBridgeNode(runenv, initCtx)
+		err = blocksynclatest.RunBridgeNode(runenv, initCtx)
 	case "full":
-		err = blocksyncbenchlatest.RunFullNode(runenv, initCtx)
+		err = blocksynclatest.RunFullNode(runenv, initCtx)
 	}
 
 	if err != nil {
@@ -46,11 +44,11 @@ func BlockSyncLatest(runenv *runtime.RunEnv, initCtx *run.InitContext) (err erro
 func BlockSyncLatestWithNetworkPartitions(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
 	case "validator":
-		err = blocksyncbenchlatestnetpartition.RunValidator(runenv, initCtx)
+		err = blocksynclatestnetpartition.RunValidator(runenv, initCtx)
 	case "bridge":
-		err = blocksyncbenchlatestnetpartition.RunBridgeNode(runenv, initCtx)
+		err = blocksynclatestnetpartition.RunBridgeNode(runenv, initCtx)
 	case "full":
-		err = blocksyncbenchlatestnetpartition.RunFullNode(runenv, initCtx)
+		err = blocksynclatestnetpartition.RunFullNode(runenv, initCtx)
 	}
 
 	if err != nil {
@@ -68,39 +66,20 @@ func BlockSyncLatestWithNetworkPartitions(runenv *runtime.RunEnv, initCtx *run.I
 // using either IPLDGetter only or the default CascadeGetter (_see compositions/cluster-k8s/blocksync-historical/*/*-{getter}.toml)
 // More information under docs/test-plans/005-Block-Sync
 func BlockSyncHistorical(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
-	}
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	meterProvider, stopFn, err := optlkit.SetupMeter(ctx, initCtx, "BlockSyncHistorical", runenv.StringParam("role"), optlOpts)
-	if err != nil {
-		runenv.RecordFailure(err)
-		return err
-	}
-
-	blockSyncMeter := (*meterProvider).Meter("blocksync-historical")
-
 	switch runenv.StringParam("role") {
 	case "validator":
-		err = blocksyncbenchhistorical.RunValidator(runenv, initCtx, blockSyncMeter)
+		err = blocksynchistorical.RunValidator(runenv, initCtx)
 	case "bridge":
-		err = blocksyncbenchhistorical.RunBridgeNode(runenv, initCtx, blockSyncMeter)
+		err = blocksynchistorical.RunBridgeNode(runenv, initCtx)
 	case "full":
-		err = blocksyncbenchhistorical.RunFullNode(runenv, initCtx, blockSyncMeter)
+		err = blocksynchistorical.RunFullNode(runenv, initCtx)
+	case "historical-full":
+		err = blocksynchistorical.RunHistoricalFullNode(runenv, initCtx)
 	}
 
 	if err != nil {
 		runenv.RecordFailure(err)
 		initCtx.SyncClient.MustSignalAndWait(context.Background(), testkit.FinishState, runenv.TestInstanceCount)
-		return err
-	}
-
-	err = stopFn(ctx)
-	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 

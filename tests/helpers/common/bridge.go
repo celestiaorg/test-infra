@@ -50,7 +50,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Core.GRPCPort = "9090"
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
-	cfg.P2P.Bootstrapper = true
+	cfg.P2P.Bootstrapper = bool(runenv.IntParam("bootstrapper") == 1)
 	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
 	optlOpts := []otlpmetrichttp.Option{

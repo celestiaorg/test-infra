@@ -51,11 +51,12 @@ var (
 
 // FinishState should be signaled by those, againts which we are testing
 var (
-	AppStartedState          = sync.State("app-started")
-	BridgeStartedState       = sync.State("bridge-started")
-	PastBlocksGeneratedState = sync.State("past-blocks-generated")
-	AccountsFundedState      = sync.State("accounts-funded")
-	FinishState              = sync.State("test-finished")
-	LightNodesStartedState   = sync.State("light-nodes-started")
-	ValidatorReadyTopic      = sync.State("validator-ready")
+	AppStartedState           = sync.State("app-started")
+	BridgeStartedState        = sync.State("bridge-started")
+	PastBlocksGeneratedState  = sync.State("past-blocks-generated")
+	AccountsFundedState       = sync.State("accounts-funded")
+	FinishState               = sync.State("test-finished")
+	LightNodesStartedState    = sync.State("light-nodes-started")
+	ValidatorReadyTopic       = sync.State("validator-ready")
+	FullsFinishedSyncingState = sync.State("fulls-finished-syncing")
 )

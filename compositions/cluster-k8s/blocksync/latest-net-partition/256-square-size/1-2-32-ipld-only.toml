@@ -1,0 +1,94 @@
+[metadata]
+  name = "blocksyncbench-latest-net-parition"
+  author = "derrandz"
+
+[global]
+  plan = "celestia"
+  case = "blocksyncbench-latest-net-parition"
+  total_instances = 36
+  builder = "docker:generic"
+  runner = "cluster:k8s"
+  disable_metrics = false
+
+# we define 1 validator that produces 8mb blocks
+# the msg-size does not result in exactly 8mb
+# because we are accounting for padding
+[global.run.test_params]
+  execution-time = "20"
+  persistent-peers = "1"
+  msg-size = "1200000"
+  validator = "1"
+  bridge = "3"
+  full = "32"
+  block-height = "30"
+  otel-collector-address = "178.128.163.171:4318"
+  getter = "ipld"
+  network-partition-height = "10"
+  fullnode-entrypoints-list = "3" # provide string list of fullnode id as follows: 10-1-44-31 (this equals [10, 1, 44, 31]
+  bridgenode-entrypoints-list = "1" # provide a string list of bridge node ids as follows: 1-2-5-19-3 (this equals [1,2,5,19,3]
+  peers-limit = "6"
+  interconnect-bridges = "0"
+  bootstrapper = "1"
+
+[[groups]]
+  id = "validators"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8"
+    cpu = "2"
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "validator"
+
+[[groups]]
+  id = "bridges"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "bridge"
+
+[[groups]]
+  id = "fulls"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 32
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "full"

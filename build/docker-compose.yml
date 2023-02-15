@@ -47,6 +47,19 @@ services:
       - "4317:4317"   # OTLP gRPC receiver
       - "4318:4318"   # OTLP http receiver
 
+  grafana:
+    container_name: grafana
+    image: bitnami/grafana:9.2.4
+    ports:
+      - 3001:3000
+    restart: unless-stopped
+    volumes:
+      - ${PWD}/grafana/datasources:/etc/grafana/provisioning/datasources
+      - ${PWD}/grafana/dashboards/:/etc/grafana/provisioning/dashboards/
+      - ${PWD}/grafana/dashboards/:/var/lib/grafana/dashboards/
+      - grafana-data:/var/lib/grafana
+
 volumes:
   prometheus-data:
   loki-data:
+  grafana-data:

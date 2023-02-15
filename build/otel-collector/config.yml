@@ -10,21 +10,15 @@ receivers:
         # endpoint: "0.0.0.0:4318"
 
 exporters:
-  logging:
-    logLevel: debug
   prometheus:
     endpoint: "otel-collector:8889"
     namespace: "testground"
     send_timestamps: true
-    metric_expiration: 30m
-
-processors:
-  batch:
+    metric_expiration: 1800m 
 
 service:
   extensions: [health_check]
   pipelines:
     metrics:
       receivers: [otlp]
-      processors: [batch]
       exporters: [prometheus]

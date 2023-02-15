@@ -28,11 +28,11 @@ var testcases = map[string]interface{}{
 	// BlockSync Benchmarks - Syncing Latest
 	"blocksyncbench-latest": blocksync.BlockSyncLatest,
 	// BlockSync Benchmarks - Syncing Latest With Network Hiccups
-	"blocksyncbench-latest-net-hiccup": blocksync.BlockSyncLatestWithNetworkPartitions,
+	"blocksyncbench-latest-net-partition": blocksync.BlockSyncLatestWithNetworkPartitions,
 	// BlockSync Benchmarks - Syncing Historical
 	"blocksyncbench-historical": blocksync.BlockSyncHistorical,
 	// BlockSync Benchmarks - Syncing Historical With Network Hiccups
-	"blocksyncbench-historical-with-hiccups": blocksync.BlockSyncHistoricalWithHiccups,
+	"blocksyncbench-historical-net-partition": blocksync.BlockSyncHistoricalWithHiccups,
 }
 
 func main() {
