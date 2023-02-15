@@ -11,7 +11,7 @@ receivers:
 
 exporters:
   logging:
-    logLevel: debug
+    loglevel: debug
   prometheus:
     endpoint: "otel-collector:8889"
     namespace: "testground"
