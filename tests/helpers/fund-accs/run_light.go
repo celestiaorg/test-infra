@@ -169,7 +169,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	time.Sleep(5 * time.Minute)
+	//time.Sleep(5 * time.Minute)
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err

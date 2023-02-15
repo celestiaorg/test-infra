@@ -20,7 +20,7 @@
       validator = "100"
       bridge = "100"
       light = "1000"
-      submit-times = "10"
+      submit-times = "20"
 
 [[groups]]
   id = "seeds"

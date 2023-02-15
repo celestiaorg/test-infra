@@ -268,7 +268,7 @@ func changeConfig(path, mempool string) error {
 			"timeout_propose":   "10s",
 			"timeout_prevote":   "1s",
 			"timeout_precommit": "1s",
-			"timeout_commit":    "15s",
+			"timeout_commit":    "10s",
 		},
 		"rpc": {
 			"max_subscriptions_per_client": 150,
