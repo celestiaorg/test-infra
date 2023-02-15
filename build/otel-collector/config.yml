@@ -16,7 +16,7 @@ exporters:
     endpoint: "otel-collector:8889"
     namespace: "testground"
     send_timestamps: true
-    metric_expiration: 30m
+    metric_expiration: 120m
 
 processors:
   batch:
