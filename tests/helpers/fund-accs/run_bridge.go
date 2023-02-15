@@ -120,7 +120,9 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-	
+
+	time.Sleep(5 * time.Minute)
+
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
