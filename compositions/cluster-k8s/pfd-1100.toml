@@ -48,8 +48,8 @@
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3500m"
+    memory = "6Gi"
+    cpu = "6000m"
   [groups.instances]
     count = 100
     percentage = 0.0
@@ -70,8 +70,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3000m"
+    memory = "8Gi"
+    cpu = "4000m"
   [groups.instances]
     count = 100
     percentage = 0.0
@@ -93,8 +93,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "300Mi"
-    cpu = "200m"
+    memory = "600Mi"
+    cpu = "600m"
   [groups.instances]
     count = 1000
     percentage = 0.0
