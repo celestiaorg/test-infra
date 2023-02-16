@@ -15,7 +15,7 @@
   latency = "0"
   bandwidth = "320Mib"
   validator = "3"
-  persistent-peers = "3"
+  persistent-peers = "2"
   seed = "1"
   msg-size = "100000"
 
