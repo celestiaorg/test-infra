@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -14,7 +15,6 @@ import (
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
@@ -60,7 +60,8 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	}
 
 	nd, err := nodekit.NewNode(ndhome, node.Bridge,
-		runenv.StringParam("p2p-network"), cfg, nodebuilder.WithMetrics(
+		runenv.StringParam("p2p-network"), cfg,
+		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Bridge,
 		))

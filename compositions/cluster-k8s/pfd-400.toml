@@ -1,5 +1,5 @@
 [metadata]
-  name = "pay-for-data-100-100-1000-set"
+  name = "pay-for-data-100-100-100-set"
   author = "Bidon15"
 
 [global]
@@ -13,14 +13,14 @@
     artifact = ""
     [global.run.test_params]
       execution-time = "25"
-      msg-size = "4800"
+      msg-size = "50000"
       namespace-id = "random"
       persistent-peers = "10"
       seed = "5"
       validator = "100"
       bridge = "100"
       light = "100"
-      submit-times = "3"
+      submit-times = "20"
 
 [[groups]]
   id = "seeds"
@@ -70,8 +70,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3000m"
+    memory = "6Gi"
+    cpu = "5000m"
   [groups.instances]
     count = 100
     percentage = 0.0
@@ -85,7 +85,7 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "320Mib"
-      block-height = "20"
+      block-height = "37"
       latency = "0"
       role = "bridge"
 
@@ -93,8 +93,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "300Mi"
-    cpu = "200m"
+    memory = "500Mi"
+    cpu = "500m"
   [groups.instances]
     count = 100
     percentage = 0.0
