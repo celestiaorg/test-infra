@@ -51,9 +51,12 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
 
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
+	var optlOpts []otlpmetrichttp.Option
+	if runenv.StringParam("otel-collector-address") != "" {
+		optlOpts = []otlpmetrichttp.Option{
+			otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+			otlpmetrichttp.WithInsecure(),
+		}
 	}
 
 	nd, err := nodekit.NewNode(ndhome, node.Bridge,

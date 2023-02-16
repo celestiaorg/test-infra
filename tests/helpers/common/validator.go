@@ -251,8 +251,9 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 		return []appkit.ValidatorNode{peers[randomizer]}
 	}
 
-	// if peersRange is equal to the number of peers, then all peers are added to the address book
-	if peersRange == len(peers) {
+	// if peersRange is greater or equal to the number of peers, then all peers are added to the address book
+	if peersRange >= len(peers) {
+		fmt.Println("peersRange is greater or equal than the number of peers, which is not ok")
 		return peers
 	}
 
