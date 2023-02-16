@@ -24,7 +24,7 @@ instances = { min = 1, max = 200, default = 3 }
     latency = { type = "int", default = 0}
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
-    persistent-peers = { type = "int", default = 3}
+    persistent-peers = { type = "int", default = 2}
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
@@ -173,7 +173,7 @@ instances = { min = 30, max = 1002, default = 30 }
     latency = { type = "int", default = 60}
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
-    persistent-peers = { type = "int", default = 3}
+    persistent-peers = { type = "int", default = 0}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000 }
     bridge = { type = "int", default = 3}

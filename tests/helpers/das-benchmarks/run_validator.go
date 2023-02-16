@@ -53,7 +53,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	// false to disable peer discovery since we are runnign a singular validator
-	appcmd, err := common.BuildValidator(ctx, runenv, initCtx, false)
+	appcmd, err := common.BuildValidator(ctx, runenv, initCtx)
 	if err != nil {
 		runenv.RecordFailure(err)
 		return err

@@ -1,24 +1,47 @@
 [metadata]
-  name = "reconstruction"
+  name = "002-da-sync-3-3-3-3-set"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "reconstruction"
-  total_instances = 12
+  case = "002-da-sync"
+  total_instances = 13
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
 
 [global.run.test_params]
   execution-time = "10"
-  persistent-peers = "3"
-  submit-times = "21"
-  msg-size = "1"
+  persistent-peers = "2"
+  submit-times = "12"
+  msg-size = "100000"
   validator = "3"
+  seed = "1"
   bridge = "3"
-  full = "1"
-  light = "5"
+  full = "3"
+  light = "3"
+
+[[groups]]
+  id = "seeds"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+  [groups.run.test_params]
+    bandwidth = "256Mib"
+    latency = "0"
+    role = "seed"
 
 [[groups]]
   id = "validators"
@@ -60,7 +83,7 @@
     [groups.run.test_params]
     latency = "0"
     bandwidth = "256Mib"
-    block-height = "5"
+    block-height = "11"
     role = "bridge"
 
 [[groups]]
@@ -70,7 +93,7 @@
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 1
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -82,7 +105,7 @@
     [groups.run.test_params]
     latency = "0"
     bandwidth = "256Mib"
-    block-height = "5"
+    block-height = "10"
     role = "full"
 
 [[groups]]
@@ -92,7 +115,7 @@
     memory = ""
     cpu = ""
   [groups.instances]
-    count = 5
+    count = 3
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -103,6 +126,6 @@
   [groups.run]
     [groups.run.test_params]
     latency = "0"
-    bandwidth = "256Mib"
-    block-height = "5"
+    bandwidth = "100Mib"
+    block-height = "10"
     role = "light"
