@@ -50,7 +50,7 @@ testground plan import --from . --name celestia
 testground daemon
 
 # This command should be executed in the 2nd terminal
-testground run composition -f compositions/local-docker/big-blocks/001-val-large-txs-3.toml --wait
+testground run composition -f compositions/local-docker/big-blocks/001-val-large-txs-4.toml --wait
 ```
 
 ## Code of Conduct
