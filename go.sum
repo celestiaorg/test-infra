@@ -212,8 +212,6 @@ github.com/celestiaorg/celestia-app v0.12.0-rc7 h1:83Ig3eTc0rAapUZyc4RbygJFLVfZ4
 github.com/celestiaorg/celestia-app v0.12.0-rc7/go.mod h1:60QSrI+bbGzL/m80ocWrYpdg/ECLxmVvVets6vPuG8k=
 github.com/celestiaorg/celestia-core v1.14.0-tm-v0.34.23 h1:8zE523TUe5W33/nheJ9umHF2d1q6iHQlqJfMXMTPe3k=
 github.com/celestiaorg/celestia-core v1.14.0-tm-v0.34.23/go.mod h1:fGDSg7aw2OH/Uze1zymop0x0y1kAPEO9OII2A2cb99Q=
-github.com/celestiaorg/celestia-node v0.7.0-rc7 h1:0QxakBCfCmO+B+ufUWNkVdCT/r22K7hBRjko0cV9EYM=
-github.com/celestiaorg/celestia-node v0.7.0-rc7/go.mod h1:MkJ5MpC0UQDq90vkfG2/P2Pd/rK1cUAgwJ0d16WyUSg=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7 h1:EADZy33ufskVIy6Rj6jbi3SOVCeYYo26zUi7iYx+QR0=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7/go.mod h1:vg3Eza9adJJ5Mdx6boz5MpZsZcTZyrfTVYZHyi2zLm4=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659 h1:f3205vw3GYBtMiNoS+qB6IuHSs50Iwqsm9lNIikLTCk=
@@ -1816,6 +1814,8 @@ github.com/vivint/infectious v0.0.0-20200605153912-25a574ae18a3 h1:zMsHhfK9+Wdl1
 github.com/vivint/infectious v0.0.0-20200605153912-25a574ae18a3/go.mod h1:R0Gbuw7ElaGSLOZUSwBm/GgVwMd30jWxBDdAyMOeTuc=
 github.com/vmihailenco/msgpack/v5 v5.3.5/go.mod h1:7xyJ9e+0+9SaZT0Wt1RGleJXzli6Q/V5KbhBonMG9jc=
 github.com/vmihailenco/tagparser/v2 v2.0.0/go.mod h1:Wri+At7QHww0WTrCBeu4J6bNtoV6mEfg5OIWRZA9qds=
+github.com/walldiss/celestia-node v0.3.0-rc2.0.20230217131623-bec5d70ff07b h1:E6f/Iu3RhNKUWUFKuIraxtHVkKVsaN7UobySCpEIAO8=
+github.com/walldiss/celestia-node v0.3.0-rc2.0.20230217131623-bec5d70ff07b/go.mod h1:MkJ5MpC0UQDq90vkfG2/P2Pd/rK1cUAgwJ0d16WyUSg=
 github.com/warpfork/go-testmark v0.3.0 h1:Q81c4u7hT+BR5kNfNQhEF0VT2pmL7+Kk0wD+ORYl7iA=
 github.com/warpfork/go-testmark v0.3.0/go.mod h1:jhEf8FVxd+F17juRubpmut64NEG6I2rgkUhlcqqXwE0=
 github.com/warpfork/go-wish v0.0.0-20180510122957-5ad1f5abf436/go.mod h1:x6AKhvSSexNrVSrViXSHUEbICjmGXhtgABaHIySUSGw=

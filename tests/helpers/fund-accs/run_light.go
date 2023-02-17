@@ -101,73 +101,89 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	err = nd.Start(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = nd.HeaderServ.GetByHeight(ctx, 10)
-	if err != nil {
-		return err
-	}
-
-	addr, err := nd.StateServ.AccountAddress(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = syncclient.PublishAndWait(
-		ctx,
-		testkit.FundAccountTopic,
-		addr.String(),
-		testkit.AccountsFundedState,
-		runenv.IntParam("validator"),
-	)
-	if err != nil {
-		return err
-	}
-
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
-	if err != nil {
-		return err
-	}
-	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
-		eh.Commit.BlockID.Hash.String())
-
-	if nd.HeaderServ.IsSyncing(ctx) {
-		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
-	}
-
-	bal, err := nd.StateServ.Balance(ctx)
-	if err != nil {
-		return err
-	}
-	if bal.IsZero() {
-		return fmt.Errorf("light has no money in the bank")
-	}
-
-	runenv.RecordMessage("light -> %d has this %s balance", initCtx.GroupSeq, bal.String())
-
-	nid := common.GenerateNamespaceID(runenv.StringParam("namespace-id"))
-	data := common.GetRandomMessageBySize(runenv.IntParam("msg-size"))
-
-	for i := 0; i < runenv.IntParam("submit-times"); i++ {
-		err = common.SubmitData(ctx, runenv, nd, nid, data)
+	if runenv.TestGroupID == "lights" {
+		err = nd.Start(ctx)
 		if err != nil {
 			return err
 		}
 
-		if runenv.TestCase == "get-shares-by-namespace" && common.VerifyDataInNamespace(ctx, nd, nid, data) != nil {
-			return fmt.Errorf("no expected data found in the namespace ID")
+		_, err = nd.HeaderServ.GetByHeight(ctx, 10)
+		if err != nil {
+			return err
 		}
+
+		addr, err := nd.StateServ.AccountAddress(ctx)
+		if err != nil {
+			return err
+		}
+
+		_, err = syncclient.PublishAndWait(
+			ctx,
+			testkit.FundAccountTopic,
+			addr.String(),
+			testkit.AccountsFundedState,
+			runenv.IntParam("validator"),
+		)
+		if err != nil {
+			return err
+		}
+
+		eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
+		if err != nil {
+			return err
+		}
+		runenv.RecordMessage("Reached Block#%d contains Hash: %s",
+			runenv.IntParam("block-height"),
+			eh.Commit.BlockID.Hash.String())
+
+		if nd.HeaderServ.IsSyncing(ctx) {
+			runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
+		}
+
+		bal, err := nd.StateServ.Balance(ctx)
+		if err != nil {
+			return err
+		}
+		if bal.IsZero() {
+			return fmt.Errorf("light has no money in the bank")
+		}
+
+		runenv.RecordMessage("light -> %d has this %s balance", initCtx.GroupSeq, bal.String())
+
+		nid := common.GenerateNamespaceID(runenv.StringParam("namespace-id"))
+		data := common.GetRandomMessageBySize(runenv.IntParam("msg-size"))
+
+		for i := 0; i < runenv.IntParam("submit-times"); i++ {
+			err = common.SubmitData(ctx, runenv, nd, nid, data)
+			if err != nil {
+				return err
+			}
+
+			if runenv.TestCase == "get-shares-by-namespace" && common.VerifyDataInNamespace(ctx, nd, nid, data) != nil {
+				return fmt.Errorf("no expected data found in the namespace ID")
+			}
+		}
+
+		err = common.CheckBalanceDeduction(ctx, nd, bal)
+		if err != nil {
+			return err
+		}
+	} else {
+		time.Sleep(5 * time.Minute)
+		err = nd.Start(ctx)
+		if err != nil {
+			return err
+		}
+		nd.DASer.WaitCatchUp(ctx)
+
 	}
 
-	err = common.CheckBalanceDeduction(ctx, nd, bal)
+	_, err = nd.HeaderServ.GetByHeight(ctx, 30)
 	if err != nil {
 		return err
 	}
 
+	time.Sleep(5 * time.Minute)
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err

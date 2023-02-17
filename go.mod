@@ -3,6 +3,7 @@ module github.com/celestiaorg/test-infra
 go 1.19
 
 replace (
+	github.com/celestiaorg/celestia-node => github.com/walldiss/celestia-node v0.3.0-rc2.0.20230217131623-bec5d70ff07b
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
@@ -27,6 +28,7 @@ require (
 	github.com/celestiaorg/nmt v0.14.0
 	github.com/libp2p/go-libp2p v0.24.1
 	github.com/tendermint/tendermint v0.35.4
+	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.34.0
 	go.uber.org/fx v1.18.2
 )
 
@@ -287,7 +289,6 @@ require (
 	go.opentelemetry.io/otel v1.11.2 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/internal/retry v1.11.2 // indirect
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric v0.34.0 // indirect
-	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.34.0 // indirect
 	go.opentelemetry.io/otel/metric v0.34.0 // indirect
 	go.opentelemetry.io/otel/sdk v1.11.2 // indirect
 	go.opentelemetry.io/otel/sdk/metric v0.34.0 // indirect
