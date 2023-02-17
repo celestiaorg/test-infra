@@ -20,7 +20,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("INFO")
+	err := nodekit.SetLoggersLevel("DEBUG")
 	if err != nil {
 		return err
 	}
@@ -120,7 +120,9 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-	
+
+	time.Sleep(5 * time.Minute)
+
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err

@@ -257,10 +257,17 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 		return peers
 	}
 
-	startIndex := randomizer * peersRange
-	endIndex := startIndex + peersRange
-	if endIndex > len(peers) {
+	startIndex := randomizer
+	endIndex := randomizer + peersRange
+	// if the endIndex is greater than the number of peers, then we set the endIndex to the number of peers
+	// this is to avoid out of bounds error when slicing the peers array
+	if endIndex > len(peers) && ((endIndex - len(peers)) < peersRange) {
+		startIndex = endIndex - len(peers)
 		endIndex = len(peers)
+	} else if (endIndex - startIndex) > peersRange {
+		endIndex = startIndex + peersRange
+	} else if (endIndex - startIndex) < peersRange {
+		startIndex = endIndex - peersRange
 	}
 
 	return peers[startIndex:endIndex]
