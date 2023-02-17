@@ -3,6 +3,7 @@ module github.com/celestiaorg/test-infra
 go 1.19
 
 replace (
+	github.com/celestiaorg/celestia-node => github.com/walldiss/celestia-node v0.3.0-rc2.0.20230217131623-bec5d70ff07b
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
