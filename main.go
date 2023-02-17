@@ -4,7 +4,6 @@ import (
 	"github.com/celestiaorg/test-infra/tests/plans/arabica"
 	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
 	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
-	dasbenchs "github.com/celestiaorg/test-infra/tests/plans/das-benchmarks"
 	pfdgsbn "github.com/celestiaorg/test-infra/tests/plans/pfd-gsbn"
 	"github.com/testground/sdk-go/run"
 )
@@ -23,8 +22,6 @@ var testcases = map[string]interface{}{
 	"get-shares-by-namespace": pfdgsbn.PayForBlobAndGetShares,
 	// Block Reconstruction Plan
 	"reconstruction": blockrecon.BlockReconstruction,
-	// DAS Benchmarks Plan
-	"das-benchmarks": dasbenchs.LightsDasingLatest,
 	// Arabica Nightly Plan
 	"flood-arabica": arabica.RunLightNode,
 }

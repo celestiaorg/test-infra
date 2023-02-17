@@ -81,8 +81,6 @@ github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v0.3.0/go.mod h1:tPaiy8S5bQ
 github.com/Azure/go-ansiterm v0.0.0-20170929234023-d6e3b3328b78/go.mod h1:LmzpDX56iTiv29bbRTIsUNlaFfuhWRQBWjQdVyAevI8=
 github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 h1:UQHMgLO+TxOElx5B5HZ4hJQsoJ/PvUvKRhJHDQXO8P8=
 github.com/Azure/go-autorest v11.1.2+incompatible/go.mod h1:r+4oMnoxhatjLLJ6zxSWATqVooLgysK6ZNox3g/xq24=
-github.com/Bidon15/celestia-node v0.7.0-rc3-blackbox-metrics h1:GGGtHaItbm2AXY2Hr9M7ShFzAF/GXQAHVfd8ZA2+1jc=
-github.com/Bidon15/celestia-node v0.7.0-rc3-blackbox-metrics/go.mod h1:5pe4G/NUqnv3AR71PmMVZ48zZKIIQnsI7KaWEsS480Y=
 github.com/Bidon15/go-log/v2 v2.5.2 h1:i+Co+D6OJQnM9xuuAlbtoV2GdnCv4KrfJWH6IQjcM1Y=
 github.com/Bidon15/go-log/v2 v2.5.2/go.mod h1:TMD+iYDL/QBjspKUN0Ypxpr2IMAz3uGUAsbCeClDQ+4=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
@@ -214,6 +212,8 @@ github.com/celestiaorg/celestia-app v0.12.0-rc7 h1:83Ig3eTc0rAapUZyc4RbygJFLVfZ4
 github.com/celestiaorg/celestia-app v0.12.0-rc7/go.mod h1:60QSrI+bbGzL/m80ocWrYpdg/ECLxmVvVets6vPuG8k=
 github.com/celestiaorg/celestia-core v1.14.0-tm-v0.34.23 h1:8zE523TUe5W33/nheJ9umHF2d1q6iHQlqJfMXMTPe3k=
 github.com/celestiaorg/celestia-core v1.14.0-tm-v0.34.23/go.mod h1:fGDSg7aw2OH/Uze1zymop0x0y1kAPEO9OII2A2cb99Q=
+github.com/celestiaorg/celestia-node v0.7.0-rc5 h1:Q8Q8xzCxdgfyL9lLTPKc/6C208lnUZtOkuTTfvtzmc8=
+github.com/celestiaorg/celestia-node v0.7.0-rc5/go.mod h1:MkJ5MpC0UQDq90vkfG2/P2Pd/rK1cUAgwJ0d16WyUSg=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7 h1:EADZy33ufskVIy6Rj6jbi3SOVCeYYo26zUi7iYx+QR0=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7/go.mod h1:vg3Eza9adJJ5Mdx6boz5MpZsZcTZyrfTVYZHyi2zLm4=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659 h1:f3205vw3GYBtMiNoS+qB6IuHSs50Iwqsm9lNIikLTCk=
@@ -230,8 +230,6 @@ github.com/celestiaorg/quantum-gravity-bridge v1.3.0 h1:9zPIp7w1FWfkPnn16y3S4FpF
 github.com/celestiaorg/quantum-gravity-bridge v1.3.0/go.mod h1:6WOajINTDEUXpSj5UZzod16UZ96ZVB/rFNKyM+Mt1gI=
 github.com/celestiaorg/rsmt2d v0.8.0 h1:ZUxTCELZCM9zMGKNF3cT+rUqMddXMeiuyleSJPZ3Wn4=
 github.com/celestiaorg/rsmt2d v0.8.0/go.mod h1:hhlsTi6G3+X5jOP/8Lb/d7i5y2XNFmnyMddYbFSmrgo=
-github.com/celestiaorg/utils v0.1.0 h1:WsP3O8jF7jKRgLNFmlDCwdThwOFMFxg0MnqhkLFVxPo=
-github.com/celestiaorg/utils v0.1.0/go.mod h1:vQTh7MHnvpIeCQZ2/Ph+w7K1R2UerDheZbgJEJD2hSU=
 github.com/cenkalti/backoff v2.2.1+incompatible h1:tNowT99t7UNflLxfYYSlKYsBpXdEet03Pg2g16Swow4=
 github.com/cenkalti/backoff v2.2.1+incompatible/go.mod h1:90ReRw6GdpyfrHakVjL/QHaoyV4aDUVVkXQJJJ3NXXM=
 github.com/cenkalti/backoff/v4 v4.1.1/go.mod h1:scbssz8iZGpm3xbr14ovlUdkxfGXNInqkPWOWmG2CLw=
