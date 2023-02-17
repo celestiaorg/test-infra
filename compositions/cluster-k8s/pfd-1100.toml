@@ -111,3 +111,5 @@
       block-height = "35"
       latency = "0"
       role = "light"
+      historical-lights-count = "100"
+      start-syncing-at = "20"
