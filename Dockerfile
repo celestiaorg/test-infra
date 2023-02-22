@@ -20,7 +20,7 @@ FROM ${BUILD_BASE_IMAGE} AS builder
 # PLAN_DIR is the location containing the plan source inside the container.
 ENV PLAN_DIR /plan
 
-ENV INFLUXDB_URL=http://178.128.163.171:8086
+ENV INFLUXDB_URL=http://influxdb:8086
 
 # SDK_DIR is the location containing the (optional) sdk source inside the container.
 ENV SDK_DIR /sdk
@@ -74,7 +74,7 @@ RUN cd ${PLAN_DIR} \
 
 ## The 'AS runtime' token is used to parse Docker stdout to extract the build image ID to cache.
 FROM ${RUNTIME_IMAGE} AS runtime
-RUN apk add --no-cache bash gcompat
+RUN apk add --no-cache bash gcompat curl
 # PLAN_DIR is the location containing the plan source inside the build container.
 ENV PLAN_DIR /plan
 ENV GOLOG_OUTPUT stdout

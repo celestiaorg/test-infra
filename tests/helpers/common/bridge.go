@@ -3,6 +3,7 @@ package common
 import (
 	"context"
 	"fmt"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -50,8 +51,15 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
 
-	nd, err := nodekit.NewNode(ndhome, node.Bridge,
-		runenv.StringParam("p2p-network"), cfg)
+	optlOpts := []otlpmetrichttp.Option{
+		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+		otlpmetrichttp.WithInsecure(),
+	}
+	nd, err := nodekit.NewNode(ndhome, node.Bridge, runenv.StringParam("p2p-network"), cfg,
+		nodebuilder.WithMetrics(
+			optlOpts,
+			node.Bridge,
+		))
 
 	if err != nil {
 		return nil, err

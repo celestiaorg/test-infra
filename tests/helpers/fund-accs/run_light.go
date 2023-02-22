@@ -3,6 +3,8 @@ package fundaccounts
 import (
 	"context"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -86,7 +88,15 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
 
-	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg)
+	optlOpts := []otlpmetrichttp.Option{
+		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+		otlpmetrichttp.WithInsecure(),
+	}
+	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg,
+		nodebuilder.WithMetrics(
+			optlOpts,
+			node.Light,
+		))
 	if err != nil {
 		return err
 	}

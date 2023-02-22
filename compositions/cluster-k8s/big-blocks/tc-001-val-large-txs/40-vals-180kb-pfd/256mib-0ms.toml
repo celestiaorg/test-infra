@@ -18,7 +18,7 @@
       msg-size = "180000"
       persistent-peers = "10"
       seed = "5"
-      submit-times = "10"
+      submit-times = "30"
       validator = "40"
 
 [[groups]]
