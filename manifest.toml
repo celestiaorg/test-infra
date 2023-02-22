@@ -125,6 +125,7 @@ instances = { min = 4, max = 3000, default = 12 }
     block-height = { type = "int" }
     role = { type = "string" }
     p2p-network = { type = "string", default = "private" }
+    otel-collector-address = { type = "string", default = "51.158.130.41:4318" }
 
 [[testcases]]
 name = "get-shares-by-namespace"
