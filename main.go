@@ -5,7 +5,6 @@ import (
 	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
 	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
 	blocksync "github.com/celestiaorg/test-infra/tests/plans/block-sync"
-	dasbenchs "github.com/celestiaorg/test-infra/tests/plans/das-benchmarks"
 	pfdgsbn "github.com/celestiaorg/test-infra/tests/plans/pfd-gsbn"
 	"github.com/testground/sdk-go/run"
 )
@@ -25,7 +24,6 @@ var testcases = map[string]interface{}{
 	// Block Reconstruction Plan
 	"reconstruction": blockrecon.BlockReconstruction,
 	// DAS Benchmarks Plan
-	"das-benchmarks": dasbenchs.LightsDasingLatest,
 	// BlockSync Benchmarks - Syncing Latest
 	"blocksyncbench-latest": blocksync.BlockSyncLatest,
 	// BlockSync Benchmarks - Syncing Latest With Network Hiccups
