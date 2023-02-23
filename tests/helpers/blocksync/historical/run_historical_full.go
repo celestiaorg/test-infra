@@ -100,6 +100,7 @@ func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) err
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
+		"private",
 		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,

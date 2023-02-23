@@ -94,8 +94,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
-		cfg,
 		"private",
+		cfg,
 	)
 	if err != nil {
 		return err

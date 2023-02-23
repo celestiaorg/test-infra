@@ -302,7 +302,7 @@ func changeConfig(path, mempool string) error {
 			"prometheus":             true,
 			"prometheus_listen_addr": ":26660",
 			"max_open_connections":   100,
-			"namespace":              "default",
+			"namespace":              "tendermint",
 		},
 	}
 
