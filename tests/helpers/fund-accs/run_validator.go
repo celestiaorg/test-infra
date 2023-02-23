@@ -137,7 +137,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	total := runenv.TestInstanceCount - runenv.IntParam("validator") - runenv.IntParam("seed")
+	total := runenv.TestInstanceCount - runenv.IntParam("validator") - runenv.IntParam("seed") - 20
 	var fundAccs []string
 	for i := 0; i < total; i++ {
 		select {

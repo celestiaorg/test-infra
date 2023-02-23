@@ -1,36 +1,35 @@
 [metadata]
-  name = "pay-for-data-3-3-1-1-set"
+  name = "pay-for-data-100-100-1000-set"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
   case = "pay-for-blob"
-  total_instances = 9
+  total_instances = 325
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
   [global.run]
     artifact = ""
     [global.run.test_params]
-      bridge = "3"
-      execution-time = "10"
-      full = "1"
-      light = "1"
-      msg-size = "100000"
-      namespace-id = "1"
-
-      seed = "1"
-      submit-times = "12"
-      validator = "3"
+      execution-time = "25"
+      msg-size = "4800"
+      namespace-id = "random"
+      persistent-peers = "10"
+      seed = "5"
+      validator = "100"
+      bridge = "100"
+      light = "120"
+      submit-times = "5"
 
 [[groups]]
   id = "seeds"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
+    memory = "2Gi"
+    cpu = "2"
   [groups.instances]
-    count = 1
+    count = 5
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -50,9 +49,9 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "4Gi"
-    cpu = "4500m"
+    cpu = "3500m"
   [groups.instances]
-    count = 3
+    count = 100
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -63,7 +62,7 @@
   [groups.run]
     artifact = ""
     [groups.run.test_params]
-      bandwidth = "256Mib"
+      bandwidth = "320Mib"
       latency = "0"
       role = "validator"
 
@@ -72,9 +71,9 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "4Gi"
-    cpu = "4500m"
+    cpu = "3000m"
   [groups.instances]
-    count = 3
+    count = 100
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -85,42 +84,19 @@
   [groups.run]
     artifact = ""
     [groups.run.test_params]
-      bandwidth = "256Mib"
-      block-height = "5"
+      bandwidth = "320Mib"
+      block-height = "30"
       latency = "0"
       role = "bridge"
-
-[[groups]]
-  id = "fulls"
-  builder = "docker:generic"
-  [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
-  [groups.instances]
-    count = 1
-    percentage = 0.0
-  [groups.build_config]
-    build_base_image = "golang:1.19.1"
-    enable_go_build_cache = true
-    enabled = true
-    go_version = "1.19"
-  [groups.build]
-  [groups.run]
-    artifact = ""
-    [groups.run.test_params]
-      bandwidth = "256Mib"
-      block-height = "5"
-      latency = "0"
-      role = "full"
 
 [[groups]]
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "2Gi"
-    cpu = "1500m"
+    memory = "300Mi"
+    cpu = "200m"
   [groups.instances]
-    count = 1
+    count = 100
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -132,6 +108,29 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "100Mib"
-      block-height = "5"
+      block-height = "16"
       latency = "0"
       role = "light"
+
+[[groups]]
+id = "lights-nodas"
+builder = "docker:generic"
+[groups.resources]
+memory = "300Mi"
+cpu = "200m"
+[groups.instances]
+count = 20
+percentage = 0.0
+[groups.build_config]
+build_base_image = "golang:1.19.1"
+enable_go_build_cache = true
+enabled = true
+go_version = "1.19"
+[groups.build]
+[groups.run]
+artifact = ""
+[groups.run.test_params]
+bandwidth = "100Mib"
+block-height = "16"
+latency = "0"
+role = "light"

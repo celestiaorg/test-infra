@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/celestiaorg/test-infra/tests/plans/arabica"
 	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
 	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
 	blocksync "github.com/celestiaorg/test-infra/tests/plans/block-sync"
@@ -33,6 +34,8 @@ var testcases = map[string]interface{}{
 	"blocksyncbench-historical": blocksync.BlockSyncHistorical,
 	// BlockSync Benchmarks - Syncing Historical With Network Hiccups
 	"blocksyncbench-historical-net-partition": blocksync.BlockSyncHistoricalWithHiccups,
+	// Arabica Nightly Plan
+	"flood-arabica": arabica.RunLightNode,
 }
 
 func main() {

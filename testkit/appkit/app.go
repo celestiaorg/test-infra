@@ -285,7 +285,8 @@ func GetGenesisState(uri string) (*coretypes.ResultGenesis, error) {
 	return genState, nil
 }
 
-func getResultBlockResponse(uri string) (*coretypes.ResultBlock, error) {
+// GetResponse returns the response from the given uri of the app node
+func GetResponse(uri string) (*coretypes.ResultBlock, error) {
 	resp, err := http.Get(uri)
 	if err != nil {
 		return nil, err
@@ -313,7 +314,7 @@ func getResultBlockResponse(uri string) (*coretypes.ResultBlock, error) {
 func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
 
-	resBlock, err := getResultBlockResponse(uri)
+	resBlock, err := GetResponse(uri)
 	if err != nil {
 		return "", err
 	}
@@ -324,7 +325,7 @@ func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
 func GetLatestsBlockSize(ip net.IP) (int, error) {
 	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
 
-	resBlock, err := getResultBlockResponse(uri)
+	resBlock, err := GetResponse(uri)
 	if err != nil {
 		return 0, err
 	}
@@ -335,7 +336,7 @@ func GetLatestsBlockSize(ip net.IP) (int, error) {
 func GetLatestBlockSizeAndHeight(ip net.IP) (int, uint64, error) {
 	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
 
-	resBlock, err := getResultBlockResponse(uri)
+	resBlock, err := GetResponse(uri)
 	if err != nil {
 		return 0, 0, err
 	}

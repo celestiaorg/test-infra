@@ -14,7 +14,6 @@ import (
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
@@ -53,20 +52,8 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.P2P.Bootstrapper = bool(runenv.IntParam("bootstrapper") == 1)
 	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
-	}
-
-	nd, err := nodekit.NewNode(
-		ndhome,
-		node.Bridge,
-		cfg,
-		nodebuilder.WithMetrics(
-			optlOpts,
-			node.Bridge,
-		),
-	)
+	nd, err := nodekit.NewNode(ndhome, node.Bridge,
+		runenv.StringParam("p2p-network"), cfg)
 
 	if err != nil {
 		return nil, err

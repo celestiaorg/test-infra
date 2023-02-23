@@ -1,30 +1,29 @@
 [metadata]
-  name = "001-val-large-txs"
+  name = "flood-arabica-160"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "001-val-large-txs"
-  total_instances = 3
+  case = "flood-arabica"
+  total_instances = 140
   builder = "docker:generic"
-  runner = "local:docker"
+  runner = "cluster:k8s"
   disable_metrics = false
+  [global.run]
+    artifact = ""
+    [global.run.test_params]
+      execution-time = "20"
+      light = "140"
 
-[global.run.test_params]
-  execution-time = "10"
-  latency = "0"
-  bandwidth = "320Mib"
-  validator = "3"
-  persistent-peers = "3"
 
 [[groups]]
-  id = "validators"
+  id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = ""
-    cpu = ""
+    memory = "300Mi"
+    cpu = "200m"
   [groups.instances]
-    count = 3
+    count = 140
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -34,3 +33,8 @@
   [groups.build]
   [groups.run]
     artifact = ""
+    [groups.run.test_params]
+      bandwidth = "100Mib"
+      block-height = "10000"
+      latency = "0"
+      role = "light"

@@ -30,19 +30,7 @@ func NewConfig(
 	return cfg
 }
 
-func NewNode(
-	path string,
-	tp node.Type,
-	cfg *nodebuilder.Config,
-	options ...fx.Option,
-) (*nodebuilder.Node, error) {
-	// This is necessary to ensure that the account addresses are correctly prefixed
-	// as in the celestia application.
-	// sdkcfg := sdk.GetConfig()
-	// sdkcfg.SetBech32PrefixForAccount(app.Bech32PrefixAccAddr, app.Bech32PrefixAccPub)
-	// sdkcfg.SetBech32PrefixForValidator(app.Bech32PrefixValAddr, app.Bech32PrefixValPub)
-	// sdkcfg.Seal()
-
+func NewNode(path string, tp node.Type, network string, cfg *nodebuilder.Config, options ...fx.Option) (*nodebuilder.Node, error) {
 	err := nodebuilder.Init(*cfg, path, tp)
 	if err != nil {
 		return nil, err
@@ -51,7 +39,7 @@ func NewNode(
 	if err != nil {
 		return nil, err
 	}
-	return nodebuilder.NewWithConfig(tp, p2p.Private, store, cfg, options...)
+	return nodebuilder.NewWithConfig(tp, p2p.Network(network), store, cfg, options...)
 
 }
 
