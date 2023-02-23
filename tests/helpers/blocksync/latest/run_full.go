@@ -89,6 +89,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
+		"private",
 		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,

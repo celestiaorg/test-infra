@@ -173,63 +173,55 @@ instances = { min = 4, max = 3000, default = 12 }
         latency = { type = "int", default = 0}
         bandwidth = { type = "string", default = "256Mib"}
         light = { type = "int", default = 3}
-        block-height = { type = "int" }
+        block-height = { type = "int", default = 50 }
         role = { type = "string" }
-        p2p-network = { type = "string", default = "arabica-5" }
+        p2p-network = { type = "string", default = "arabica-6" }
         rest-endpoint = { type = "string", default = "https://rpc.limani.celestia-devops.dev" }
-    execution-time = { type = "int" }
-    latency = { type = "int", default = 60}
-    bandwidth = { type = "string", default = "256Mib"}
-    validator = { type = "int", default = 3}
-    persistent-peers = { type = "int", default = 3}
-    submit-times = { type = "int", default = 4}
-    msg-size = { type = "int", default = 10000 }
-    bridge = { type = "int", default = 3}
-    light = { type = "int", default = 3}
-    block-height = { type = "int" }
-    role = { type = "string" }
-
+ 
 [[testcases]]
 name = "blocksyncbench-latest"
 instances = { min = 16, max = 1002, default = 16 }
     [testcases.params]
-    execution-time = { type = "int" }
-    latency = { type = "int", default = 60}
-    bandwidth = { type = "string", default = "256Mib"}
-    validator = { type = "int", default = 1}
-    persistent-peers = { type = "int", default = 3}
-    msg-size = { type = "int", default = 10000 }
-    bridge = { type = "int", default = 3}
-    full = { type = "int", default = 12}
-    block-height = { type = "int", default = 30 }
-    role = { type = "string" }
+        execution-time = { type = "int" }
+        latency = { type = "int", default = 60}
+        bandwidth = { type = "string", default = "256Mib"}
+        validator = { type = "int", default = 1}
+        persistent-peers = { type = "int", default = 3}
+        msg-size = { type = "int", default = 10000 }
+        bridge = { type = "int", default = 3}
+        full = { type = "int", default = 12}
+        block-height = { type = "int", default = 30 }
+        role = { type = "string" }
+        otel-collector-address = { type = "string" }
 
 [[testcases]]
 name = "blocksyncbench-latest-net-partition"
 instances = { min = 16, max = 1002, default = 16 }
     [testcases.params]
-    execution-time = { type = "int" }
-    latency = { type = "int", default = 60}
-    bandwidth = { type = "string", default = "256Mib"}
-    validator = { type = "int", default = 1}
-    persistent-peers = { type = "int", default = 3}
-    msg-size = { type = "int", default = 10000 }
-    bridge = { type = "int", default = 3}
-    full = { type = "int", default = 12}
-    block-height = { type = "int", default = 30 }
-    role = { type = "string" }
+        execution-time = { type = "int" }
+        latency = { type = "int", default = 60}
+        bandwidth = { type = "string", default = "256Mib"}
+        validator = { type = "int", default = 1}
+        persistent-peers = { type = "int", default = 3}
+        msg-size = { type = "int", default = 10000 }
+        bridge = { type = "int", default = 3}
+        full = { type = "int", default = 12}
+        block-height = { type = "int", default = 30 }
+        role = { type = "string" }
+        otel-collector-address = { type = "string" }
 
 [[testcases]]
 name = "blocksyncbench-historical"
 instances = { min = 16, max = 1002, default = 16 }
     [testcases.params]
-    execution-time = { type = "int" }
-    latency = { type = "int", default = 60}
-    bandwidth = { type = "string", default = "256Mib"}
-    validator = { type = "int", default = 1}
-    persistent-peers = { type = "int", default = 3}
-    msg-size = { type = "int", default = 10000 }
-    bridge = { type = "int", default = 3}
-    full = { type = "int", default = 12}
-    block-height = { type = "int", default = 30 }
-    role = { type = "string" }
+        execution-time = { type = "int" }
+        latency = { type = "int", default = 60}
+        bandwidth = { type = "string", default = "256Mib"}
+        validator = { type = "int", default = 1}
+        persistent-peers = { type = "int", default = 3}
+        msg-size = { type = "int", default = 10000 }
+        bridge = { type = "int", default = 3}
+        full = { type = "int", default = 12}
+        block-height = { type = "int", default = 30 }
+        role = { type = "string" }
+        otel-collector-address = { type = "string"}

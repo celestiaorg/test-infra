@@ -95,6 +95,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		ndhome,
 		node.Full,
 		cfg,
+		"private",
 	)
 	if err != nil {
 		return err
