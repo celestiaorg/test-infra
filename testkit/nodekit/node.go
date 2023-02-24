@@ -1,8 +1,14 @@
 package nodekit
 
 import (
+	"context"
 	"fmt"
+	"github.com/celestiaorg/celestia-app/app"
+	"github.com/celestiaorg/celestia-app/app/encoding"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"net"
+	"os"
+	"path/filepath"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
@@ -35,12 +41,28 @@ func NewNode(path string, tp node.Type, network string, cfg *nodebuilder.Config,
 	if err != nil {
 		return nil, err
 	}
-	store, err := nodebuilder.OpenStore(path)
+
+	keysPath := filepath.Join(path, "keys")
+	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
+	ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, keysPath, os.Stdin, encConf.Codec)
+	if err != nil {
+		return nil, err
+	}
+
+	store, err := nodebuilder.OpenStore(path, ring)
 	if err != nil {
 		return nil, err
 	}
 	return nodebuilder.NewWithConfig(tp, p2p.Network(network), store, cfg, options...)
 
+}
+
+func IsSyncing(ctx context.Context, nd *nodebuilder.Node) bool {
+	syncer, err := nd.HeaderServ.SyncState(ctx)
+	if err != nil {
+		return false
+	}
+	return syncer.Finished()
 }
 
 func SetLoggersLevel(lvl string) error {

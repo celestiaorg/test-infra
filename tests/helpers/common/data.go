@@ -82,7 +82,7 @@ func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid names
 // VerifyDataInNamespace encapsulates 3 steps to get the data verified against the next block's shares
 // found in a user-specified namespace.ID
 func VerifyDataInNamespace(ctx context.Context, nd *nodebuilder.Node, nid namespace.ID, data []byte) error {
-	eh, err := nd.HeaderServ.Head(ctx)
+	eh, err := nd.HeaderServ.NetworkHead(ctx)
 	if err != nil {
 		return err
 	}
