@@ -136,7 +136,11 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			runenv.IntParam("block-height"),
 			eh.Commit.BlockID.Hash.String())
 
-		if nd.HeaderServ.IsSyncing(ctx) {
+		state, err := nd.HeaderServ.SyncState(ctx)
+    if err != nil {
+      return err
+    }
+    if !state.Finished() {
 			runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
 		}
 

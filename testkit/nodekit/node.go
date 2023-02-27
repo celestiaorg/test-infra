@@ -10,7 +10,11 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	logging "github.com/ipfs/go-log/v2"
 
+	"github.com/celestiaorg/celestia-app/app"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/celestiaorg/celestia-app/app/encoding"
 	"go.uber.org/fx"
+	"os"
 )
 
 func NewConfig(
@@ -35,7 +39,12 @@ func NewNode(path string, tp node.Type, network string, cfg *nodebuilder.Config,
 	if err != nil {
 		return nil, err
 	}
-	store, err := nodebuilder.OpenStore(path)
+	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
+	ring, err := keyring.New(app.Name, "test", "~/.store/keys", os.Stdin, encConf.Codec)
+	if err != nil {
+		return nil, err
+	}
+	store, err := nodebuilder.OpenStore(path, ring)
 	if err != nil {
 		return nil, err
 	}
