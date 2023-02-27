@@ -54,7 +54,6 @@ func NewNode(path string, tp node.Type, network string, cfg *nodebuilder.Config,
 		return nil, err
 	}
 	return nodebuilder.NewWithConfig(tp, p2p.Network(network), store, cfg, options...)
-
 }
 
 func IsSyncing(ctx context.Context, nd *nodebuilder.Node) bool {
@@ -71,6 +70,22 @@ func SetLoggersLevel(lvl string) error {
 		return err
 	}
 	logs.SetAllLoggers(level)
+	logging.SetAllLoggers(level)
+	_ = logging.SetLogLevel("engine", "FATAL")
+	_ = logging.SetLogLevel("blockservice", "WARN")
+	_ = logging.SetLogLevel("bs:sess", "WARN")
+	_ = logging.SetLogLevel("addrutil", "INFO")
+	_ = logging.SetLogLevel("dht", "ERROR")
+	_ = logging.SetLogLevel("swarm2", "WARN")
+	_ = logging.SetLogLevel("bitswap", "WARN")
+	_ = logging.SetLogLevel("connmgr", "WARN")
+	_ = logging.SetLogLevel("nat", "INFO")
+	_ = logging.SetLogLevel("dht/RtRefreshManager", "FATAL")
+	_ = logging.SetLogLevel("bitswap_network", "ERROR")
+	_ = logging.SetLogLevel("badger", "INFO")
+	_ = logging.SetLogLevel("basichost", "INFO")
+	_ = logging.SetLogLevel("bitswap-client", "INFO")
+	_ = logging.SetLogLevel("share/light", "INFO")
 
 	return nil
 }
