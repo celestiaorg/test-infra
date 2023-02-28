@@ -77,7 +77,8 @@ FROM ${RUNTIME_IMAGE} AS runtime
 RUN apk add --no-cache bash gcompat curl
 # PLAN_DIR is the location containing the plan source inside the build container.
 ENV PLAN_DIR /plan
-ENV GOLOG_OUTPUT stdout
+ENV GOLOG_LOG_FMT="json"
+ENV GOLOG_FILE /var/log/node.log
 # HOME ENV is crucial for app/sdk -> remove at your OWN RISK!
 ENV HOME /
 
@@ -85,5 +86,5 @@ COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
 
 
-EXPOSE 9090 26657 26656 1317 26658 26660 26659
+EXPOSE 9090 26657 26656 1317 26658 26660 26659 2121 4318 4317
 ENTRYPOINT [ "/testplan"]
