@@ -61,7 +61,7 @@ func IsSyncing(ctx context.Context, nd *nodebuilder.Node) bool {
 	if err != nil {
 		return false
 	}
-	return syncer.Finished()
+	return !syncer.Finished()
 }
 
 func SetLoggersLevel(lvl string) error {
