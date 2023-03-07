@@ -15,6 +15,10 @@ exporters:
     namespace: "testground"
     send_timestamps: true
     metric_expiration: 1800m 
+  jaeger:
+    endpoint: "jaeger:14250"
+    tls:
+      insecure: true
 
 service:
   extensions: [health_check]
@@ -22,3 +26,8 @@ service:
     metrics:
       receivers: [otlp]
       exporters: [prometheus]
+    traces:
+      receivers: [otlp]
+      processors: []
+      exporters: [jaeger]
+    

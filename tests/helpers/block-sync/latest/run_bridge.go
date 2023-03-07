@@ -1,4 +1,4 @@
-package blocksynchistorical
+package blocksynclatest
 
 import (
 	"context"
@@ -8,7 +8,6 @@ import (
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
-	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -20,8 +19,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
 	)
 	defer cancel()
-
-	// runenv.D().Counter("bridge_nodes_reached_target_height").Clear()
 
 	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
@@ -82,17 +79,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return lerr
 	}
 
-	runenv.RecordMessage("Connecting to other bridge nodes")
-	if runenv.IntParam("interconnect-bridges") == 1 {
-		bridgeNodes, _ := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
-		for _, bridge := range bridgeNodes {
-			if bridge.AddrInfo.ID != host.InfoFromHost(nd.Host).ID {
-				nd.Host.Connect(ctx, bridge.AddrInfo)
-				runenv.RecordMessage("Connected to Bridge:", bridge.AddrInfo.Addrs)
-			}
-		}
-	}
-
 	for i := 0; i < runenv.IntParam("block-height"); i++ {
 		// After reaching a dedicated block-height, we can signal other node types
 		// to start syncing the past
@@ -108,30 +94,12 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		)
 	}
 
-	_, err = syncclient.SignalEntry(ctx, testkit.PastBlocksGeneratedState)
-	if err != nil {
-		runenv.RecordFailure(err)
-		return err
-	}
-
-	if nd.HeaderServ.IsSyncing(ctx) {
+	state, err := nd.HeaderServ.SyncState(ctx)
+    if err != nil {
+      return err
+    }
+    if !state.Finished() {
 		runenv.RecordFailure(fmt.Errorf("Bridge node is still syncing the past"))
-		return err
-	}
-
-	l, err = syncclient.Barrier(
-		ctx,
-		testkit.FullsFinishedSyncingState,
-		runenv.IntParam("historical-syncers-max-id"), // 1
-	)
-	if err != nil {
-		runenv.RecordFailure(err)
-		return err
-	}
-	lerr = <-l.C
-	if lerr != nil {
-		runenv.RecordFailure(lerr)
-		return err
 	}
 
 	err = nd.Stop(ctx)
@@ -146,6 +114,5 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// runenv.D().Counter("bridge_nodes_reached_target_height").Clear() // clear the state for the next run
 	return nil
 }

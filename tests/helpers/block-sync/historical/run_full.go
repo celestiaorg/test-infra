@@ -5,19 +5,16 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
-
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
@@ -93,36 +90,18 @@ func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) err
 		cfg.Share.UseShareExchange = false
 	}
 
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
-	}
+
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
 		"private",
 		cfg,
-		nodebuilder.WithMetrics(
-			optlOpts,
-			node.Full,
-		),
 	)
 	if err != nil {
 		return err
 	}
 
 	runenv.RecordMessage("Waiting for historical blocks to be generated...")
-
-	l, err := syncclient.Barrier(ctx, testkit.PastBlocksGeneratedState, runenv.IntParam("bridge"))
-	if err != nil {
-		runenv.RecordFailure(err)
-		return err
-	}
-	lerr := <-l.C
-	if lerr != nil {
-		runenv.RecordFailure(lerr)
-		return err
-	}
 
 	runenv.RecordMessage("Starting full node")
 	err = nd.Start(ctx)
@@ -140,16 +119,24 @@ func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) err
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	if nd.HeaderServ.IsSyncing(ctx) {
+	state, err := nd.HeaderServ.SyncState(ctx)
+    if err != nil {
+      return err
+    }
+    if !state.Finished() {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
-	<-time.After(time.Minute * 2)
-	if err = nd.DASer.WaitCatchUp(ctx); err != nil {
+
+	l, err := syncclient.Barrier(ctx, testkit.FullsFinishedSyncingState, runenv.IntParam("historical-syncers-max-id"))
+	if err != nil {
 		runenv.RecordFailure(err)
 		return err
 	}
-
-	_, err = syncclient.SignalEntry(ctx, testkit.FullsFinishedSyncingState)
+	lerr := <-l.C
+	if lerr != nil {
+		runenv.RecordFailure(lerr)
+		return err
+	}
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err

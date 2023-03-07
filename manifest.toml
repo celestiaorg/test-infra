@@ -180,7 +180,28 @@ instances = { min = 4, max = 3000, default = 12 }
         rest-endpoint = { type = "string", default = "https://rpc.limani.celestia-devops.dev" }
  
 [[testcases]]
-name = "blocksyncbench-latest"
+name = "blocksync-latest"
+instances = { min = 16, max = 1002, default = 16 }
+    [testcases.params]
+        execution-time = { type = "int" }
+        latency = { type = "int", default = 60}
+        bandwidth = { type = "string", default = "256Mib"}
+        validator = { type = "int", default = 1}
+        persistent-peers = { type = "int", default = 3}
+        msg-size = { type = "int", default = 10000 }
+        bridge = { type = "int", default = 3}
+        full = { type = "int", default = 12}
+        block-height = { type = "int", default = 30 }
+        role = { type = "string" }
+        otel-collector-address = { type = "string" }
+        p2p-network = { type = "string", default = "private" }
+        getter = { type = "string" }
+        peers-limit = { type = "int", default = 3 }
+        bootstrapper = { type = "boolean", default = true }
+        interconnect-bridges = { type = "boolean", default = false }
+
+[[testcases]]
+name = "blocksync-latest-net-partitions"
 instances = { min = 16, max = 1002, default = 16 }
     [testcases.params]
         execution-time = { type = "int" }
@@ -196,23 +217,7 @@ instances = { min = 16, max = 1002, default = 16 }
         otel-collector-address = { type = "string" }
 
 [[testcases]]
-name = "blocksyncbench-latest-net-partition"
-instances = { min = 16, max = 1002, default = 16 }
-    [testcases.params]
-        execution-time = { type = "int" }
-        latency = { type = "int", default = 60}
-        bandwidth = { type = "string", default = "256Mib"}
-        validator = { type = "int", default = 1}
-        persistent-peers = { type = "int", default = 3}
-        msg-size = { type = "int", default = 10000 }
-        bridge = { type = "int", default = 3}
-        full = { type = "int", default = 12}
-        block-height = { type = "int", default = 30 }
-        role = { type = "string" }
-        otel-collector-address = { type = "string" }
-
-[[testcases]]
-name = "blocksyncbench-historical"
+name = "blocksync-historical"
 instances = { min = 16, max = 1002, default = 16 }
     [testcases.params]
         execution-time = { type = "int" }
@@ -226,3 +231,28 @@ instances = { min = 16, max = 1002, default = 16 }
         block-height = { type = "int", default = 30 }
         role = { type = "string" }
         otel-collector-address = { type = "string"}
+        p2p-network = { type = "string", default = "private" }
+
+[[testcases]]
+name = "blocksync-historical-net-partitions"
+instances = { min = 36, max = 1002, default = 36 }
+    [testcases.params]
+        execution-time = { type = "int" }
+        msg-size = { type = "int", default = 10000 }
+        validator = { type = "int", default = 1 }
+        bridge = { type = "int", default = 3 }
+        full = { type = "int", default = 16 }
+        historical-full = { type = "int", default = 16 }
+        block-height = { type = "int", default = 50 }
+        target-height = { type = "int", default = 15 }
+        network-partition-height = { type = "int", default = 30 }
+        role = { type = "string" }
+        otel-collector-address = { type = "string", default = "" }
+        getter = { type = "string" }
+        peers-limit = { type = "int", default = 3 }
+        bootstrapper = { type = "boolean", default = true }
+        interconnect-bridges = { type = "boolean", default = false }
+        post-partition-remaining-fulls = { type = "string" } 
+        post-partition-remaining-bridges = { type = "string" } 
+        post-partition-remaining-historicals = { type = "string" } 
+        p2p-network = { type = "string", default = "private" }

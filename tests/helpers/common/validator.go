@@ -199,43 +199,45 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		return nil, err
 	}
 
-	valCh := make(chan *appkit.ValidatorNode)
-	sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
-	if err != nil {
-		return nil, err
-	}
-
-	runenv.RecordMessage("Discovering peers")
-	var peers []appkit.ValidatorNode
-	for i := 0; i < runenv.IntParam("validator"); i++ {
-		select {
-		case err = <-sub.Done():
-			if err != nil {
-				return nil, err
-			}
-		case val := <-valCh:
-			if !val.IP.Equal(ip) {
-				peers = append(peers, *val)
+	if runenv.IntParam("validator") > 1 {
+		valCh := make(chan *appkit.ValidatorNode)
+		sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+		if err != nil {
+			return nil, err
+		}
+	
+		runenv.RecordMessage("Discovering peers")
+		var peers []appkit.ValidatorNode
+		for i := 0; i < runenv.IntParam("validator"); i++ {
+			select {
+			case err = <-sub.Done():
+				if err != nil {
+					return nil, err
+				}
+			case val := <-valCh:
+				if !val.IP.Equal(ip) {
+					peers = append(peers, *val)
+				}
 			}
 		}
+		runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
+		randomizer := tmrand.Intn(runenv.IntParam("validator"))
+		runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
+		peersRange := runenv.IntParam("persistent-peers")
+		runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
+		randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
+		if randPeers == nil {
+			runenv.RecordMessage("No peers added to the address book")
+			return cmd, nil
+		}
+	
+		err = appkit.AddPeersToAddressBook(home, randPeers)
+		if err != nil {
+			return nil, err
+		}
+	
+		runenv.RecordMessage("Added %d to the address book", len(randPeers))
 	}
-	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
-	randomizer := tmrand.Intn(runenv.IntParam("validator"))
-	runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
-	peersRange := runenv.IntParam("persistent-peers")
-	runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
-	randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
-	if randPeers == nil {
-		runenv.RecordMessage("No peers added to the address book")
-		return cmd, nil
-	}
-
-	err = appkit.AddPeersToAddressBook(home, randPeers)
-	if err != nil {
-		return nil, err
-	}
-
-	runenv.RecordMessage("Added %d to the address book", len(randPeers))
 
 	return cmd, nil
 }

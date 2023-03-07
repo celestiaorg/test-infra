@@ -25,13 +25,13 @@ var testcases = map[string]interface{}{
 	"reconstruction": blockrecon.BlockReconstruction,
 	// DAS Benchmarks Plan
 	// BlockSync Benchmarks - Syncing Latest
-	"blocksyncbench-latest": blocksync.BlockSyncLatest,
+	"blocksync-latest": blocksync.BlockSyncLatest,
 	// BlockSync Benchmarks - Syncing Latest With Network Hiccups
-	"blocksyncbench-latest-net-partition": blocksync.BlockSyncLatestWithNetworkPartitions,
+	"blocksync-latest-net-partitions": blocksync.BlockSyncLatestWithNetworkPartitions,
 	// BlockSync Benchmarks - Syncing Historical
-	"blocksyncbench-historical": blocksync.BlockSyncHistorical,
+	"blocksync-historical": blocksync.BlockSyncHistorical,
 	// BlockSync Benchmarks - Syncing Historical With Network Hiccups
-	"blocksyncbench-historical-net-partition": blocksync.BlockSyncHistoricalWithHiccups,
+	"blocksync-historical-net-partitions": blocksync.BlockSyncHistoricalWithNetworkPartitions,
 	// Arabica Nightly Plan
 	"flood-arabica": arabica.RunLightNode,
 }

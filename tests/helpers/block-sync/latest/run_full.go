@@ -1,4 +1,4 @@
-package blocksynclatestnetpartition
+package blocksynclatest
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
-	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -24,7 +23,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -58,21 +57,9 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeNodes, err := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
+	bridgeNode, err := common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
 	if err != nil {
 		return err
-	}
-
-	var bridgeNode *testkit.BridgeNodeInfo
-	for _, bridge := range bridgeNodes {
-		if (int(initCtx.GroupSeq) % runenv.IntParam("bridge")) == (bridge.ID % runenv.IntParam("bridge")) {
-			bridgeNode = bridge
-		}
-	}
-
-	if bridgeNode == nil {
-		runenv.RecordFailure(fmt.Errorf("Failed to pick bridge node, picking up the first available bridge."))
-		bridgeNode = bridgeNodes[0]
 	}
 
 	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
@@ -83,12 +70,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	trustedPeers := []string{}
-	for _, bridge := range bridgeNodes {
-		trustedPeers = append(trustedPeers, bridge.Maddr)
-	}
+	trustedPeers := []string{bridgeNode.Maddr}
 	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
-	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
 	switch runenv.StringParam("getter") {
 	case "shrex":
@@ -110,9 +93,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,
-			node.Light,
+			node.Full,
 		),
-		nodebuilder.WithBlackboxMetrics(),
 	)
 	if err != nil {
 		return err
@@ -125,42 +107,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("Full node is syncing")
-
-	hh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("network-partition-height")))
-	if err != nil {
-		return err
-	}
-
-	entryPointsMap, err := common.ParseNodeEntryPointsKey(runenv.StringParam("fullnode-entrypoints-list"))
-	if err != nil {
-		return err
-	}
-
-	bridgesEntrypointsMap, err := common.ParseNodeEntryPointsKey(runenv.StringParam("bridgenode-entrypoints-list"))
-	_, stayConnected := entryPointsMap[int(initCtx.GroupSeq)]
-	if !stayConnected {
-		runenv.RecordMessage("Reach network partition height.",
-			"Blacklisting bridge IPs for FullNode %d", int(initCtx.GroupSeq))
-
-		for order, v := range bridgeNodes {
-			if _, keep := bridgesEntrypointsMap[order]; keep {
-				continue
-			}
-
-			id, _ := peer.AddrInfoFromString(v.Maddr)
-			nd.Host.Network().ClosePeer(id.ID)
-			nd.ConnGater.BlockPeer(id.ID)
-			if !nd.ConnGater.InterceptPeerDial(id.ID) {
-				runenv.RecordMessage("Blocked (bridge) maddr %s", v.Maddr, "Bye bye.")
-			}
-		}
-	}
-
-	runenv.RecordMessage("FullNode %d", int(initCtx.GroupSeq),
-		"disconnected from all bridge nodes.",
-		"current height:", hh.RawHeader.Height,
-		"resuming the sync process...")
-
 	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
@@ -169,7 +115,11 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	if nd.HeaderServ.IsSyncing(ctx) {
+	state, err := nd.HeaderServ.SyncState(ctx)
+    if err != nil {
+      return err
+    }
+    if !state.Finished() {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 

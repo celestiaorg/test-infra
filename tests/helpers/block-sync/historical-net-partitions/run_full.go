@@ -1,4 +1,4 @@
-package blocksynchistorical
+package blocksynchistoricalnetpartitions
 
 import (
 	"context"
@@ -9,6 +9,7 @@ import (
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
+	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -90,7 +91,6 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		cfg.Share.UseShareExchange = false
 	}
 
-
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
@@ -110,7 +110,51 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("Full node is syncing")
+	_, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("network-partition-height")))
+	if err != nil {
+		runenv.RecordFailure(err)
+		return err
+	}
 
+	runenv.RecordMessage("Reached height at which network will be partitioned")
+	entryPointsMap, err := common.ParseNodeEntryPointsKey(
+		runenv.StringParam("post-partition-remaining-fulls"),
+	)
+	if err != nil {
+		runenv.RecordFailure(err)
+		return err
+	}
+
+	bridgesEntrypointsMap, err := common.ParseNodeEntryPointsKey(
+		runenv.StringParam("post-partition-remaining-bridges"),
+	)
+	if err != nil {
+		runenv.RecordFailure(err)
+		return err
+	}
+
+	runenv.RecordMessage("Partitioning...")
+
+	_, stayConnected := entryPointsMap[int(initCtx.GroupSeq)]
+	if !stayConnected {
+		runenv.RecordMessage("Reach network partition height.",
+			"Blacklisting bridge IPs for FullNode %d", int(initCtx.GroupSeq))
+
+		for order, v := range bridgeNodes {
+			if _, keep := bridgesEntrypointsMap[order]; keep {
+				continue
+			}
+
+			id, _ := peer.AddrInfoFromString(v.Maddr)
+			nd.Host.Network().ClosePeer(id.ID)
+			nd.ConnGater.BlockPeer(id.ID)
+			if !nd.ConnGater.InterceptPeerDial(id.ID) {
+				runenv.RecordMessage("Blocked (bridge) maddr %s", v.Maddr, "Bye bye.")
+			}
+		}
+	}
+
+	runenv.RecordMessage("(Post Network Partition)", "Full node syncing")
 	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
@@ -119,7 +163,11 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	if nd.HeaderServ.IsSyncing(ctx) {
+	state, err := nd.HeaderServ.SyncState(ctx)
+	if err != nil {
+		return err
+	}
+	if !state.Finished() {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 

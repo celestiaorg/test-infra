@@ -81,7 +81,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	runenv.RecordMessage("Connecting to other bridge nodes")
-	if runenv.IntParam("interconnect-bridges") == 1 {
+	if runenv.BooleanParam("interconnect-bridges") {
 		bridgeNodes, _ := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
 		for _, bridge := range bridgeNodes {
 			if bridge.AddrInfo.ID != host.InfoFromHost(nd.Host).ID {
@@ -106,7 +106,11 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		)
 	}
 
-	if nd.HeaderServ.IsSyncing(ctx) {
+	state, err := nd.HeaderServ.SyncState(ctx)
+	if err != nil {
+		return err
+	}
+	if !state.Finished() {
 		runenv.RecordFailure(fmt.Errorf("Bridge node is still syncing the past"))
 	}
 

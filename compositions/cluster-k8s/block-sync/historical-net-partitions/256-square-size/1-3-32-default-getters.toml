@@ -1,0 +1,115 @@
+[metadata]
+  name = "blocksync-historical-net-partitions"
+  author = "derrandz"
+
+[global]
+  plan = "celestia"
+  case = "blocksync-historical-net-partitions"
+  total_instances = 36
+  builder = "docker:generic"
+  runner = "cluster:k8s"
+  disable_metrics = false
+
+[global.run.test_params]
+  execution-time = "20"
+  msg-size = "1200000"
+  persistent-peers = "1"
+  validator = "1"
+  bridge = "3"
+  full = "16"
+  historical-full = "16"
+  block-height = "50"
+  target-height = "15" # the height at which historicals kick-in
+  network-partition-height = "30"
+  otel-collector-address = "178.128.163.171:4318"
+  getter = "shrex"
+  peers-limit = "3"
+  bootstrapper = "true"
+  interconnect-bridges = "false"
+  post-partition-remaining-fulls = "3" # list: 3-19-2-1 = [3, 19, 2, 1]
+  post-partition-remaining-bridges = "1" # list: 3-19-2-1 = [3, 19, 2, 1]
+  post-partition-remaining-historicals = "2" # list: 3-19-2-1 = [3, 19, 2, 1]
+
+[[groups]]
+  id = "validators"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "1"
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "validator"
+
+[[groups]]
+  id = "bridges"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "bridge"
+
+[[groups]]
+  id = "fulls"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 16
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "full"
+
+[[groups]]
+  id = "historical-fulls"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 16
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "historical-full"
