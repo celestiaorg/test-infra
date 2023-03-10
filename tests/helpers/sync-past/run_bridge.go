@@ -70,7 +70,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	if nd.HeaderServ.IsSyncing(ctx) {
+	if nodekit.IsSyncing(ctx, nd) {
 		runenv.RecordFailure(fmt.Errorf("bridge node is still syncing the past"))
 	}
 

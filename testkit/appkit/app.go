@@ -198,7 +198,8 @@ func (ak *AppKit) GetNodeId() (string, error) {
 func (ak *AppKit) StartNode(loglvl string) error {
 	ak.Cmd.ResetFlags()
 
-	ak.Cmd.SetErr(os.Stdout)
+	// SetErr: send the error logs to stderr stream.
+	ak.Cmd.SetErr(os.Stderr)
 	ak.Cmd.SetArgs(
 		[]string{
 			"start",
@@ -207,7 +208,8 @@ func (ak *AppKit) StartNode(loglvl string) error {
 			wrapFlag(flags.FlagLogLevel),
 			loglvl,
 			wrapFlag(flags.FlagLogFormat),
-			"plain",
+			"json", ">",
+			"/var/log/node.log",
 		},
 	)
 

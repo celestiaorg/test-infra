@@ -3,9 +3,10 @@ package fundaccounts
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
