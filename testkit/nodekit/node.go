@@ -3,12 +3,13 @@ package nodekit
 import (
 	"context"
 	"fmt"
-	"github.com/celestiaorg/celestia-app/app"
-	"github.com/celestiaorg/celestia-app/app/encoding"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"net"
 	"os"
 	"path/filepath"
+
+	"github.com/celestiaorg/celestia-app/app"
+	"github.com/celestiaorg/celestia-app/app/encoding"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
@@ -16,11 +17,7 @@ import (
 	"github.com/celestiaorg/celestia-node/nodebuilder/p2p"
 	logging "github.com/ipfs/go-log/v2"
 
-	"github.com/celestiaorg/celestia-app/app"
-	"github.com/celestiaorg/celestia-app/app/encoding"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"go.uber.org/fx"
-	"os"
 )
 
 func NewConfig(
