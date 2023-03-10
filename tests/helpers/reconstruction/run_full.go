@@ -140,11 +140,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	state, err := nd.HeaderServ.SyncState(ctx)
-    if err != nil {
-      return err
-    }
-    if !state.Finished() {
+	if nodekit.IsSyncing(ctx, nd) {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 
@@ -168,11 +164,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("submit-times")-1,
 		eh.Commit.BlockID.Hash.String())
 
-	state, err = nd.HeaderServ.SyncState(ctx)
-    if err != nil {
-      return err
-    }
-    if !state.Finished() {
+	if nodekit.IsSyncing(ctx, nd) {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 
