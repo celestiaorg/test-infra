@@ -207,7 +207,8 @@ func (ak *AppKit) StartNode(loglvl string) error {
 			wrapFlag(flags.FlagLogLevel),
 			loglvl,
 			wrapFlag(flags.FlagLogFormat),
-			"plain",
+			"json", ">",
+			"/var/log/node.log",
 		},
 	)
 
