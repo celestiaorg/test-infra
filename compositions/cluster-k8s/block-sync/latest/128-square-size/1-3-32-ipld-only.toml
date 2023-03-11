@@ -1,10 +1,10 @@
 [metadata]
-  name = "blocksyncbench-latest"
+  name = "blocksync-latest"
   author = "derrandz"
 
 [global]
   plan = "celestia"
-  case = "blocksyncbench-latest"
+  case = "blocksync-latest"
   total_instances = 36
   builder = "docker:generic"
   runner = "cluster:k8s"
@@ -17,21 +17,21 @@
   execution-time = "20"
   msg-size = "800000"
   validator = "1"
-  bridge = "6"
-  full = "64"
+  bridge = "3"
+  full = "32"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
   getter = "ipld"
   peers-limit = "3"
-  bootstrapper = "1"
-  interconnect-bridges = "0"
+  bootstrapper = "true"
+  interconnect-bridges = "false"
 
 [[groups]]
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
     memory = "8Gi"
-    cpu = "2"
+    cpu = "1"
   [groups.instances]
     count = 1
     percentage = 0.0

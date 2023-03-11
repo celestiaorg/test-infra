@@ -23,10 +23,10 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("INFO")
-	if err != nil {
-		return err
-	}
+	// err := nodekit.SetLoggersLevel("DEBUG")
+	// if err != nil {
+	// 	return err
+	// }
 
 	syncclient := initCtx.SyncClient
 	netclient := network.NewClient(syncclient, runenv)
@@ -115,11 +115,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	state, err := nd.HeaderServ.SyncState(ctx)
-    if err != nil {
-      return err
-    }
-    if !state.Finished() {
+	if nodekit.IsSyncing(ctx, nd) {
 		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
 	}
 

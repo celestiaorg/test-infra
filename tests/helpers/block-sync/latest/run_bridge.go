@@ -94,11 +94,7 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		)
 	}
 
-	state, err := nd.HeaderServ.SyncState(ctx)
-    if err != nil {
-      return err
-    }
-    if !state.Finished() {
+	if nodekit.IsSyncing(ctx, nd) {
 		runenv.RecordFailure(fmt.Errorf("Bridge node is still syncing the past"))
 	}
 
