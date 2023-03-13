@@ -73,7 +73,7 @@ install-tg: check-git check-go check-gcc check-docker
 	@echo "Done."
 .PHONY: install-tg
 
-## check-composition-arg: Check if COMPOSITION env var was provided
+## check-testplan-arg: Check if TSETPLAN env var was set
 check-testplan-arg:
 ifeq (,${TESTPLAN})
 	@printf "You must specify a testplan, example:\n\t make COMMAND TESTPLAN=local-docker\n\n"
@@ -81,7 +81,7 @@ ifeq (,${TESTPLAN})
 endif
 .PHONY: check-testplan-arg
 
-## check-composition-arg: Check if COMPOSITION env var was provided
+## check-runner-arg: Check if RUNNER env var was set
 check-runner-arg:
 ifeq (,${RUNNER})
 	@printf "You must specify which runner you want to use, example:\n\t make COMMAND RUNNER=local-docker \n\n"
@@ -89,7 +89,7 @@ ifeq (,${RUNNER})
 endif
 .PHONY: check-runner-arg
 
-## check-composition-arg: check if composition env var was provided
+## check-composition-arg: check if composition env var was set
 check-composition-arg:
 ifeq (,${COMPOSITION})
 	@printf "you must specify a testplan, example:\n\t make COMMAND COMPOSITION=pdf-8\n\n"
@@ -103,7 +103,23 @@ ifeq (,${NAME})
 	@printf "you must specify a testplan, example:\n\t make COMMAND NAME=celestia\n\n"
 	exit 1
 endif
-.phony: check-composition-arg
+.phony: check-name-arg
+
+## check-podname-arg: check if podname env var was set
+check-podname-arg:
+ifeq (,${POD_NAME})
+	@printf "you must specify a podname, example:\n\t make COMMAND POD_NAME=influxdb\n\n"
+	exit 1
+endif
+.PHONY: check-podname-arg
+
+## check-square-size-arg: check if square size env var was set
+check-square-size-arg:
+ifeq (,${SQUARE_SIZE})
+	@printf "you must specify a square size, example:\n\t make COMMAND SQUARE_SIZE=128\n\n"
+	exit 1
+endif
+.phony: check-square-size-arg
 
 ## tg-start: Start the testground deamon
 tg-start:
@@ -146,15 +162,6 @@ telemetry-infra-down: check-docker check-docker-compose
 	PWD="${DIR_FULLPATH}/build" docker-compose -f ./build/docker-compose.yml down
 .PHONY: telemetry-infra-down
 
-## check-composition-arg: check if composition env var was provided
-check-podname-arg:
-ifeq (,${POD_NAME})
-	@printf "you must specify a podname, example:\n\t make COMMAND POD_NAME=influxdb\n\n"
-	exit 1
-endif
-.PHONY: check-podname-arg
-
-
 ## check-docker: Check if docker is installed on the machine
 check-kubectl:
 ifeq (,$(shell which kubectl))	
@@ -167,3 +174,11 @@ endif
 port-forward-influxdb: check-kubectl check-podname-arg
 	kubectl port-forward ${POD_NAME} --address 0.0.0.0 9086:8086
 .PHONY: port-forward-influxdb
+
+# run block-sync latest ipld-only composition
+block-sync-latest-ipld: check-square-size-arg
+	make tg-run-composition-no-wait \
+		RUNNER=cluster-k8s \
+		TESTPLAN=block-sync \
+		COMPOSITION=latest/${SQUARE_SIZE}-square-size/1-3-32-ipld-only
+.PHONY: block-sync-latest-ipld
