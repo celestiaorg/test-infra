@@ -4,6 +4,7 @@ import (
 	"net"
 
 	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/testground/sdk-go/sync"
 )
 
@@ -31,6 +32,7 @@ type BridgeNodeInfo struct {
 	ID          int
 	Maddr       string
 	TrustedHash string
+	AddrInfo    peer.AddrInfo
 }
 
 type FullNodeInfo struct {
@@ -49,11 +51,12 @@ var (
 
 // FinishState should be signaled by those, againts which we are testing
 var (
-	AppStartedState          = sync.State("app-started")
-	BridgeStartedState       = sync.State("bridge-started")
-	PastBlocksGeneratedState = sync.State("past-blocks-generated")
-	AccountsFundedState      = sync.State("accounts-funded")
-	FinishState              = sync.State("test-finished")
-	LightNodesStartedState   = sync.State("light-nodes-started")
-	ValidatorReadyTopic      = sync.State("validator-ready")
+	AppStartedState           = sync.State("app-started")
+	BridgeStartedState        = sync.State("bridge-started")
+	PastBlocksGeneratedState  = sync.State("past-blocks-generated")
+	AccountsFundedState       = sync.State("accounts-funded")
+	FinishState               = sync.State("test-finished")
+	LightNodesStartedState    = sync.State("light-nodes-started")
+	ValidatorReadyTopic       = sync.State("validator-ready")
+	FullsFinishedSyncingState = sync.State("fulls-finished-syncing")
 )

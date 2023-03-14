@@ -199,3 +199,5 @@ instances = { min = 16, max = 1002, default = 16 }
         peers-limit = { type = "int", default = 3 }
         bootstrapper = { type = "boolean", default = true }
         interconnect-bridges = { type = "boolean", default = false }
+        multibootstrap = { type = "boolean", default = false }
+

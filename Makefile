@@ -9,7 +9,6 @@ ifeq (${TGPATH},)
 	TGPATH := /usr/local/testground
 endif
 
-
 ## help: Get more info on make commands.
 help: Makefile
 	@echo " Choose a command run in "$(PROJECTNAME)":"
@@ -121,6 +120,31 @@ ifeq (,${SQUARE_SIZE})
 endif
 .phony: check-square-size-arg
 
+## check-getter-arg: check if getter env var was set
+check-getter-arg:
+ifeq (,${GETTER})
+	@printf "you must specify a getter, example:\n\t make COMMAND GETTER=ipld\n\n"
+	exit 1
+endif
+.phony: check-getter-arg
+
+## check-pod-port-arg: check if pod port env var was set
+check-pod-port-arg:
+ifeq (,${POD_PORT})
+	@printf "you must specify a pod port, example:\n\t make COMMAND POD_PORT=3000\n\n"
+	exit 1
+endif
+.phony: check-pod-port-arg
+
+## check-local-port-arg: check if local port env var was set
+check-local-port-arg:
+ifeq (,${LOCAL_PORT})
+	@printf "you must specify a local port, example:\n\t make COMMAND LOCAL_PORT=3000\n\n"
+	exit 1
+endif
+.phony: check-local-port-arg
+
+
 ## tg-start: Start the testground deamon
 tg-start:
 	testground daemon
@@ -170,15 +194,20 @@ ifeq (,$(shell which kubectl))
 endif
 .PHONY: check-go
 
-# port forwards influx-db to be used locally with local grafana instances
-port-forward-influxdb: check-kubectl check-podname-arg
-	kubectl port-forward ${POD_NAME} --address 0.0.0.0 9086:8086
-.PHONY: port-forward-influxdb
+## port-forward: port forwards a k8s pod to be used locally with local grafana instances
+port-forward: check-kubectl check-podname-arg check-pod-port-arg check-local-port-arg
+	kubectl port-forward ${POD_NAME} --address 0.0.0.0 ${LOCAL_PORT}:${POD_PORT}
+.PHONY: port-forward
 
-# run block-sync latest ipld-only composition
-block-sync-latest-ipld: check-square-size-arg
+## block-sync-latest: run block-sync latest ipld-only composition
+block-sync-latest: check-getter-arg check-square-size-arg
 	make tg-run-composition-no-wait \
 		RUNNER=cluster-k8s \
 		TESTPLAN=block-sync \
-		COMPOSITION=latest/${SQUARE_SIZE}-square-size/1-3-32-ipld-only
+		COMPOSITION=latest/${SQUARE_SIZE}-square-size/1-3-32-${GETTER}
 .PHONY: block-sync-latest-ipld
+
+## tail-pod-logs: tail pod logs that are persisted to the the file system note that these logs are different from the ones that received from `kubectl logs -f <pod-name>`
+tail-pod-logs: check-podname-arg
+	kubectl exec -i -t ${POD_NAME} tail /var/log/node.log
+.PHONY: tail-pod-logs

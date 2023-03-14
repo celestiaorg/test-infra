@@ -15,18 +15,16 @@
 # because we are accounting for padding
 [global.run.test_params]
   execution-time = "20"
-  persistent-peers = "1"
-  submit-times = "10"
-  msg-size = "500000"
+  msg-size = "1200000"
   validator = "1"
   bridge = "3"
   full = "32"
   block-height = "30"
   otel-collector-address = "178.128.163.171:4318"
-  getter = "ipld"
+  getter = "shrex"
   peers-limit = "3"
-  bootstrapper = "1"
-  interconnect-bridges = "0"
+  bootstrapper = "true"
+  interconnect-bridges = "false"
 
 [[groups]]
   id = "validators"
