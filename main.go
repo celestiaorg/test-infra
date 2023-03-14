@@ -25,7 +25,7 @@ var testcases = map[string]interface{}{
 	"reconstruction": blockrecon.BlockReconstruction,
 	// Arabica Nightly Plan
 	"flood-arabica": arabica.RunLightNode,
-	// Blocksync Benchmarks
+	// BlockSync Benchmarks - Syncing Latest
 	"blocksync-latest": blocksync.BlockSyncLatest,
 }
 
