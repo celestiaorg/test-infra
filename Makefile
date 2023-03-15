@@ -178,12 +178,12 @@ tg-run-composition-no-wait: check-testplan-arg check-runner-arg check-compositio
 
 ## telemetry-infra-up: launches the telemetry infrastructure up
 telemetry-infra-up: check-docker check-docker-compose
-	PWD="${DIR_FULLPATH}/build" docker-compose -f ./build/docker-compose.yml up
+	PWD="${DIR_FULLPATH}/docker/local-telemetry" docker-compose -f ./docker/local-telemetry/docker-compose.yml up
 .PHONY: telemetry-infra-up
 
 ## telemetry-infra-up: launches the telemetry infrastructure up
 telemetry-infra-down: check-docker check-docker-compose
-	PWD="${DIR_FULLPATH}/build" docker-compose -f ./build/docker-compose.yml down
+	PWD="${DIR_FULLPATH}/docker/local-telemetry" docker-compose -f ./docker/local-telemetry/docker-compose.yml down
 .PHONY: telemetry-infra-down
 
 ## check-docker: Check if docker is installed on the machine

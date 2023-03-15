@@ -23,7 +23,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -136,7 +136,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		eh.Commit.BlockID.Hash.String())
 
 	if nodekit.IsSyncing(ctx, nd) {
-		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
+		return fmt.Errorf("full node is still syncing the past")
 	}
 
 	err = nd.Stop(ctx)

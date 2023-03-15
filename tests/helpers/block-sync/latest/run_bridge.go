@@ -53,30 +53,25 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	err = netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
 	nd, err := common.BuildBridge(ctx, runenv, initCtx)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.BridgeStartedState)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
 	l, err := syncclient.Barrier(ctx, testkit.ValidatorReadyTopic, runenv.IntParam("validator"))
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 	lerr := <-l.C
 	if lerr != nil {
-		runenv.RecordFailure(lerr)
 		return lerr
 	}
 
@@ -96,7 +91,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		// to start syncing the past
 		eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(i+1))
 		if err != nil {
-			runenv.RecordFailure(err)
 			return err
 		}
 		runenv.RecordMessage(
@@ -107,18 +101,16 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	if nodekit.IsSyncing(ctx, nd) {
-		runenv.RecordFailure(fmt.Errorf("Bridge node is still syncing the past"))
+		return fmt.Errorf("Bridge node is still syncing the past")
 	}
 
 	err = nd.Stop(ctx)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 

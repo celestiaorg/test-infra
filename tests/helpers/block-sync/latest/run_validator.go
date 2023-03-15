@@ -94,12 +94,10 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	l, err := syncclient.Barrier(ctx, testkit.BridgeStartedState, runenv.IntParam("bridge"))
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 	lerr := <-l.C
 	if lerr != nil {
-		runenv.RecordFailure(lerr)
 		return err
 	}
 
@@ -112,7 +110,6 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			appcmd.GetHomePath(),
 		)
 		if err != nil {
-			runenv.RecordFailure(err)
 			return err
 		}
 
@@ -124,15 +121,12 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	l, err = syncclient.Barrier(ctx, testkit.FinishState, runenv.IntParam("full")+runenv.IntParam("bridge"))
 	if err != nil {
-		runenv.RecordFailure(err)
 		return err
 	}
 	lerr = <-l.C
 	if lerr != nil {
-		runenv.RecordFailure(lerr)
 		return err
 	}
-	runenv.RecordSuccess()
 
 	return nil
 }

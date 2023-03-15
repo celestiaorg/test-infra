@@ -10,9 +10,8 @@
   runner = "cluster:k8s"
   disable_metrics = false
 
-# we define 1 validator that produces 8mb blocks
-# the msg-size does not result in exactly 8mb
-# because we are accounting for padding
+# we define 1 validator that produces 500kb blocks
+# which results in eds of size 64
 [global.run.test_params]
   execution-time = "20"
   persistent-peers = "1"
@@ -34,7 +33,7 @@
   builder = "docker:generic"
   [groups.resources]
     memory = "8Gi"
-    cpu = "1"
+    cpu = "4"
   [groups.instances]
     count = 1
     percentage = 0.0
