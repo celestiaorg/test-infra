@@ -211,6 +211,8 @@ github.com/celestiaorg/celestia-app v0.12.0 h1:s7Xkd3+NKZIbMd3++d1l76ak7+rFJWqsp
 github.com/celestiaorg/celestia-app v0.12.0/go.mod h1:j/QeQxYeOesDyVRLQOPcG4fVyJhxOmf1k9Hc7oEkWiA=
 github.com/celestiaorg/celestia-core v1.14.0-tm-v0.34.23 h1:8zE523TUe5W33/nheJ9umHF2d1q6iHQlqJfMXMTPe3k=
 github.com/celestiaorg/celestia-core v1.14.0-tm-v0.34.23/go.mod h1:fGDSg7aw2OH/Uze1zymop0x0y1kAPEO9OII2A2cb99Q=
+github.com/celestiaorg/celestia-node v0.7.0-rc9 h1:CdycRaTxPFLVb/1uFLM4ckku5CK0zrWYXtxYhUdS9R0=
+github.com/celestiaorg/celestia-node v0.7.0-rc9/go.mod h1:i5juI8lFNQjUvx0mPkOwXkgPBqSNkydDUn4btVg/iuY=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7 h1:EADZy33ufskVIy6Rj6jbi3SOVCeYYo26zUi7iYx+QR0=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7/go.mod h1:vg3Eza9adJJ5Mdx6boz5MpZsZcTZyrfTVYZHyi2zLm4=
 github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659 h1:f3205vw3GYBtMiNoS+qB6IuHSs50Iwqsm9lNIikLTCk=
@@ -361,8 +363,6 @@ github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0/go.mod h1:DZGJHZMqrU4JJqFAWUS2U
 github.com/decred/dcrd/lru v1.0.0/go.mod h1:mxKOwFd7lFjN2GZYsiz/ecgqR6kkYAl+0pz0tEMk218=
 github.com/deepmap/oapi-codegen v1.6.0/go.mod h1:ryDa9AgbELGeB+YEXE1dR53yAjHwFvE9iAUlWl9Al3M=
 github.com/deepmap/oapi-codegen v1.8.2/go.mod h1:YLgSKSDv/bZQB7N4ws6luhozi3cEdRktEqrX88CvjIw=
-github.com/derrandz/celestia-node v0.6.3-0.20230314155713-bfef58f37b1c h1:FCQmXEEhupXQGbALT91C5BZQ7PhtJtxiYXocQZQxT3o=
-github.com/derrandz/celestia-node v0.6.3-0.20230314155713-bfef58f37b1c/go.mod h1:WD4QpyP8sqvEURAoOcBtrT2tGDXuh0rG+d0HWWielUA=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f h1:U5y3Y5UE0w7amNe7Z5G/twsBW0KEalRQXZzf8ufSh9I=
 github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f/go.mod h1:xH/i4TFMt8koVQZ6WFms69WAsDWr2XsYL3Hkl7jkoLE=
 github.com/dgraph-io/badger v1.5.5-0.20190226225317-8115aed38f8f/go.mod h1:VZxzAIRPHRVNRKRo6AXrX9BJegn6il06VMTZVJYCIjQ=
