@@ -1,0 +1,92 @@
+[metadata]
+  name = "blocksync-latest"
+  author = "derrandz"
+
+[global]
+  plan = "celestia"
+  case = "blocksync-latest"
+  total_instances = 36
+  builder = "docker:generic"
+  runner = "cluster:k8s"
+  disable_metrics = false
+
+# we define 1 validator that produces 500kb blocks
+# which results in eds of size 64
+[global.run.test_params]
+  execution-time = "20"
+  persistent-peers = "1"
+  submit-times = "10"
+  msg-size = "500000"
+  validator = "1"
+  bridge = "3"
+  full = "32"
+  block-height = "30"
+  otel-collector-address = "178.128.163.171:4318"
+  getter = "shrex"
+  peers-limit = "3"
+  bootstrapper = "true"
+  interconnect-bridges = "false"
+  multibootstrap = "true"
+
+[[groups]]
+  id = "validators"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "validator"
+
+[[groups]]
+  id = "bridges"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 3
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "bridge"
+
+[[groups]]
+  id = "fulls"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = "8Gi"
+    cpu = "4"
+  [groups.instances]
+    count = 32
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    [groups.run.test_params]
+    latency = "50"
+    bandwidth = "256Mib"
+    role = "full"

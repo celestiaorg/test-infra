@@ -1,4 +1,4 @@
-package fundaccounts
+package blocksynclatest
 
 import (
 	"context"
@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -15,16 +13,17 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -58,76 +57,76 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	// we need to get the validator's ip in info for grpc connection for pfd & gsbn
-	appNode, err := common.GetValidatorInfo(ctx, syncclient, runenv.IntParam("validator"), int(initCtx.GroupSeq))
-	if err != nil {
-		return err
+	bridgeNode := &testkit.BridgeNodeInfo{}
+	trustedPeers := []string{}
+	if runenv.BooleanParam("multibootstrap") {
+		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
+		if err != nil {
+			return err
+		}
+		trustedPeers = []string{bridgeNode.Maddr}
+	} else {
+		bridgeNodes, err := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
+		if err != nil {
+			return err
+		}
+
+		for _, bridge := range bridgeNodes {
+			if (int(initCtx.GroupSeq) % runenv.IntParam("bridge")) == (bridge.ID % runenv.IntParam("bridge")) {
+				bridgeNode = bridge
+			}
+		}
+
+		trustedPeers := []string{}
+		for _, bridge := range bridgeNodes {
+			trustedPeers = append(trustedPeers, bridge.Maddr)
+		}
 	}
 
-	bridgeNode, err := common.GetBridgeNode(
-		ctx,
-		syncclient,
-		initCtx.GroupSeq,
-		runenv.IntParam("bridge"),
-	)
-	if err != nil {
-		return err
-	}
-
-	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
+	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
 	runenv.RecordMessage(ndhome)
+
 	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
 
-	trustedPeers := []string{bridgeNode.Maddr}
-	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
-	cfg.Core.IP = appNode.IP.To4().String()
-	cfg.Core.RPCPort = "26657"
-	cfg.Core.GRPCPort = "9090"
-	cfg.Gateway.Enabled = true
-	cfg.Gateway.Port = "26659"
+	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNode.TrustedHash)
+
+	switch runenv.StringParam("getter") {
+	case "shrex":
+		cfg.Share.UseShareExchange = true
+	case "ipld":
+		fallthrough
+	default:
+		cfg.Share.UseShareExchange = false
+	}
 
 	optlOpts := []otlpmetrichttp.Option{
 		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
 		otlpmetrichttp.WithInsecure(),
 	}
-	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg,
+	nd, err := nodekit.NewNode(
+		ndhome,
+		node.Full,
+		"private",
+		cfg,
 		nodebuilder.WithMetrics(
 			optlOpts,
-			node.Light,
-		))
-	if err != nil {
-		return err
-	}
-
-	err = nd.Start(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = nd.HeaderServ.GetByHeight(ctx, 10)
-	if err != nil {
-		return err
-	}
-
-	addr, err := nd.StateServ.AccountAddress(ctx)
-	if err != nil {
-		return err
-	}
-
-	_, err = syncclient.PublishAndWait(
-		ctx,
-		testkit.FundAccountTopic,
-		addr.String(),
-		testkit.AccountsFundedState,
-		runenv.IntParam("validator"),
+			node.Full,
+		),
 	)
 	if err != nil {
 		return err
 	}
 
+	runenv.RecordMessage("Starting full node")
+	err = nd.Start(ctx)
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("Full node is syncing")
 	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
@@ -137,36 +136,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		eh.Commit.BlockID.Hash.String())
 
 	if nodekit.IsSyncing(ctx, nd) {
-		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
-	}
-
-	bal, err := nd.StateServ.Balance(ctx)
-	if err != nil {
-		return err
-	}
-	if bal.IsZero() {
-		return fmt.Errorf("light has no money in the bank")
-	}
-
-	runenv.RecordMessage("light -> %d has this %s balance", initCtx.GroupSeq, bal.String())
-
-	nid := common.GenerateNamespaceID(runenv.StringParam("namespace-id"))
-	data := common.GetRandomMessageBySize(runenv.IntParam("msg-size"))
-
-	for i := 0; i < runenv.IntParam("submit-times"); i++ {
-		err = common.SubmitData(ctx, runenv, nd, nid, data)
-		if err != nil {
-			return err
-		}
-
-		if runenv.TestCase == "get-shares-by-namespace" && common.VerifyDataInNamespace(ctx, nd, nid, data) != nil {
-			return fmt.Errorf("no expected data found in the namespace ID")
-		}
-	}
-
-	err = common.CheckBalanceDeduction(ctx, nd, bal)
-	if err != nil {
-		return err
+		return fmt.Errorf("full node is still syncing the past")
 	}
 
 	err = nd.Stop(ctx)

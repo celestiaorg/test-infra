@@ -4,6 +4,7 @@ import (
 	"github.com/celestiaorg/test-infra/tests/plans/arabica"
 	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
 	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
+	blocksync "github.com/celestiaorg/test-infra/tests/plans/block-sync"
 	pfdgsbn "github.com/celestiaorg/test-infra/tests/plans/pfd-gsbn"
 	"github.com/testground/sdk-go/run"
 )
@@ -24,6 +25,8 @@ var testcases = map[string]interface{}{
 	"reconstruction": blockrecon.BlockReconstruction,
 	// Arabica Nightly Plan
 	"flood-arabica": arabica.RunLightNode,
+	// BlockSync Benchmarks - Syncing Latest
+	"blocksync-latest": blocksync.BlockSyncLatest,
 }
 
 func main() {

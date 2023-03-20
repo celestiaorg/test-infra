@@ -3,12 +3,13 @@ package nodekit
 import (
 	"context"
 	"fmt"
-	"github.com/celestiaorg/celestia-app/app"
-	"github.com/celestiaorg/celestia-app/app/encoding"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"net"
 	"os"
 	"path/filepath"
+
+	"github.com/celestiaorg/celestia-app/app"
+	"github.com/celestiaorg/celestia-app/app/encoding"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 
 	"github.com/celestiaorg/celestia-node/logs"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
@@ -86,6 +87,9 @@ func SetLoggersLevel(lvl string) error {
 	_ = logging.SetLogLevel("basichost", "INFO")
 	_ = logging.SetLogLevel("bitswap-client", "INFO")
 	_ = logging.SetLogLevel("share/light", "INFO")
+	_ = logging.SetLogLevel("das", "DEBUG")
+	_ = logging.SetLogLevel("share/getters", "DEBUG")
+	_ = logging.SetLogLevel("shrex/peer-manager", "DEBUG")
 
 	return nil
 }
