@@ -74,21 +74,26 @@ This will create a new go module with a `manifest.toml` under `./plans/YOUR_DESI
 1. Import your desired test plan into `TESTGROUND_HOME`
 ```bash
 $ cd test-infra
-$ make tg-testplan-import NAME=YOUR_TEST_PLAN
+$ make tg-import-testplan NAME=001-big-blocks TESTPLAN=001-big-blocks
 ```
+Available plans are in `./plans`
 
 2. Launch the testground daemon
 ```bash
-# This command should be executed in the 1st terminal
 $ testground daemon
 ```
 
-3. Run a composition of your testplan
+3. In another terminal, run a composition of your testplan
 ```
-# This command should be executed in the 2nd terminal
 $ make tg-run-composition TESTPLAN=YOUR_TEST_PLAN RUNNER=DESIRED_RUNNER COMPOSITION=COMPOSITION_NAME
 ```
 Note: `COMPOSITION` should only include the composition's filename, without the `.toml` extension
+`RUNNER` by default is `local-docker`. Another possible value is `cluster-k8s`
+
+Example:
+```
+$ make tg-run-composition RUNNER=local-docker TESTPLAN=001-big-blocks COMPOSITION=002-da-sync-12
+```
 
 ## Code of Conduct
 
