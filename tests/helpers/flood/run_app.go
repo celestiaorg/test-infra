@@ -1,18 +1,15 @@
-package nodesync
+package flood
 
 import (
 	"context"
-	"fmt"
-	"net"
-	"path/filepath"
-	"time"
-
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"net"
+	"time"
 )
 
 func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -68,30 +65,6 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		}
 
 		go appcmd.StartNode("info")
-	}
-
-	seedCh := make(chan *appkit.ValidatorNode)
-	sub, err := syncclient.Subscribe(ctx, testkit.SeedNodeTopic, seedCh)
-	if err != nil {
-		return err
-	}
-
-	var seedPeers []string
-	for i := 0; i < runenv.IntParam("seed"); i++ {
-		select {
-		case err := <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case seed := <-seedCh:
-			seedPeers = append(seedPeers, fmt.Sprintf("%s@%s", seed.PubKey, seed.IP.To4().String()))
-		}
-	}
-
-	configPath := filepath.Join(appcmd.Home, "config", "config.toml")
-	err = appkit.AddSeedPeers(configPath, seedPeers)
-	if err != nil {
-		return err
 	}
 
 	if initCtx.GroupSeq != 1 {

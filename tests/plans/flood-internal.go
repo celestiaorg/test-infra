@@ -3,6 +3,7 @@ package plans
 import (
 	"context"
 	"github.com/celestiaorg/test-infra/testkit"
+	"github.com/celestiaorg/test-infra/tests/helpers/flood"
 	nodesync "github.com/celestiaorg/test-infra/tests/helpers/node-sync"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -11,7 +12,7 @@ import (
 func SyncNodes(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
 	case "validator":
-		err = nodesync.RunAppValidator(runenv, initCtx)
+		err = flood.RunAppValidator(runenv, initCtx)
 	case "bridge":
 		err = nodesync.RunBridgeNode(runenv, initCtx)
 	case "light":
