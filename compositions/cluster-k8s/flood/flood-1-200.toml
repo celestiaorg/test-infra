@@ -1,11 +1,11 @@
 [metadata]
-name = "flood-internal-160"
+name = "flood-internal-200"
 author = "Bidon15"
 
 [global]
 plan = "celestia"
 case = "flood-internal"
-total_instances = 102
+total_instances = 202
 builder = "docker:generic"
 runner = "cluster:k8s"
 disable_metrics = false
@@ -74,7 +74,7 @@ builder = "docker:generic"
 memory = "600Mi"
 cpu = "300m"
 [groups.instances]
-count = 100
+count = 200
 percentage = 0.0
 [groups.build_config]
 build_base_image = "golang:1.19.1"
