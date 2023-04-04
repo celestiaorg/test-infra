@@ -124,6 +124,9 @@ func GetBridgeNode(ctx context.Context, syncclient sync.Client, id int64, amount
 			}
 		case bridge := <-bridgeCh:
 			fmt.Printf("Received Bridge ID = %d", bridge.ID)
+			if amountOfBridges == 1 {
+				return bridge, nil
+			}
 			if (int(id) % amountOfBridges) == (bridge.ID % amountOfBridges) {
 				return bridge, nil
 			}

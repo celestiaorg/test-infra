@@ -1,18 +1,21 @@
-package arabica
+package plans
 
 import (
 	"context"
 	"github.com/celestiaorg/test-infra/testkit"
+	nodesync "github.com/celestiaorg/test-infra/tests/helpers/node-sync"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunArabica(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
+func SyncNodes(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
-	case "full":
-		err = RunFullNode(runenv, initCtx)
+	case "validator":
+		err = nodesync.RunAppValidator(runenv, initCtx)
+	case "bridge":
+		err = nodesync.RunBridgeNode(runenv, initCtx)
 	case "light":
-		err = RunLightNode(runenv, initCtx)
+		err = nodesync.RunLightNode(runenv, initCtx)
 	}
 
 	if err != nil {

@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -208,10 +209,15 @@ func (ak *AppKit) StartNode(loglvl string) error {
 			wrapFlag(flags.FlagLogLevel),
 			loglvl,
 			wrapFlag(flags.FlagLogFormat),
-			"json", ">",
-			"/var/log/node.log",
+			"json",
 		},
 	)
+	log, err := os.Create(filepath.Join("/var/log", "node.log"))
+	if err != nil {
+		return err
+	}
+
+	ak.Cmd.SetErr(log)
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
