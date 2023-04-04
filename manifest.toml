@@ -42,6 +42,7 @@ instances = { min = 4, max = 3000, default = 12 }
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
+    bootstrapper = { type = "boolean", default = false }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
@@ -61,6 +62,7 @@ instances = { min = 4, max = 3000, default = 12 }
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
+    bootstrapper = { type = "boolean", default = false }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
@@ -80,6 +82,7 @@ instances = { min = 4, max = 3000, default = 12 }
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
+    bootstrapper = { type = "boolean", default = false }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
@@ -99,6 +102,7 @@ instances = { min = 4, max = 3000, default = 12 }
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
+    bootstrapper = { type = "boolean", default = false }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
@@ -120,6 +124,7 @@ instances = { min = 4, max = 3000, default = 12 }
     namespace-id = { type = "string", default = "1"}
     msg-size = { type = "int", default = 10000}
     bridge = { type = "int", default = 3}
+    bootstrapper = { type = "boolean", default = false }
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
     block-height = { type = "int" }
@@ -140,6 +145,7 @@ instances = { min = 4, max = 3000, default = 12 }
     submit-times = { type = "int", default = 4}
     namespace-id = { type = "string", default = "1"}
     msg-size = { type = "int", default = 10000}
+    bootstrapper = { type = "boolean", default = false }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
@@ -159,6 +165,7 @@ instances = { min = 4, max = 3000, default = 12 }
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 20}
     msg-size = { type = "int", default = 10000}
+    bootstrapper = { type = "boolean", default = false }
     bridge = { type = "int", default = 3}
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
@@ -190,32 +197,33 @@ instances = { min = 16, max = 1002, default = 16 }
 [[testcases]]
 name = "flood-arabica"
 instances = { min = 4, max = 3000, default = 12 }
-[testcases.params]
-execution-time = { type = "int" }
-latency = { type = "int", default = 0}
-bandwidth = { type = "string", default = "256Mib"}
-light = { type = "int", default = 3}
-block-height = { type = "int", default = 50 }
-role = { type = "string" }
-p2p-network = { type = "string", default = "arabica-6" }
-otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }
-rest-endpoint = { type = "string", default = "https://rpc.limani.celestia-devops.dev" }
+    [testcases.params]
+    execution-time = { type = "int" }
+    latency = { type = "int", default = 0}
+    bandwidth = { type = "string", default = "256Mib"}
+    light = { type = "int", default = 3}
+    block-height = { type = "int", default = 50 }
+    role = { type = "string" }
+    p2p-network = { type = "string", default = "arabica-6" }
+    otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }
+    rest-endpoint = { type = "string", default = "https://rpc.limani.celestia-devops.dev" }
 
 
 [[testcases]]
 name = "flood-internal"
 instances = { min = 4, max = 3000, default = 12 }
-[testcases.params]
-execution-time = { type = "int" }
-submit-times = { type = "int", default = 20}
-msg-size = { type = "int", default = 50000}
-persistent-peers = { type = "int", default = 0}
-validator = { type = "int", default = 1}
-bridge = { type = "int", default = 1}
-light = { type = "int", default = 200}
-block-height = { type = "int" }
-latency = { type = "int", default = 0}
-bandwidth = { type = "string", default = "256Mib"}
-role = { type = "string" }
-p2p-network = { type = "string", default = "private" }
-otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }
+    [testcases.params]
+    execution-time = { type = "int" }
+    submit-times = { type = "int", default = 20}
+    msg-size = { type = "int", default = 50000}
+    persistent-peers = { type = "int", default = 0}
+    validator = { type = "int", default = 1}
+    bootstrapper = { type = "boolean", default = false }
+    bridge = { type = "int", default = 1}
+    light = { type = "int", default = 200}
+    block-height = { type = "int" }
+    latency = { type = "int", default = 0}
+    bandwidth = { type = "string", default = "256Mib"}
+    role = { type = "string" }
+    p2p-network = { type = "string", default = "private" }
+    otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }

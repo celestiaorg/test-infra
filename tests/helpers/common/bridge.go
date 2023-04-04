@@ -3,8 +3,6 @@ package common
 import (
 	"context"
 	"fmt"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
@@ -15,6 +13,8 @@ import (
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
+	"os"
 )
 
 func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
@@ -44,13 +44,17 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		return nil, err
 	}
 
+	err = os.Setenv("CELESTIA_BOOTSTRAPPER", fmt.Sprintf("%t", runenv.BooleanParam("bootstrapper")))
+	if err != nil {
+		return nil, err
+	}
+
 	cfg := nodekit.NewConfig(node.Bridge, ip, []string{}, h)
 	cfg.Core.IP = appNode.IP.To4().String()
 	cfg.Core.RPCPort = "26657"
 	cfg.Core.GRPCPort = "9090"
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
-	cfg.P2P.Bootstrapper = bool(runenv.BooleanParam("bootstrapper"))
 	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
 	optlOpts := []otlpmetrichttp.Option{
