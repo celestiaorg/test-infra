@@ -1,0 +1,91 @@
+[metadata]
+name = "flood-internal-200"
+author = "Bidon15"
+
+[global]
+plan = "celestia"
+case = "flood-internal"
+total_instances = 202
+builder = "docker:generic"
+runner = "cluster:k8s"
+disable_metrics = false
+[global.run]
+artifact = ""
+[global.run.test_params]
+execution-time = "50"
+light = "200"
+submit-times = "200"
+msg-size = "500000"
+validator = "1"
+bridge = "1"
+block-height = "200"
+
+
+[[groups]]
+id = "validators"
+builder = "docker:generic"
+[groups.resources]
+memory = "8000Mi"
+cpu = "5000m"
+[groups.instances]
+count = 1
+percentage = 0.0
+[groups.build_config]
+build_base_image = "golang:1.19.1"
+enable_go_build_cache = true
+enabled = true
+go_version = "1.19"
+[groups.build]
+[groups.run]
+artifact = ""
+[groups.run.test_params]
+bandwidth = "320Mib"
+block-height = "100"
+latency = "0"
+role = "validator"
+
+[[groups]]
+id = "bridges"
+builder = "docker:generic"
+[groups.resources]
+memory = "16000Mi"
+cpu = "8000m"
+[groups.instances]
+count = 1
+percentage = 0.0
+[groups.build_config]
+build_base_image = "golang:1.19.1"
+enable_go_build_cache = true
+enabled = true
+go_version = "1.19"
+[groups.build]
+[groups.run]
+artifact = ""
+[groups.run.test_params]
+bandwidth = "320Mib"
+block-height = "199"
+latency = "0"
+role = "bridge"
+
+[[groups]]
+id = "lights"
+builder = "docker:generic"
+[groups.resources]
+memory = "600Mi"
+cpu = "300m"
+[groups.instances]
+count = 200
+percentage = 0.0
+[groups.build_config]
+build_base_image = "golang:1.19.1"
+enable_go_build_cache = true
+enabled = true
+go_version = "1.19"
+[groups.build]
+[groups.run]
+artifact = ""
+[groups.run.test_params]
+bandwidth = "100Mib"
+block-height = "100"
+latency = "0"
+role = "light"
