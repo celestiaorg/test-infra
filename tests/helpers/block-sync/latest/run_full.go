@@ -59,7 +59,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	bridgeNode := &testkit.BridgeNodeInfo{}
 	trustedPeers := []string{}
-	if runenv.BooleanParam("multibootstrap") {
+	if !runenv.BooleanParam("multibootstrap") {
 		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
 		if err != nil {
 			return err

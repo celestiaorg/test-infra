@@ -208,8 +208,8 @@ instances = { min = 16, max = 1002, default = 16 }
         execution-time = { type = "int" }
         latency = { type = "int", default = 60 }
         bandwidth = { type = "string", default = "256Mib"}
-        validator = { type = "int", default = 1 }
         msg-size = { type = "int", default = 10000 }
+        validator = { type = "int", default = 1 }
         bridge = { type = "int", default = 3 }
         full = { type = "int", default = 16 }
         historical = { type = "int", default = 16 }

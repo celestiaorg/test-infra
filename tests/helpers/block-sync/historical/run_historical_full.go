@@ -61,12 +61,6 @@ func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) err
 	bridgeNode := &testkit.BridgeNodeInfo{}
 	trustedPeers := []string{}
 	if runenv.BooleanParam("multibootstrap") {
-		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
-		if err != nil {
-			return err
-		}
-		trustedPeers = []string{bridgeNode.Maddr}
-	} else {
 		bridgeNodes, err := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
 		if err != nil {
 			return err
@@ -82,6 +76,12 @@ func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) err
 		for _, bridge := range bridgeNodes {
 			trustedPeers = append(trustedPeers, bridge.Maddr)
 		}
+	} else {
+		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
+		if err != nil {
+			return err
+		}
+		trustedPeers = []string{bridgeNode.Maddr}
 	}
 
 	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)

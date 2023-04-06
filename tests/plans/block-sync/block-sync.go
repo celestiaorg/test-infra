@@ -47,7 +47,7 @@ func BlockSyncHistorical(runenv *runtime.RunEnv, initCtx *run.InitContext) (err 
 		err = blocksynchistorical.RunBridgeNode(runenv, initCtx)
 	case "full":
 		err = blocksynchistorical.RunFullNode(runenv, initCtx)
-	case "historical-full":
+	case "historical":
 		err = blocksynchistorical.RunHistoricalFullNode(runenv, initCtx)
 	}
 
