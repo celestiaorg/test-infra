@@ -1,12 +1,9 @@
-package nodesync
+package arabica
 
 import (
 	"context"
 	"fmt"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	"time"
-
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -14,16 +11,17 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"time"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("INFO")
+	err := nodekit.SetLoggersLevel("DEBUG")
 	if err != nil {
 		return err
 	}
@@ -57,30 +55,13 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	bridgeNode, err := common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
-	if err != nil {
-		return err
-	}
+	netId := runenv.StringParam("p2p-network")
+	ndHome := fmt.Sprintf("/.celestia-full-%s", netId)
+	runenv.RecordMessage(ndHome)
 
-	ndhome := fmt.Sprintf("/.celestia-light-%d", int(initCtx.GlobalSeq))
-	runenv.RecordMessage(ndhome)
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return err
-	}
+	cfg := nodebuilder.DefaultConfig(node.Full)
 
-	trustedPeers := []string{bridgeNode.Maddr}
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
-	}
-
-	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
-	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg,
-		nodebuilder.WithMetrics(
-			optlOpts,
-			node.Light,
-		))
+	nd, err := nodekit.NewNode(ndHome, node.Full, netId, cfg)
 	if err != nil {
 		return err
 	}
@@ -90,31 +71,12 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(10))
-	if err != nil {
-		return err
-	}
-	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		10,
-		eh.Commit.BlockID.Hash.String())
-
-	eh, err = nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
-	if err != nil {
-		return err
-	}
-	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
-		eh.Commit.BlockID.Hash.String())
-
-	if nodekit.IsSyncing(ctx, nd) {
-		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
-	}
-
+	time.Sleep(time.Minute * 15)
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}
-	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.IntParam("full"))
 	if err != nil {
 		return err
 	}

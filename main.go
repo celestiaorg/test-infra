@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/celestiaorg/test-infra/tests/plans"
 	"github.com/celestiaorg/test-infra/tests/plans/arabica"
 	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
 	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
@@ -23,12 +24,13 @@ var testcases = map[string]interface{}{
 	"get-shares-by-namespace": pfdgsbn.PayForBlobAndGetShares,
 	// Block Reconstruction Plan
 	"reconstruction": blockrecon.BlockReconstruction,
-	// Arabica Nightly Plan
-	"flood-arabica": arabica.RunLightNode,
 	// BlockSync Benchmarks - Syncing Latest
 	"blocksync-latest": blocksync.BlockSyncLatest,
 	// BlockSync Benchmarks - Syncing Historical
 	"blocksync-historical": blocksync.BlockSyncHistorical,
+	// Arabica Nightly Plan
+	"flood-arabica":  arabica.RunArabica,
+	"flood-internal": plans.SyncNodes,
 }
 
 func main() {
