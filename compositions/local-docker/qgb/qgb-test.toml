@@ -1,10 +1,10 @@
 [metadata]
-  name = "001-qgb"
+  name = "qgb-test"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "001-qgb"
+  case = "qgb-test"
   total_instances = 4
   builder = "docker:generic"
   runner = "local:docker"
