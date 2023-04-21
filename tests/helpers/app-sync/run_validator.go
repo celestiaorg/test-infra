@@ -25,24 +25,7 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	netclient.MustWaitNetworkInitialized(ctx)
 
-	config := network.Config{
-		Network: "default",
-		Enable:  true,
-		Default: network.LinkShape{
-			Latency:   time.Duration(runenv.IntParam("latency")),
-			Bandwidth: common.GetBandwidthValue(runenv.StringParam("bandwidth")),
-		},
-		CallbackState: "network-configured",
-		RoutingPolicy: network.AllowAll,
-	}
-
-	config.IPv4 = runenv.TestSubnet
-
-	// using the assigned `GlobalSequencer` id per each of instance
-	// to fill in the last 2 octets of the new IP address for the instance
-	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
-	ipD := byte(initCtx.GlobalSeq)
-	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
+	config := CreateConfig(runenv, initCtx)
 
 	err := netclient.ConfigureNetwork(ctx, &config)
 	if err != nil {
@@ -68,8 +51,82 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		go appcmd.StartNode("info")
 	}
 
+	err = HandleSeedPeers(ctx, runenv, appcmd, initCtx)
+	if err != nil {
+		return err
+	}
+
+	if initCtx.GroupSeq != 1 {
+		runenv.RecordMessage("starting........")
+		go appcmd.StartNode("info")
+	}
+
+	// wait for a new block to be produced
+	time.Sleep(2 * time.Minute)
+
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
+	if err != nil {
+		return err
+	}
+
+	err = SubmitPFBs(runenv, appcmd)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func CreateConfig(runenv *runtime.RunEnv, initCtx *run.InitContext) network.Config {
+	config := network.Config{
+		Network: "default",
+		Enable:  true,
+		Default: network.LinkShape{
+			Latency:   time.Duration(runenv.IntParam("latency")),
+			Bandwidth: common.GetBandwidthValue(runenv.StringParam("bandwidth")),
+		},
+		CallbackState: "network-configured",
+		RoutingPolicy: network.AllowAll,
+	}
+
+	config.IPv4 = runenv.TestSubnet
+
+	// using the assigned `GlobalSequencer` id per each of instance
+	// to fill in the last 2 octets of the new IP address for the instance
+	ipC := byte((initCtx.GlobalSeq >> 8) + 1)
+	ipD := byte(initCtx.GlobalSeq)
+	config.IPv4.IP = append(config.IPv4.IP[0:2:2], ipC, ipD)
+
+	return config
+}
+
+func SubmitPFBs(runenv *runtime.RunEnv, appcmd *appkit.AppKit) error {
+	for i := 0; i < runenv.IntParam("submit-times"); i++ {
+		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
+		err := appcmd.PayForBlob(
+			appcmd.AccountAddress,
+			runenv.IntParam("msg-size"),
+			"test",
+			appcmd.GetHomePath(),
+		)
+		if err != nil {
+			runenv.RecordFailure(err)
+			return err
+		}
+
+		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
+		if err != nil {
+			runenv.RecordMessage("err in last size call, %s", err.Error())
+		}
+
+		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
+	}
+	return nil
+}
+
+func HandleSeedPeers(ctx context.Context, runenv *runtime.RunEnv, appcmd *appkit.AppKit, initCtx *run.InitContext) error {
 	seedCh := make(chan *appkit.ValidatorNode)
-	sub, err := syncclient.Subscribe(ctx, testkit.SeedNodeTopic, seedCh)
+	sub, err := initCtx.SyncClient.Subscribe(ctx, testkit.SeedNodeTopic, seedCh)
 	if err != nil {
 		return err
 	}
@@ -91,40 +148,5 @@ func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-
-	if initCtx.GroupSeq != 1 {
-		runenv.RecordMessage("starting........")
-		go appcmd.StartNode("info")
-	}
-
-	// wait for a new block to be produced
-	time.Sleep(2 * time.Minute)
-
-	for i := 0; i < runenv.IntParam("submit-times"); i++ {
-		runenv.RecordMessage("Submitting PFD with %d bytes random data", runenv.IntParam("msg-size"))
-		err = appcmd.PayForBlob(
-			appcmd.AccountAddress,
-			runenv.IntParam("msg-size"),
-			"test",
-			appcmd.GetHomePath(),
-		)
-		if err != nil {
-			runenv.RecordFailure(err)
-			return err
-		}
-
-		s, err := appkit.GetLatestsBlockSize(net.ParseIP("127.0.0.1"))
-		if err != nil {
-			runenv.RecordMessage("err in last size call, %s", err.Error())
-		}
-
-		runenv.RecordMessage("latest size on iteration %d of the block is - %d", i, s)
-	}
-
-	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }

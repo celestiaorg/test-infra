@@ -2,56 +2,53 @@ package qgbkit
 
 import (
 	"bytes"
+	"crypto/ecdsa"
 	"fmt"
+	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
+	"github.com/celestiaorg/orchestrator-relayer/cmd/qgb/relayer"
+	"github.com/libp2p/go-libp2p/core/crypto"
 	"io"
 	"net"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 
-	"github.com/tendermint/tendermint/p2p"
-	"github.com/tendermint/tendermint/p2p/pex"
-
 	"github.com/celestiaorg/celestia-app/app"
-	appcmd "github.com/celestiaorg/celestia-app/cmd/celestia-appd/cmd"
-	"github.com/celestiaorg/test-infra/testkit/appkit"
+	qgbbase "github.com/celestiaorg/orchestrator-relayer/cmd/qgb/base"
+	qgborch "github.com/celestiaorg/orchestrator-relayer/cmd/qgb/orchestrator"
+	qgbcmd "github.com/celestiaorg/orchestrator-relayer/cmd/qgb/root"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/keys"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	coretypes "github.com/tendermint/tendermint/rpc/core/types"
-	"github.com/tendermint/tendermint/rpc/jsonrpc/types"
 )
 
-type ValidatorNode struct {
-	PubKey string
-	IP     net.IP
+type BootstrapperNode struct {
+	P2PID string
+	IP    net.IP
 }
 
 type QGBKit struct {
-	*appkit.AppKit
-	m              sync.Mutex
-	Home           string
-	AccountAddress string
-	ChainId        string
-	Cmd            *cobra.Command
+	m             sync.Mutex
+	Home          string
+	Cmd           *cobra.Command
+	P2PPrivateKey *crypto.PrivKey
+	EVMPrivateKey *ecdsa.PrivateKey
 }
 
 func wrapFlag(str string) string {
 	return fmt.Sprintf("--%s", str)
 }
 
-func New(path, chainId string) *QGBKit {
+// New creates a new QGBKit for testground.
+// Note: the provided private keys do not get added automatically to the store. Make sure to
+// add them using the below import helpers before using them.
+func New(qgbPath string, p2pPrivateKey *crypto.PrivKey, evmPrivateKey *ecdsa.PrivateKey) *QGBKit {
 	return &QGBKit{
-		Home:    path,
-		ChainId: chainId,
-		Cmd:     appcmd.NewRootCmd(),
-		AppKit:  nil, // TODO
+		Home:          qgbPath,
+		Cmd:           qgbcmd.Cmd(),
+		P2PPrivateKey: p2pPrivateKey,
+		EVMPrivateKey: evmPrivateKey,
 	}
 }
 
@@ -83,138 +80,88 @@ func (ak *QGBKit) execCmd(args []string) (output string, err error) {
 	return output, nil
 }
 
-func (ak *AppKit) GetHomePath() string {
+func (ak *QGBKit) GetHomePath() string {
 	return ak.Home
 }
 
-func (ak *AppKit) InitChain(moniker string) (string, error) {
+// InitService initializes the storage of a service.
+// A service is either an orchestrator, relayer or deployer.
+func (ak *QGBKit) InitService(service string) (string, error) {
 	return ak.execCmd(
 		[]string{
+			service,
 			"init",
-			moniker,
-			wrapFlag(flags.FlagChainID),
-			ak.ChainId,
 			wrapFlag(flags.FlagHome),
 			ak.Home,
 		},
 	)
 }
 
-func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
-	_, err := ak.execCmd(
-		[]string{
-			"keys",
-			"add",
-			name,
-			wrapFlag(flags.FlagKeyringBackend),
-			krbackend,
-			wrapFlag(flags.FlagHome),
-			ak.Home,
-			wrapFlag(flags.FlagKeyringDir),
-			krpath,
-		},
-	)
-	if err != nil {
-		return "", err
-	}
+// ImportEVMKey Imports the specified private key to service
+// keystore. A service is either orchestrator, relayer or deployer.
+func (ak *QGBKit) ImportEVMKey(service, evmPrivateKey, passphrase string) (string, error) {
 	return ak.execCmd(
 		[]string{
+			service,
 			"keys",
-			"show",
-			name,
-			wrapFlag(keys.FlagAddress),
-			wrapFlag(flags.FlagKeyringBackend),
-			krbackend,
+			"evm",
+			"import",
+			"ecdsa",
+			evmPrivateKey,
+			wrapFlag(qgbbase.FlagEVMPassphrase),
+			passphrase,
 			wrapFlag(flags.FlagHome),
 			ak.Home,
-			wrapFlag(flags.FlagKeyringDir),
-			krpath,
 		},
 	)
 }
 
-func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
+// ImportP2PKey imports a P2P private key to the service keystore.
+// The nickname is the name given to the private key, and the service is the
+// target service: orchestrator, relayer or deployer.
+func (ak *QGBKit) ImportP2PKey(service, p2pPrivateKey, nickname string) (string, error) {
 	return ak.execCmd(
-		[]string{"add-genesis-account", addr, amount,
-			wrapFlag(flags.FlagHome), ak.Home,
+		[]string{
+			service,
+			"keys",
+			"p2p",
+			"import",
+			nickname,
+			p2pPrivateKey,
+			wrapFlag(flags.FlagHome),
+			ak.Home,
 		},
 	)
 }
 
-func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, error) {
-	ethAddress, err := teststaking.RandomEVMAddress()
-	if err != nil {
-		return "", err
-	}
-
-	args := []string{
-		"gentx",
-		accName,
-		amount,
-		wrapFlag(flags.FlagEVMAddress),
-		ethAddress.String(),
-		wrapFlag(flags.FlagKeyringBackend),
-		krbackend,
-		wrapFlag(flags.FlagChainID),
-		ak.ChainId,
-		wrapFlag(flags.FlagHome),
-		ak.Home,
-		wrapFlag(flags.FlagKeyringDir),
-		krpath,
-	}
-
-	ak.Cmd.ResetFlags()
-
-	ak.m.Lock()
-
-	ak.Cmd.SetArgs(args)
-	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
-		return "", err
-	}
-
-	ak.m.Unlock()
-
-	return "", nil
-}
-
-func (ak *AppKit) CollectGenTxs() (string, error) {
-	args := []string{"collect-gentxs", wrapFlag(flags.FlagHome), ak.Home}
-	ak.Cmd.ResetFlags()
-
-	ak.m.Lock()
-
-	ak.Cmd.SetArgs(args)
-	if err := svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome); err != nil {
-		return "", err
-	}
-
-	ak.m.Unlock()
-
-	return "", nil
-}
-
-func (ak *AppKit) GetNodeId() (string, error) {
-	return ak.execCmd(
-		[]string{"tendermint", "show-node-id", wrapFlag(flags.FlagHome), ak.Home},
-	)
-}
-
-func (ak *AppKit) StartNode(loglvl string) error {
+// StartOrchestrator starts the orchestrator
+// Set the p2p nickname or the bootstrappers to an empty string not to pass them to the
+// start command.
+func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, bootstrappers string) error {
 	ak.Cmd.ResetFlags()
 
 	// SetErr: send the error logs to stderr stream.
 	ak.Cmd.SetErr(os.Stderr)
-	ak.Cmd.SetArgs(
-		[]string{
-			"start",
-			wrapFlag(flags.FlagHome),
-			ak.Home,
-			wrapFlag(flags.FlagLogLevel),
-			loglvl,
-			wrapFlag(flags.FlagLogFormat),
-			"json",
-		},
-	)
+	args := []string{
+		"orchestrator",
+		"start",
+		wrapFlag(flags.FlagHome),
+		ak.Home,
+		wrapFlag(qgborch.FlagEVMAccAddress),
+		evmAddress,
+		wrapFlag(qgbbase.FlagEVMPassphrase),
+		evmPassphrase,
+	}
+
+	if p2pNickname != "" {
+		args = append(args, wrapFlag(qgborch.FlagP2PNickname), p2pNickname)
+	}
+	if bootstrappers != "" {
+		args = append(args, wrapFlag(qgborch.FlagBootstrappers), bootstrappers)
+	}
+
+	ak.Cmd.SetArgs(args)
+
 	log, err := os.Create(filepath.Join("/var/log", "node.log"))
 	if err != nil {
 		return err
@@ -225,221 +172,42 @@ func (ak *AppKit) StartNode(loglvl string) error {
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
-func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddrs ...string) error {
-	args := []string{"tx", "bank", "multi-send", accAdr}
-	args = append(args, accAddrs...)
-	args = append(args, amount,
-		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
-		wrapFlag(flags.FlagSkipConfirmation),
-		wrapFlag(flags.FlagGas), "2000000",
-		wrapFlag(flags.FlagFees), "100000utia",
-		wrapFlag(flags.FlagKeyringBackend),
-		krbackend,
-		wrapFlag(flags.FlagChainID),
-		ak.ChainId,
+// StartRelayer starts the relayer
+// Set the p2p nickname to an empty string not to pass them to the
+// start command.
+func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, p2pNickname, bootstrappers string) error {
+	ak.Cmd.ResetFlags()
+
+	// SetErr: send the error logs to stderr stream.
+	ak.Cmd.SetErr(os.Stderr)
+	args := []string{
+		"relayer",
+		"start",
 		wrapFlag(flags.FlagHome),
 		ak.Home,
-		wrapFlag(flags.FlagKeyringDir),
-		krpath,
-	)
+		wrapFlag(qgborch.FlagEVMAccAddress),
+		evmAddress,
+		wrapFlag(qgbbase.FlagEVMPassphrase),
+		evmPassphrase,
+		wrapFlag(qgborch.FlagBootstrappers),
+		bootstrappers,
+		wrapFlag(relayer.FlagEVMChainID),
+		evmChainID,
+		wrapFlag(relayer.FlagEVMRPC),
+		evmRPC,
+	}
 
-	ak.Cmd.ResetFlags()
+	if p2pNickname != "" {
+		args = append(args, wrapFlag(qgborch.FlagP2PNickname), p2pNickname)
+	}
 	ak.Cmd.SetArgs(args)
 
-	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
-}
+	log, err := os.Create(filepath.Join("/var/log", "node.log"))
+	if err != nil {
+		return err
+	}
 
-func (ak *AppKit) PayForBlob(accAdr string, msg int, krbackend, krpath string) error {
-	ak.Cmd.ResetFlags()
-	ak.Cmd.SetArgs([]string{
-		"tx", "blob", "TestRandBlob", fmt.Sprint(msg),
-		wrapFlag(flags.FlagFrom), accAdr,
-		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
-		wrapFlag(flags.FlagSkipConfirmation),
-		wrapFlag(flags.FlagGas), "1000000000",
-		wrapFlag(flags.FlagFees), "100000000000utia",
-		wrapFlag(flags.FlagKeyringBackend),
-		krbackend,
-		wrapFlag(flags.FlagChainID),
-		ak.ChainId,
-		wrapFlag(flags.FlagHome),
-		ak.Home,
-		wrapFlag(flags.FlagKeyringDir),
-		krpath,
-	})
+	ak.Cmd.SetErr(log)
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
-}
-
-func GetGenesisState(uri string) (*coretypes.ResultGenesis, error) {
-	resp, err := http.Get(uri)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var rpcResponse types.RPCResponse
-	if err := rpcResponse.UnmarshalJSON(body); err != nil {
-		return nil, err
-	}
-
-	var genState *coretypes.ResultGenesis
-	if err := tmjson.Unmarshal(rpcResponse.Result, &genState); err != nil {
-		return nil, err
-	}
-
-	return genState, nil
-}
-
-// GetResponse returns the response from the given uri of the app node
-func GetResponse(uri string) (*coretypes.ResultBlock, error) {
-	resp, err := http.Get(uri)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var rpcResponse types.RPCResponse
-	if err := rpcResponse.UnmarshalJSON(body); err != nil {
-		return nil, err
-	}
-
-	var resBlock *coretypes.ResultBlock
-	if err := tmjson.Unmarshal(rpcResponse.Result, &resBlock); err != nil {
-		return nil, err
-	}
-
-	return resBlock, nil
-}
-
-func GetBlockHashByHeight(ip net.IP, height int) (string, error) {
-	uri := fmt.Sprintf("http://%s:26657/block?height=%d", ip.To4().String(), height)
-
-	resBlock, err := GetResponse(uri)
-	if err != nil {
-		return "", err
-	}
-
-	return resBlock.BlockID.Hash.String(), nil
-}
-
-func GetLatestsBlockSize(ip net.IP) (int, error) {
-	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
-
-	resBlock, err := GetResponse(uri)
-	if err != nil {
-		return 0, err
-	}
-
-	return resBlock.Block.Size(), nil
-}
-
-func GetLatestBlockSizeAndHeight(ip net.IP) (int, uint64, error) {
-	uri := fmt.Sprintf("http://%s:26657/block", ip.To4().String())
-
-	resBlock, err := GetResponse(uri)
-	if err != nil {
-		return 0, 0, err
-	}
-
-	return resBlock.Block.Size(), uint64(resBlock.Block.Height), nil
-}
-
-func updateConfig(path, key string, value interface{}) error {
-	fh, err := os.OpenFile(path, os.O_RDWR, 0777)
-	if err != nil {
-		return err
-	}
-
-	viper.SetConfigType("toml")
-	err = viper.ReadConfig(fh)
-	if err != nil {
-		return err
-	}
-
-	viper.Set(key, value)
-	err = viper.WriteConfigAs(path)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func AddSeedPeers(path string, peers []string) error {
-	var (
-		peersStr  bytes.Buffer
-		port      int    = 26656
-		separator string = ","
-	)
-
-	for k, peer := range peers {
-		if k == (len(peers) - 1) {
-			separator = ""
-		}
-		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
-	}
-
-	return updateConfig(path, "p2p.seeds", peersStr.String())
-}
-
-// AddPersistentPeers modifies the respective field in the config.toml
-// to allow the peer to always connect to a set of defined peers
-func AddPersistentPeers(path string, peers []string) error {
-	var peersStr bytes.Buffer
-	var port int = 26656
-	var separator string = ","
-	for k, peer := range peers {
-		if k == (len(peers) - 1) {
-			separator = ""
-		}
-		peersStr.WriteString(fmt.Sprintf("%s:%d%s", peer, port, separator))
-	}
-	return updateConfig(path, "p2p.persistent_peers", peersStr.String())
-}
-
-func AddPeersToAddressBook(path string, peers []ValidatorNode) error {
-	var filePath string = fmt.Sprintf("%s/config/addrbook.json", path)
-
-	_, err := os.Create(filePath)
-	if err != nil {
-		return err
-	}
-	addrBook := pex.NewAddrBook(filePath, false)
-
-	for _, peer := range peers {
-		if peer.IP != nil {
-			netAddr := p2p.NetAddress{
-				ID:   p2p.ID(peer.PubKey),
-				IP:   peer.IP,
-				Port: 26656,
-			}
-			err = addrBook.AddAddress(&netAddr, &netAddr)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	addrBook.Save()
-	return nil
-}
-
-func ChangeRPCServerAddress(path string, ip net.IP) error {
-	return updateConfig(path, "rpc.laddr", fmt.Sprintf("tcp://%s:26657", ip.To4().String()))
-}
-
-func ChangeConfigParam(path, section, mode string, value interface{}) error {
-	field := fmt.Sprintf("%s.%s", section, mode)
-	return updateConfig(path, field, value)
 }

@@ -1,6 +1,7 @@
 package testkit
 
 import (
+	"github.com/celestiaorg/test-infra/testkit/qgbkit"
 	"net"
 
 	"github.com/celestiaorg/test-infra/testkit/appkit"
@@ -10,13 +11,14 @@ import (
 
 // These topics are used around Celestia App instances
 var (
-	AccountAddressTopic = sync.NewTopic("account-address", "")
-	ValidatorPeerTopic  = sync.NewTopic("validator-info", &appkit.ValidatorNode{})
-	SeedNodeTopic       = sync.NewTopic("seeds-info", &appkit.ValidatorNode{})
-	InitialGenesisTopic = sync.NewTopic("initial-genesis", "")
-	GenesisTxTopic      = sync.NewTopic("genesis-tx", "")
-	CurlGenesisState    = sync.NewTopic("genesis-state", "")
-	BlockHashTopic      = sync.NewTopic("block-hash", "")
+	AccountAddressTopic  = sync.NewTopic("account-address", "")
+	ValidatorPeerTopic   = sync.NewTopic("validator-info", &appkit.ValidatorNode{})
+	SeedNodeTopic        = sync.NewTopic("seeds-info", &appkit.ValidatorNode{})
+	InitialGenesisTopic  = sync.NewTopic("initial-genesis", "")
+	GenesisTxTopic       = sync.NewTopic("genesis-tx", "")
+	CurlGenesisState     = sync.NewTopic("genesis-state", "")
+	BlockHashTopic       = sync.NewTopic("block-hash", "")
+	QGBBootstrapperTopic = sync.NewTopic("qgb-bootstrapper", &qgbkit.BootstrapperNode{})
 )
 
 // AppNodeInfo is needed for creation of Celestia Bridge instances
