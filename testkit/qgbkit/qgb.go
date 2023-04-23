@@ -26,6 +26,7 @@ import (
 type BootstrapperNode struct {
 	P2PID string
 	IP    net.IP
+	Port  int
 }
 
 type QGBKit struct {
@@ -116,6 +117,20 @@ func (ak *QGBKit) ImportEVMKey(service, evmPrivateKey, passphrase string) (strin
 	)
 }
 
+// ListEVMKeys Lists the EVM keys in store.
+func (ak *QGBKit) ListEVMKeys(service string) (string, error) {
+	return ak.execCmd(
+		[]string{
+			service,
+			"keys",
+			"evm",
+			"list",
+			wrapFlag(flags.FlagHome),
+			ak.Home,
+		},
+	)
+}
+
 // ImportP2PKey imports a P2P private key to the service keystore.
 // The nickname is the name given to the private key, and the service is the
 // target service: orchestrator, relayer or deployer.
@@ -137,11 +152,12 @@ func (ak *QGBKit) ImportP2PKey(service, p2pPrivateKey, nickname string) (string,
 // StartOrchestrator starts the orchestrator
 // Set the p2p nickname or the bootstrappers to an empty string not to pass them to the
 // start command.
-func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, bootstrappers string) error {
+func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, bootstrappers, listenAddr string) error {
 	ak.Cmd.ResetFlags()
 
 	// SetErr: send the error logs to stderr stream.
 	ak.Cmd.SetErr(os.Stderr)
+	ak.Cmd.SetOut(os.Stderr)
 	args := []string{
 		"orchestrator",
 		"start",
@@ -151,6 +167,8 @@ func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, boot
 		evmAddress,
 		wrapFlag(qgbbase.FlagEVMPassphrase),
 		evmPassphrase,
+		//wrapFlag(qgborch.FlagP2PListenAddress),
+		//listenAddr,
 	}
 
 	if p2pNickname != "" {
@@ -162,12 +180,13 @@ func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, boot
 
 	ak.Cmd.SetArgs(args)
 
-	log, err := os.Create(filepath.Join("/var/log", "node.log"))
+	log, err := os.Create(filepath.Join("/var/log", "orch.log"))
 	if err != nil {
 		return err
 	}
 
 	ak.Cmd.SetErr(log)
+	ak.Cmd.SetOut(log)
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }

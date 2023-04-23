@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "qgb-test"
-  total_instances = 4
+  total_instances = 5
   builder = "docker:generic"
   runner = "local:docker"
   disable_metrics = false
@@ -15,6 +15,8 @@
   latency = "0"
   bandwidth = "320Mib"
   orchestrator = "4"
+  seed = "1"
+  persistent-peers = "2"
   msg-size = "100000"
 
 [[groups]]
@@ -25,6 +27,24 @@
     cpu = ""
   [groups.instances]
     count = 4
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+
+[[groups]]
+  id = "seeds"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"

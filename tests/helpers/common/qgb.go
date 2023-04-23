@@ -45,12 +45,19 @@ func BuildOrchestrator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run
 		return nil, err
 	}
 
+	runenv.RecordMessage("inside building orch........")
 	// import the corresponding evm private key
 	evmpkStr := hexutil.Encode(crypto.FromECDSA(evmpk))[2:]
+	out, err := cmd.ListEVMKeys("orchestrator")
+	if err != nil {
+		return nil, err
+	}
+	runenv.RecordMessage(out)
 	_, err = cmd.ImportEVMKey("orchestrator", evmpkStr, EVMPrivateKeyPassphrase)
 	if err != nil {
 		return nil, err
 	}
+	runenv.RecordMessage("after importing EVM key........")
 
 	// import the corresponding p2p private key
 	p2ppkRaw, err := p2ppk.Raw()

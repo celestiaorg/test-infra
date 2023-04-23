@@ -3,9 +3,11 @@ package qgb
 import (
 	"context"
 	"github.com/celestiaorg/test-infra/testkit"
-	appsync2 "github.com/celestiaorg/test-infra/tests/helpers/qgb-sync"
+	appsync "github.com/celestiaorg/test-infra/tests/helpers/app-sync"
+	qgbsync "github.com/celestiaorg/test-infra/tests/helpers/qgb-sync"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
+	"time"
 )
 
 // Test-Case #001 - Validators submit large txs
@@ -13,7 +15,9 @@ import (
 func RunQGB(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.TestGroupID {
 	case "orchestrators":
-		err = appsync2.RunValidatorWithOrchestrator(runenv, initCtx)
+		err = qgbsync.RunValidatorWithOrchestrator(runenv, initCtx)
+	case "seeds":
+		err = appsync.RunSeed(runenv, initCtx)
 	}
 
 	if err != nil {
@@ -23,5 +27,6 @@ func RunQGB(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	}
 
 	runenv.RecordSuccess()
+	time.Sleep(10 * time.Minute)
 	return err
 }
