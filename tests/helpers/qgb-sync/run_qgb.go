@@ -142,9 +142,10 @@ func RunOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			),
 		)
 	} else {
+		time.Sleep(30 * time.Second)
 		runenv.RecordMessage("getting bootstrappers information........")
 		bootstrapperCh := make(chan *qgbkit.BootstrapperNode)
-		sub, err := initCtx.SyncClient.Subscribe(ctx, testkit.QGBBootstrapperTopic, bootstrapperCh)
+		sub, err := syncclient.Subscribe(ctx, testkit.QGBBootstrapperTopic, bootstrapperCh)
 		if err != nil {
 			return err
 		}
