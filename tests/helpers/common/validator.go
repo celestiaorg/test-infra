@@ -269,7 +269,8 @@ func UpdateAndPublishConfig(
 		testkit.ValidatorPeerTopic,
 		&appkit.ValidatorNode{
 			PubKey: nodeId,
-			IP:     ip},
+			IP:     ip,
+		},
 	)
 	if err != nil {
 		return nil, err

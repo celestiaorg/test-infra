@@ -74,11 +74,6 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 	// wait for a new block to be produced
 	time.Sleep(9 * time.Minute)
 
-	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
-	if err != nil {
-		return err
-	}
-
 	//err = appsync.SubmitPFBs(runenv, appcmd)
 	//if err != nil {
 	//	return err
@@ -142,10 +137,10 @@ func RunOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 			),
 		)
 	} else {
-		time.Sleep(30 * time.Second)
+		//time.Sleep(30 * time.Second)
 		runenv.RecordMessage("getting bootstrappers information........")
 		bootstrapperCh := make(chan *qgbkit.BootstrapperNode)
-		sub, err := syncclient.Subscribe(ctx, testkit.QGBBootstrapperTopic, bootstrapperCh)
+		_, err := syncclient.Subscribe(ctx, testkit.QGBBootstrapperTopic, bootstrapperCh)
 		if err != nil {
 			return err
 		}
@@ -153,10 +148,6 @@ func RunOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		var bootstrappers []string
 		for i := 0; i < 1; i++ {
 			select {
-			case err := <-sub.Done():
-				if err != nil {
-					return err
-				}
 			case bootstrapper := <-bootstrapperCh:
 				runenv.RecordMessage("got bootstrapper")
 				runenv.RecordMessage(bootstrapper.P2PID)
