@@ -135,3 +135,80 @@
       block-height = "5"
       latency = "50"
       role = "light"
+
+[[runs]]
+  id = "default"
+  total_instances = 23099
+
+  [[runs.groups]]
+    id = "seeds"
+    group_id = "seeds"
+    [runs.groups.resources]
+      memory = "4Gi"
+      cpu = "3"
+    [runs.groups.instances]
+      count = 5
+      percentage = 0.0
+    [runs.groups.test_params]
+      bandwidth = "256Mib"
+      latency = "50"
+      role = "seed"
+
+  [[runs.groups]]
+    id = "validators"
+    group_id = "validators"
+    [runs.groups.resources]
+      memory = "4Gi"
+      cpu = "4000m"
+    [runs.groups.instances]
+      count = 100
+      percentage = 0.0
+    [runs.groups.test_params]
+      bandwidth = "256Mib"
+      latency = "50"
+      role = "validator"
+
+  [[runs.groups]]
+    id = "bridges"
+    group_id = "bridges"
+    [runs.groups.resources]
+      memory = "12Gi"
+      cpu = "5000m"
+    [runs.groups.instances]
+      count = 377
+      percentage = 0.0
+    [runs.groups.test_params]
+      bandwidth = "256Mib"
+      block-height = "5"
+      latency = "50"
+      role = "bridge"
+
+  [[runs.groups]]
+    id = "fulls"
+    group_id = "fulls"
+    [runs.groups.resources]
+      memory = "24Gi"
+      cpu = "16"
+    [runs.groups.instances]
+      count = 2
+      percentage = 0.0
+    [runs.groups.test_params]
+      bandwidth = "256Mib"
+      block-height = "5"
+      latency = "50"
+      role = "full"
+
+  [[runs.groups]]
+    id = "lights"
+    group_id = "lights"
+    [runs.groups.resources]
+      memory = "400Mi"
+      cpu = "200m"
+    [runs.groups.instances]
+      count = 22615
+      percentage = 0.0
+    [runs.groups.test_params]
+      bandwidth = "256Mib"
+      block-height = "5"
+      latency = "50"
+      role = "light"
