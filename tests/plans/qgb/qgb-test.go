@@ -10,12 +10,13 @@ import (
 	"time"
 )
 
-// Test-Case #001 - Validators submit large txs
-// Description is in docs/test-plans/001-Big-Blocks/test-cases
+// RunQGB Runs a QGB network with a relayer relaying to the network specified in config.
 func RunQGB(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.TestGroupID {
 	case "orchestrators":
 		err = qgbsync.RunValidatorWithOrchestrator(runenv, initCtx)
+	case "relayers":
+		err = qgbsync.RunValidatorWithRelayer(runenv, initCtx)
 	case "seeds":
 		err = appsync.RunSeed(runenv, initCtx)
 	}
@@ -27,6 +28,6 @@ func RunQGB(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	}
 
 	runenv.RecordSuccess()
-	time.Sleep(10 * time.Minute)
+	time.Sleep(15 * time.Minute)
 	return err
 }

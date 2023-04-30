@@ -1,11 +1,11 @@
 [metadata]
   name = "qgb-test"
-  author = "Bidon15"
+  author = "SweeXordious"
 
 [global]
   plan = "celestia"
   case = "qgb-test"
-  total_instances = 21
+  total_instances = 106
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -14,11 +14,16 @@
   execution-time = "15"
   latency = "0"
   bandwidth = "320Mib"
-  orchestrator = "20"
-  validator = "20"
-  seed = "1"
+  orchestrator = "100"
+  validator = "101" # an extra validator for the relayer
+  seed = "5"
+  relayer = "1"
   persistent-peers = "2"
-  msg-size = "100000"
+  msg-size = "64000"
+  submit-times = "50"
+  evm-rpc = "please replace with an EVM chain RPC endpoint"
+  chain-id = "please replace with a chain ID"
+  funded-evm-private-key="please replace with an secp256k1 ECDSA private key (without the 0x prefix)"
 
 [[groups]]
   id = "orchestrators"
@@ -27,7 +32,7 @@
   memory = "4Gi"
   cpu = "3500m"
   [groups.instances]
-    count = 20
+    count = 100
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.19.1"
@@ -44,6 +49,24 @@
   [groups.resources]
   memory = "2Gi"
   cpu = "2"
+  [groups.instances]
+    count = 5
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+
+[[groups]]
+  id = "relayers"
+  builder = "docker:generic"
+  [groups.resources]
+  memory = "4Gi"
+  cpu = "3500m"
   [groups.instances]
     count = 1
     percentage = 0.0

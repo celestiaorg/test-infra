@@ -237,8 +237,12 @@ instances = { min = 1, max = 200, default = 3 }
     bandwidth = { type = "string", default = "256Mib"}
     validator = { type = "int", default = 3}
     orchestrator = { type = "int", default = 1}
+    relayer = { type = "int", default = 1}
     persistent-peers = { type = "int", default = 2}
     seed = { type = "int", default = 1}
     submit-times = { type = "int", default = 4}
     msg-size = { type = "int", default = 10000}
     p2p-network = { type = "string", default = "private" }
+    evm-rpc = { type = "string", default = "" }
+    chain-id = { type = "string", default = "" }
+    funded-evm-private-key={ type = "string", default = "" }

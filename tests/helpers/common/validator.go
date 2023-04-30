@@ -351,6 +351,9 @@ func changeConfig(path, mempool string) error {
 			"max_open_connections":   100,
 			"namespace":              "tendermint",
 		},
+		"tx_index": {
+			"indexer": "kv",
+		},
 	}
 
 	for i, j := range cfg {

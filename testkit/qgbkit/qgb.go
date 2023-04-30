@@ -11,11 +11,13 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
 	"github.com/celestiaorg/celestia-app/app"
 	qgbbase "github.com/celestiaorg/orchestrator-relayer/cmd/qgb/base"
+	qgbdeploy "github.com/celestiaorg/orchestrator-relayer/cmd/qgb/deploy"
 	qgborch "github.com/celestiaorg/orchestrator-relayer/cmd/qgb/orchestrator"
 	qgbcmd "github.com/celestiaorg/orchestrator-relayer/cmd/qgb/root"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -26,7 +28,6 @@ import (
 type BootstrapperNode struct {
 	P2PID string
 	IP    net.IP
-	Port  int
 }
 
 type QGBKit struct {
@@ -152,12 +153,9 @@ func (ak *QGBKit) ImportP2PKey(service, p2pPrivateKey, nickname string) (string,
 // StartOrchestrator starts the orchestrator
 // Set the p2p nickname or the bootstrappers to an empty string not to pass them to the
 // start command.
-func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, bootstrappers, listenAddr string) error {
+func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, bootstrappers string) error {
 	ak.Cmd.ResetFlags()
 
-	// SetErr: send the error logs to stderr stream.
-	ak.Cmd.SetErr(os.Stderr)
-	ak.Cmd.SetOut(os.Stderr)
 	args := []string{
 		"orchestrator",
 		"start",
@@ -167,8 +165,6 @@ func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, boot
 		evmAddress,
 		wrapFlag(qgbbase.FlagEVMPassphrase),
 		evmPassphrase,
-		//wrapFlag(qgborch.FlagP2PListenAddress),
-		//listenAddr,
 	}
 
 	if p2pNickname != "" {
@@ -194,26 +190,26 @@ func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, boot
 // StartRelayer starts the relayer
 // Set the p2p nickname to an empty string not to pass them to the
 // start command.
-func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, p2pNickname, bootstrappers string) error {
+func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, contractAddr, p2pNickname, bootstrappers string) error {
 	ak.Cmd.ResetFlags()
 
-	// SetErr: send the error logs to stderr stream.
-	ak.Cmd.SetErr(os.Stderr)
 	args := []string{
 		"relayer",
 		"start",
 		wrapFlag(flags.FlagHome),
 		ak.Home,
-		wrapFlag(qgborch.FlagEVMAccAddress),
+		wrapFlag(relayer.FlagEVMAccAddress),
 		evmAddress,
 		wrapFlag(qgbbase.FlagEVMPassphrase),
 		evmPassphrase,
-		wrapFlag(qgborch.FlagBootstrappers),
+		wrapFlag(relayer.FlagBootstrappers),
 		bootstrappers,
 		wrapFlag(relayer.FlagEVMChainID),
 		evmChainID,
 		wrapFlag(relayer.FlagEVMRPC),
 		evmRPC,
+		wrapFlag(relayer.FlagContractAddress),
+		contractAddr,
 	}
 
 	if p2pNickname != "" {
@@ -221,7 +217,7 @@ func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, p2
 	}
 	ak.Cmd.SetArgs(args)
 
-	log, err := os.Create(filepath.Join("/var/log", "node.log"))
+	log, err := os.Create(filepath.Join("/var/log", "rel.log"))
 	if err != nil {
 		return err
 	}
@@ -229,4 +225,50 @@ func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, p2
 	ak.Cmd.SetErr(log)
 
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
+}
+
+// DeployContract deploys the QGB contract and returns its address.
+func (ak *QGBKit) DeployContract(evmAddress, evmPassphrase, evmChainID, evmRPC string) (string, error) {
+	ak.Cmd.ResetFlags()
+	fmt.Println("deploying contract")
+
+	out, err := ak.execCmd(
+		[]string{
+			"deploy",
+			wrapFlag(flags.FlagHome),
+			ak.Home,
+			wrapFlag(qgbdeploy.FlagEVMAccAddress),
+			evmAddress,
+			wrapFlag(qgbbase.FlagEVMPassphrase),
+			evmPassphrase,
+			wrapFlag(qgbdeploy.FlagEVMChainID),
+			evmChainID,
+			wrapFlag(qgbdeploy.FlagEVMRPC),
+			evmRPC,
+			wrapFlag(qgbdeploy.FlagStartingNonce),
+			"earliest",
+		},
+	)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println(out)
+	addr, err := parseContractAddress(out)
+	if err != nil {
+		return "", err
+	}
+	fmt.Printf("contract address: %s\n", addr)
+	return addr, nil
+}
+
+func parseContractAddress(log string) (string, error) {
+	lines := strings.Split(log, "[")
+	for _, line := range lines {
+		match := regexp.MustCompile("deployed QGB contract").MatchString(line)
+		if match {
+			return regexp.MustCompile("0x[a-fA-F0-9]{40}").FindString(line), nil
+		}
+	}
+	return "", fmt.Errorf("deployed QGB contract address not found in provided log")
 }

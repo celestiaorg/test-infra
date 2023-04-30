@@ -3,15 +3,14 @@ package common
 import (
 	"context"
 	"crypto/ecdsa"
+	"fmt"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/qgbkit"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	util "github.com/ipfs/go-ipfs-util"
 	crypto2 "github.com/libp2p/go-libp2p/core/crypto"
-	"time"
-
-	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
@@ -45,19 +44,12 @@ func BuildOrchestrator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run
 		return nil, err
 	}
 
-	runenv.RecordMessage("inside building orch........")
 	// import the corresponding evm private key
 	evmpkStr := hexutil.Encode(crypto.FromECDSA(evmpk))[2:]
-	out, err := cmd.ListEVMKeys("orchestrator")
-	if err != nil {
-		return nil, err
-	}
-	runenv.RecordMessage(out)
 	_, err = cmd.ImportEVMKey("orchestrator", evmpkStr, EVMPrivateKeyPassphrase)
 	if err != nil {
 		return nil, err
 	}
-	runenv.RecordMessage("after importing EVM key........")
 
 	// import the corresponding p2p private key
 	p2ppkRaw, err := p2ppk.Raw()
@@ -69,7 +61,50 @@ func BuildOrchestrator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run
 		return nil, err
 	}
 
-	time.Sleep(30 * time.Second)
+	return cmd, nil
+}
+func BuildRelayer(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*qgbkit.QGBKit, error) {
+	home := "/.relayer"
+	runenv.RecordMessage(home)
+
+	privateKeyStr := runenv.StringParam("funded-evm-private-key")
+	if privateKeyStr == "" {
+		return nil, fmt.Errorf("empty funded evm private key. please add it to configuration")
+	}
+	evmpk, err := crypto.HexToECDSA(privateKeyStr)
+	if err != nil {
+		return nil, err
+	}
+
+	p2ppk, _, err := crypto2.GenerateEd25519Key(util.NewTimeSeededRand())
+	if err != nil {
+		return nil, err
+	}
+
+	cmd := qgbkit.New(home, &p2ppk, evmpk)
+
+	// init orchestrator store
+	_, err = cmd.InitService("relayer")
+	if err != nil {
+		return nil, err
+	}
+
+	// import the corresponding evm private key
+	evmpkStr := hexutil.Encode(crypto.FromECDSA(evmpk))[2:]
+	_, err = cmd.ImportEVMKey("relayer", evmpkStr, EVMPrivateKeyPassphrase)
+	if err != nil {
+		return nil, err
+	}
+
+	// import the corresp2ppkRawponding p2p private key
+	p2ppkRaw, err := p2ppk.Raw()
+	if err != nil {
+		return nil, err
+	}
+	_, err = cmd.ImportP2PKey("relayer", hexutil.Encode(p2ppkRaw)[2:], P2PPrivateKeyNickname)
+	if err != nil {
+		return nil, err
+	}
 
 	return cmd, nil
 }
