@@ -21,9 +21,12 @@
   persistent-peers = "2"
   msg-size = "64000"
   submit-times = "50"
-  evm-rpc = "please replace with an EVM chain RPC endpoint"
-  chain-id = "please replace with a chain ID"
-  funded-evm-private-key="please replace with an secp256k1 ECDSA private key (without the 0x prefix)"
+  # please replace with an EVM chain RPC endpoint
+  evm-rpc = ""
+  # please replace with a chain ID
+  chain-id = ""
+  # please replace with an secp256k1 ECDSA private key (without the 0x prefix)
+  funded-evm-private-key=""
 
 [[groups]]
   id = "orchestrators"
