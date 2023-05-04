@@ -166,10 +166,5 @@ func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) err
 		return err
 	}
 
-	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
-	if err != nil {
-		return err
-	}
-
 	return err
 }

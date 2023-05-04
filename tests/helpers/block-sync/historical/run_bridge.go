@@ -21,8 +21,6 @@ func RunBridgeNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	// runenv.D().Counter("bridge_nodes_reached_target_height").Clear()
-
 	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		runenv.RecordFailure(err)
