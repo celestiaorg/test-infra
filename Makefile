@@ -200,11 +200,15 @@ port-forward: check-kubectl check-podname-arg check-pod-port-arg check-local-por
 .PHONY: port-forward
 
 ## block-sync-latest: run block-sync latest ipld-only composition
-block-sync-latest: check-getter-arg check-square-size-arg
+block-sync: check-getter-arg check-square-size-arg
+ifeq (,${VARIATION})
+	@printf "you must specify a block sync variation (latest|historical), example:\n\t make block-sync VARIATION=latest\n\n"
+	exit 1
+endif
 	make tg-run-composition-no-wait \
 		RUNNER=cluster-k8s \
 		TESTPLAN=block-sync \
-		COMPOSITION=latest/${SQUARE_SIZE}-square-size/1-3-32-${GETTER}
+		COMPOSITION=${VARIATION}/${SQUARE_SIZE}-square-size/1-3-32-${GETTER}
 .PHONY: block-sync-latest-ipld
 
 ## tail-pod-logs: tail pod logs that are persisted to the the file system note that these logs are different from the ones that received from `kubectl logs -f <pod-name>`

@@ -195,6 +195,28 @@ instances = { min = 16, max = 1002, default = 16 }
         multibootstrap = { type = "boolean", default = false }
 
 [[testcases]]
+name = "blocksync-historical"
+instances = { min = 16, max = 1002, default = 16 }
+    [testcases.params]
+        execution-time = { type = "int" }
+        latency = { type = "int", default = 60 }
+        bandwidth = { type = "string", default = "256Mib"}
+        msg-size = { type = "int", default = 10000 }
+        validator = { type = "int", default = 1 }
+        bridge = { type = "int", default = 3 }
+        full = { type = "int", default = 16 }
+        historical = { type = "int", default = 16 }
+        block-height = { type = "int", default = 30 }
+        role = { type = "string" }
+        otel-collector-address = { type = "string" }
+        p2p-network = { type = "string", default = "private" }
+        getter = { type = "string" }
+        peers-limit = { type = "int", default = 3 }
+        bootstrapper = { type = "boolean", default = true }
+        interconnect-bridges = { type = "boolean", default = false }
+        multibootstrap = { type = "boolean", default = false }
+
+[[testcases]]
 name = "flood-arabica"
 instances = { min = 4, max = 3000, default = 12 }
     [testcases.params]
@@ -207,7 +229,6 @@ instances = { min = 4, max = 3000, default = 12 }
     p2p-network = { type = "string", default = "arabica-6" }
     otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }
     rest-endpoint = { type = "string", default = "https://rpc.limani.celestia-devops.dev" }
-
 
 [[testcases]]
 name = "flood-internal"
