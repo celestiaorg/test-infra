@@ -4,7 +4,7 @@
 
 [global]
   plan = "celestia"
-  case = "flood-robusta"
+  case = "flood-robusta-nightly-1"
   total_instances = 201
   builder = "docker:generic"
   runner = "cluster:k8s"
