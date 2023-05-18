@@ -27,8 +27,8 @@ var testcases = map[string]interface{}{
 	// BlockSync Benchmarks - Syncing Latest
 	"blocksync-latest": blocksync.BlockSyncLatest,
 	// Robusta Nightly Plan
-	"flood-robusta":  robusta.RunRobusta,
-	"flood-internal": plans.SyncNodes,
+	"flood-robusta-nightly-1": robusta.RunRobusta,
+	"flood-internal":          plans.SyncNodes,
 }
 
 func main() {
