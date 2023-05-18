@@ -1,8 +1,10 @@
-package arabica
+package robusta
 
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
@@ -11,11 +13,9 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	"time"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
@@ -56,38 +56,29 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	netId := runenv.StringParam("p2p-network")
-	ndHome := fmt.Sprintf("/.celestia-light-%s", netId)
+	//netId := runenv.StringParam("p2p-network")
+	netId := runenv.StringParam("private")
+	ndHome := fmt.Sprintf("/.celestia-full-%s", netId)
 	runenv.RecordMessage(ndHome)
 
-	cfg := nodebuilder.DefaultConfig(node.Light)
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
-	}
+	cfg := nodebuilder.DefaultConfig(node.Full)
 
-	nd, err := nodekit.NewNode(ndHome, node.Light, netId, cfg,
-		nodebuilder.WithMetrics(
-			optlOpts,
-			node.Light,
-		))
+	nd, err := nodekit.NewNode(ndHome, node.Full, netId, cfg)
 	if err != nil {
 		return err
 	}
 
-	durationCount := time.Duration(initCtx.GroupSeq)
-	time.Sleep(time.Second * durationCount * 5)
 	err = nd.Start(ctx)
 	if err != nil {
 		return err
 	}
 
-	time.Sleep(time.Minute * 40)
+	time.Sleep(time.Minute * 15)
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}
-	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.IntParam("light"))
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.IntParam("full"))
 	if err != nil {
 		return err
 	}

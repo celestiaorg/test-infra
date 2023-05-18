@@ -1,13 +1,14 @@
-package arabica
+package robusta
 
 import (
 	"context"
+
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 )
 
-func RunArabica(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
+func RunRobusta(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	switch runenv.StringParam("role") {
 	case "full":
 		err = RunFullNode(runenv, initCtx)

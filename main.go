@@ -2,11 +2,11 @@ package main
 
 import (
 	"github.com/celestiaorg/test-infra/tests/plans"
-	"github.com/celestiaorg/test-infra/tests/plans/arabica"
 	bigblocks "github.com/celestiaorg/test-infra/tests/plans/big-blocks"
 	blockrecon "github.com/celestiaorg/test-infra/tests/plans/block-recon"
 	blocksync "github.com/celestiaorg/test-infra/tests/plans/block-sync"
 	pfdgsbn "github.com/celestiaorg/test-infra/tests/plans/pfd-gsbn"
+	"github.com/celestiaorg/test-infra/tests/plans/robusta"
 	"github.com/testground/sdk-go/run"
 )
 
@@ -26,8 +26,8 @@ var testcases = map[string]interface{}{
 	"reconstruction": blockrecon.BlockReconstruction,
 	// BlockSync Benchmarks - Syncing Latest
 	"blocksync-latest": blocksync.BlockSyncLatest,
-	// Arabica Nightly Plan
-	"flood-arabica":  arabica.RunArabica,
+	// Robusta Nightly Plan
+	"flood-robusta":  robusta.RunRobusta,
 	"flood-internal": plans.SyncNodes,
 }
 
