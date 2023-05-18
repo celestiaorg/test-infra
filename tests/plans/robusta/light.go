@@ -57,7 +57,8 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	netId := runenv.StringParam("p2p-network")
+	//netId := runenv.StringParam("p2p-network")
+	netId := runenv.StringParam("private")
 	ndHome := fmt.Sprintf("/.celestia-light-%s", netId)
 	runenv.RecordMessage(ndHome)
 

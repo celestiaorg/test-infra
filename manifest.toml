@@ -195,7 +195,7 @@ instances = { min = 16, max = 1002, default = 16 }
         multibootstrap = { type = "boolean", default = false }
 
 [[testcases]]
-name = "flood-robusta-nightly"
+name = "flood-robusta-nightly-1"
 instances = { min = 4, max = 3000, default = 12 }
     [testcases.params]
     execution-time = { type = "int" }
