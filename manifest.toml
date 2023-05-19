@@ -170,8 +170,10 @@ instances = { min = 4, max = 100000, default = 12 }
     full = { type = "int", default = 3}
     light = { type = "int", default = 3}
     block-height = { type = "int" }
+    peers-limit = { type = "int", default = 100 }
     role = { type = "string" }
     p2p-network = { type = "string", default = "private" }
+    otel-collector-address = { type = "string", default = "ad18bb77992864c63984b8313f90ff46-1664785118.eu-west-1.elb.amazonaws.com:4318" }
  
 [[testcases]]
 name = "blocksync-latest"
@@ -204,7 +206,7 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int", default = 50 }
     role = { type = "string" }
-    p2p-network = { type = "string", default = "arabica-6" }
+    p2p-network = { type = "string", default = "private" }
     otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }
     rest-endpoint = { type = "string", default = "https://rpc.limani.celestia-devops.dev" }
 

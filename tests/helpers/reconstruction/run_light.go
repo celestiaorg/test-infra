@@ -3,6 +3,8 @@ package reconstruction
 import (
 	"context"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -97,7 +99,16 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	cfg := nodekit.NewConfig(node.Light, ip, trustedPeers, bridgeNode.TrustedHash)
-	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg)
+	optlOpts := []otlpmetrichttp.Option{
+		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+		otlpmetrichttp.WithInsecure(),
+	}
+	nd, err := nodekit.NewNode(ndhome, node.Light, runenv.StringParam("p2p-network"), cfg,
+		nodebuilder.WithMetrics(
+			optlOpts,
+			node.Light,
+			node.BuildInfo{},
+		))
 	if err != nil {
 		return err
 	}
@@ -133,7 +144,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		eh.Commit.BlockID.Hash.String())
 
 	if nodekit.IsSyncing(ctx, nd) {
-		runenv.RecordFailure(fmt.Errorf("full node is still syncing the past"))
+		runenv.RecordFailure(fmt.Errorf("light node is still syncing the past"))
 	}
 	err = nd.Stop(ctx)
 	if err != nil {

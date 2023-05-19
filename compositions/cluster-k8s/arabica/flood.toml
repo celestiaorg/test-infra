@@ -20,8 +20,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "1000Mi"
-    cpu = "1000m"
+    memory = "300Mi"
+    cpu = "100m"
   [groups.instances]
     count = 200
     percentage = 0.0

@@ -1,6 +1,6 @@
 # BUILD_BASE_IMAGE is the base image to use for the build. It contains a rolling
 # accumulation of Go build/package caches.
-ARG BUILD_BASE_IMAGE=golang:1.20
+ARG BUILD_BASE_IMAGE=golang:1.20-alpine3.17
 
 # This Dockerfile performs a multi-stage build and RUNTIME_IMAGE is the image
 # onto which to copy the resulting binary.
@@ -48,6 +48,7 @@ ENV GOCACHE /go/cache
 # Copy only go.mod files and download deps, in order to leverage Docker caching.
 COPY /plan/go.mod ${PLAN_DIR}/go.mod
 
+RUN apk add gcompat
 
 # Download deps.
 RUN echo "Using go proxy: ${GO_PROXY}" \

@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "reconstruction"
-  total_instances = 77
+  total_instances = 76
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -16,33 +16,10 @@
       execution-time = "40"
       full = "1"
       light = "69"
-      msg-size = "1000"
+      msg-size = "10000"
       persistent-peers = "3"
-      seed = "1"
       submit-times = "60"
       validator = "3"
-
-[[groups]]
-  id = "seeds"
-  builder = "docker:generic"
-  [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
-  [groups.instances]
-    count = 1
-    percentage = 0.0
-  [groups.build_config]
-    build_base_image = "golang:1.20.1"
-    enable_go_build_cache = true
-    enabled = true
-    go_version = "1.19"
-  [groups.build]
-  [groups.run]
-    artifact = ""
-    [groups.run.test_params]
-      bandwidth = "256Mib"
-      latency = "50"
-      role = "seed"
 
 [[groups]]
   id = "validators"
@@ -54,7 +31,7 @@
     count = 3
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.20.1"
+    build_base_image = "golang:1.20"
     enable_go_build_cache = true
     enabled = true
     go_version = "1.19"
@@ -70,13 +47,13 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
+    memory = "3Gi"
     cpu = "2000m"
   [groups.instances]
     count = 3
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.20.1"
+    build_base_image = "golang:1.20"
     enable_go_build_cache = true
     enabled = true
     go_version = "1.19"
@@ -85,7 +62,7 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "256Mib"
-      block-height = "5"
+      block-height = "10"
       latency = "50"
       role = "bridge"
 
@@ -93,13 +70,13 @@
   id = "fulls"
   builder = "docker:generic"
   [groups.resources]
-    memory = "6Gi"
-    cpu = "4"
+    memory = "4Gi"
+    cpu = "3"
   [groups.instances]
     count = 1
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.20.1"
+    build_base_image = "golang:1.20"
     enable_go_build_cache = true
     enabled = true
     go_version = "1.19"
@@ -108,7 +85,7 @@
     artifact = ""
     [groups.run.test_params]
       bandwidth = "256Mib"
-      block-height = "5"
+      block-height = "10"
       latency = "50"
       role = "full"
 
@@ -122,15 +99,15 @@
     count = 69
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.20.1"
+    build_base_image = "golang:1.20"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.19"
+    go_version = "1.20"
   [groups.build]
   [groups.run]
     artifact = ""
     [groups.run.test_params]
       bandwidth = "256Mib"
-      block-height = "5"
+      block-height = "10"
       latency = "50"
       role = "light"
