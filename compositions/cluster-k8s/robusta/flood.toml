@@ -5,7 +5,7 @@
 [global]
   plan = "celestia"
   case = "flood-robusta-nightly-1"
-  total_instances = 201
+  total_instances = 11
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -19,10 +19,10 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "1000Mi"
-    cpu = "1000m"
+    memory = "100Mi"
+    cpu = "100m"
   [groups.instances]
-    count = 200
+    count = 10
     percentage = 0.0
   [groups.build_config]
     build_base_image = "golang:1.20-alpine3.17"
@@ -42,8 +42,8 @@
   id = "fulls"
   builder = "docker:generic"
 [groups.resources]
-  memory = "8000Mi"
-  cpu = "6000m"
+  memory = "200Mi"
+  cpu = "200m"
 [groups.instances]
   count = 1
   percentage = 0.0
