@@ -114,6 +114,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Full,
+			node.BuildInfo{},
 		),
 	)
 	if err != nil {
