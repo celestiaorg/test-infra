@@ -1,11 +1,11 @@
 [metadata]
-  name = "flood-arabica-201"
+  name = "flood-robusta-nightly-1"
   author = "Bidon15"
 
 [global]
   plan = "celestia"
-  case = "flood-arabica"
-  total_instances = 201
+  case = "flood-robusta-nightly-1"
+  total_instances = 11
   builder = "docker:generic"
   runner = "cluster:k8s"
   disable_metrics = false
@@ -15,21 +15,20 @@
       execution-time = "20"
       light = "140"
 
-
 [[groups]]
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "300Mi"
+    memory = "100Mi"
     cpu = "100m"
   [groups.instances]
-    count = 200
+    count = 10
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.19.1"
+    build_base_image = "golang:1.20-alpine3.17"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.19"
+    go_version = "1.20.3"
   [groups.build]
   [groups.run]
     artifact = ""
@@ -40,24 +39,24 @@
       role = "light"
 
 [[groups]]
-id = "fulls"
-builder = "docker:generic"
+  id = "fulls"
+  builder = "docker:generic"
 [groups.resources]
-memory = "8000Mi"
-cpu = "6000m"
+  memory = "200Mi"
+  cpu = "200m"
 [groups.instances]
-count = 1
-percentage = 0.0
+  count = 1
+  percentage = 0.0
 [groups.build_config]
-build_base_image = "golang:1.19.1"
-enable_go_build_cache = true
-enabled = true
-go_version = "1.19"
+  build_base_image = "golang:1.20-alpine3.17"
+  enable_go_build_cache = true
+  enabled = true
+  go_version = "1.20.3"
 [groups.build]
 [groups.run]
-artifact = ""
-[groups.run.test_params]
-bandwidth = "256Mib"
-block-height = "10000"
-latency = "0"
-role = "full"
+  artifact = ""
+  [groups.run.test_params]
+    bandwidth = "256Mib"
+    block-height = "10000"
+    latency = "0"
+    role = "full"

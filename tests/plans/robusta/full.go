@@ -1,8 +1,18 @@
-package arabica
+package robusta
 
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+
+	"github.com/celestiaorg/celestia-app/app/encoding"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/spf13/cobra"
+
+	"github.com/celestiaorg/celestia-app/app"
+	cmdnode "github.com/celestiaorg/celestia-node/cmd"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
@@ -11,7 +21,6 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"time"
 )
 
 func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -55,16 +64,53 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	netId := runenv.StringParam("p2p-network")
-	ndHome := fmt.Sprintf("/.celestia-full-%s", netId)
+	//netId := runenv.StringParam("p2p-network")
+
+	//ndHome := fmt.Sprintf("/.celestia-full-%s", netId)
+	ndHome := fmt.Sprintf("/.celestia-full")
 	runenv.RecordMessage(ndHome)
 
-	cfg := nodebuilder.DefaultConfig(node.Full)
+	//os.Setenv("CELESTIA_CUSTOM", "robusta-nightly-1:97273F7F7DEA75CABCF1A1BE074E0952815B63880AB905BE0A3DEF016CFED271")
 
-	nd, err := nodekit.NewNode(ndHome, node.Full, netId, cfg)
+	//cfg := nodebuilder.DefaultConfig(node.Full)
+	cbr := cobra.Command{}
+	cmdCtx := cbr.Context()
+
+	cmdCtx = cmdnode.WithNetwork(cmdCtx, "robusta-nightly-1")
+	cmdCtx = cmdnode.WithNodeType(cmdCtx, node.Full)
+	cfg := cmdnode.NodeConfig(cmdCtx)
+	cfg.Header.TrustedPeers = []string{"/dns/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"}
+
+	cmdCtx = cmdnode.WithStorePath(cmdCtx, ndHome)
+	err = nodebuilder.Init(cfg, cmdnode.StorePath(cmdCtx), node.Full)
 	if err != nil {
 		return err
 	}
+
+	storePath := cmdnode.StorePath(cmdCtx)
+	keysPath := filepath.Join(storePath, "keys")
+
+	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
+	ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, keysPath, os.Stdin, encConf.Codec)
+	if err != nil {
+		return err
+	}
+
+	store, err := nodebuilder.OpenStore(storePath, ring)
+	if err != nil {
+		return err
+	}
+
+	nd, err := nodebuilder.NewWithConfig(cmdnode.NodeType(cmdCtx), cmdnode.Network(cmdCtx), store, &cfg, cmdnode.NodeOptions(cmdCtx)...)
+	if err != nil {
+		return err
+	}
+
+	//nd, err := nodekit.NewNode(ndHome, node.Full, "robusta-nightly-1", &cfg)
+	//nd, err := nodekit.NewNode(ndHome, node.Full, "private", cfg)
+	//if err != nil {
+	//	return err
+	//}
 
 	err = nd.Start(ctx)
 	if err != nil {
