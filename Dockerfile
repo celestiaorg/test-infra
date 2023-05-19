@@ -49,8 +49,6 @@ COPY /plan/go.mod ${PLAN_DIR}/go.mod
 
 RUN apk add gcompat
 
-RUN apk add gcompat
-
 # Download deps.
 RUN echo "Using go proxy: ${GO_PROXY}" \
     && cd ${PLAN_DIR} \
@@ -88,8 +86,6 @@ ENV HOME /
 
 COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
-
-ENV CELESTIA_CUSTOM="robusta-nightly-1:97273F7F7DEA75CABCF1A1BE074E0952815B63880AB905BE0A3DEF016CFED271"
 
 EXPOSE 9090 26657 26656 1317 26658 26660 26659 2121 4318 4317
 ENTRYPOINT [ "/testplan"]

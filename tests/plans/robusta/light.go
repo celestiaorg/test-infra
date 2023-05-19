@@ -3,20 +3,12 @@ package robusta
 import (
 	"context"
 	"fmt"
-	"os"
-	"path/filepath"
 	"time"
 
-	"github.com/celestiaorg/celestia-app/app"
-	"github.com/celestiaorg/celestia-app/app/encoding"
-	cmdnode "github.com/celestiaorg/celestia-node/cmd"
-	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/spf13/cobra"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
@@ -63,64 +55,30 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	//netId := runenv.StringParam("p2p-network")
-
-	//ndHome := fmt.Sprintf("/.celestia-light")
-	//runenv.RecordMessage(ndHome)
-
-	////os.Setenv("CELESTIA_CUSTOM", "robusta-nightly-1:97273F7F7DEA75CABCF1A1BE074E0952815B63880AB905BE0A3DEF016CFED271")
-
-	//cmdCtx := cmdnode.WithNetwork(ctx, "robusta-nightly-1")
-	////cfg := nodebuilder.DefaultConfig(node.Light)
-	//cmdCtx = cmdnode.WithNodeType(cmdCtx, node.Light)
-	//cfg := cmdnode.NodeConfig(cmdCtx)
-	//cfg.Header.TrustedPeers = []string{"/dns/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"}
-
-	//optlOpts := []otlpmetrichttp.Option{
-	//	otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-	//	otlpmetrichttp.WithInsecure(),
-	//}
-
-	//nd, err := nodekit.NewNode(ndHome, node.Light, "robusta-nightly-1", &cfg,
-	//	nodebuilder.WithMetrics(
-	//		optlOpts,
-	//		node.Light,
-	//	))
-
+	netId := runenv.StringParam("p2p-network")
 	ndHome := fmt.Sprintf("/.celestia-light")
+	runenv.RecordMessage(ndHome)
 
-	cbr := cobra.Command{}
-	cmdCtx := cbr.Context()
-	cmdCtx = cmdnode.WithNetwork(cmdCtx, "robusta-nightly-1")
-	cmdCtx = cmdnode.WithNodeType(cmdCtx, node.Light)
-	cfg := cmdnode.NodeConfig(cmdCtx)
-	cfg.Header.TrustedPeers = []string{"/dns/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"}
-
-	cmdCtx = cmdnode.WithStorePath(cmdCtx, ndHome)
-	err = nodebuilder.Init(cfg, cmdnode.StorePath(cmdCtx), node.Light)
+	// get the ip address
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
 
-	storePath := cmdnode.StorePath(cmdCtx)
-	keysPath := filepath.Join(storePath, "keys")
+	// generate the new config for the Light node
+	cfg := nodekit.NewConfig(
+		node.Light,
+		ip,
+		[]string{"/dns/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"},
+		"97273F7F7DEA75CABCF1A1BE074E0952815B63880AB905BE0A3DEF016CFED271",
+	)
 
-	encConf := encoding.MakeConfig(app.ModuleEncodingRegisters...)
-	ring, err := keyring.New(app.Name, cfg.State.KeyringBackend, keysPath, os.Stdin, encConf.Codec)
+	nd, err := nodekit.NewNode(ndHome, node.Light, netId, cfg)
 	if err != nil {
 		return err
 	}
 
-	store, err := nodebuilder.OpenStore(storePath, ring)
-	if err != nil {
-		return err
-	}
-
-	nd, err := nodebuilder.NewWithConfig(cmdnode.NodeType(cmdCtx), cmdnode.Network(cmdCtx), store, &cfg, cmdnode.NodeOptions(cmdCtx)...)
-	if err != nil {
-		return err
-	}
-
+	err = nd.Start(ctx)
 	if err != nil {
 		return err
 	}

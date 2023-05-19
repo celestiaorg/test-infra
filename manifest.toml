@@ -206,8 +206,8 @@ instances = { min = 4, max = 3000, default = 12 }
     light = { type = "int", default = 3}
     block-height = { type = "int", default = 50 }
     role = { type = "string" }
+    p2p-network = { type = "string", default = "robusta-nightly-1" }
     otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }
-    rest-endpoint = { type = "string", default = "http://consensus-validator-robusta-nightly-1.celestia-robusta.com:26657/" }
 
 [[testcases]]
 name = "flood-internal"
