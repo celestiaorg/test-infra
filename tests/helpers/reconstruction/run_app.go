@@ -1,10 +1,8 @@
-package nodesync
+package reconstruction
 
 import (
 	"context"
-	"fmt"
 	"net"
-	"path/filepath"
 	"time"
 
 	"github.com/celestiaorg/test-infra/testkit"
@@ -56,48 +54,8 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	if initCtx.GroupSeq == 1 {
-		ip, err := netclient.GetDataNetworkIP()
-		if err != nil {
-			return err
-		}
-
-		_, err = syncclient.Publish(ctx, testkit.CurlGenesisState, ip.To4().String())
-		if err != nil {
-			return err
-		}
-
-		go appcmd.StartNode("info")
-	}
-
-	seedCh := make(chan *appkit.ValidatorNode)
-	sub, err := syncclient.Subscribe(ctx, testkit.SeedNodeTopic, seedCh)
-	if err != nil {
-		return err
-	}
-
-	var seedPeers []string
-	for i := 0; i < runenv.IntParam("seed"); i++ {
-		select {
-		case err := <-sub.Done():
-			if err != nil {
-				return err
-			}
-		case seed := <-seedCh:
-			seedPeers = append(seedPeers, fmt.Sprintf("%s@%s", seed.PubKey, seed.IP.To4().String()))
-		}
-	}
-
-	configPath := filepath.Join(appcmd.Home, "config", "config.toml")
-	err = appkit.AddSeedPeers(configPath, seedPeers)
-	if err != nil {
-		return err
-	}
-
-	if initCtx.GroupSeq != 1 {
-		runenv.RecordMessage("starting........")
-		go appcmd.StartNode("info")
-	}
+	runenv.RecordMessage("starting........")
+	go appcmd.StartNode("info")
 
 	// wait for a new block to be produced
 	time.Sleep(1 * time.Minute)
@@ -113,14 +71,7 @@ func RunAppValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	var prefix int
-	if runenv.TestGroupID == "validators-v2" {
-		prefix = 50
-	} else {
-		prefix = 0
-	}
-
-	appId := int(initCtx.GroupSeq) + prefix
+	appId := int(initCtx.GroupSeq)
 	_, err = syncclient.Publish(
 		ctx,
 		testkit.AppNodeTopic,
