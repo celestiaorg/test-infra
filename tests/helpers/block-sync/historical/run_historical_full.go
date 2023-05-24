@@ -1,4 +1,4 @@
-package blocksynclatest
+package blocksynchistorical
 
 import (
 	"context"
@@ -12,18 +12,19 @@ import (
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
+
 	"github.com/testground/sdk-go/runtime"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
-func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("INFO")
+	err := nodekit.SetLoggersLevel("DEBUG")
 	if err != nil {
 		return err
 	}
@@ -59,13 +60,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	bridgeNode := &testkit.BridgeNodeInfo{}
 	trustedPeers := []string{}
-	if !runenv.BooleanParam("multibootstrap") {
-		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
-		if err != nil {
-			return err
-		}
-		trustedPeers = []string{bridgeNode.Maddr}
-	} else {
+	if runenv.BooleanParam("multibootstrap") {
 		bridgeNodes, err := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
 		if err != nil {
 			return err
@@ -81,6 +76,12 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		for _, bridge := range bridgeNodes {
 			trustedPeers = append(trustedPeers, bridge.Maddr)
 		}
+	} else {
+		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
+		if err != nil {
+			return err
+		}
+		trustedPeers = []string{bridgeNode.Maddr}
 	}
 
 	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
@@ -114,20 +115,31 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Full,
-			node.BuildInfo{},
 		),
 	)
 	if err != nil {
 		return err
 	}
 
-	runenv.RecordMessage("Starting full node")
+	runenv.RecordMessage("Waiting for historical blocks to be generated...")
+
+	l, err := syncclient.Barrier(ctx, testkit.PastBlocksGeneratedState, runenv.IntParam("bridge"))
+	if err != nil {
+		return err
+	}
+	lerr := <-l.C
+	if lerr != nil {
+		return err
+	}
+
+	runenv.RecordMessage("Starting historical full node")
 	err = nd.Start(ctx)
 	if err != nil {
 		return err
 	}
 
-	runenv.RecordMessage("Full node is syncing")
+	runenv.RecordMessage("Historical full node is syncing")
+
 	eh, err := nd.HeaderServ.GetByHeight(ctx, uint64(runenv.IntParam("block-height")))
 	if err != nil {
 		return err
@@ -136,16 +148,20 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		runenv.IntParam("block-height"),
 		eh.Commit.BlockID.Hash.String())
 
-	if nodekit.IsSyncing(ctx, nd) {
+	state, err := nd.HeaderServ.SyncState(ctx)
+	if err != nil {
+		return err
+	}
+	if !state.Finished() {
 		return fmt.Errorf("full node is still syncing the past")
 	}
-
-	err = nd.Stop(ctx)
-	if err != nil {
+	<-time.After(time.Minute * 2)
+	if err = nd.DASer.WaitCatchUp(ctx); err != nil {
 		return err
 	}
 
 	_, err = syncclient.SignalEntry(ctx, testkit.FinishState)
+	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}

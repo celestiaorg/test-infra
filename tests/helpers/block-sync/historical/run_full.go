@@ -1,11 +1,10 @@
-package blocksynclatest
+package blocksynchistorical
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -13,7 +12,6 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 )
 
 func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -23,7 +21,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("INFO")
+	err := nodekit.SetLoggersLevel("DEBUG")
 	if err != nil {
 		return err
 	}
@@ -59,13 +57,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 
 	bridgeNode := &testkit.BridgeNodeInfo{}
 	trustedPeers := []string{}
-	if !runenv.BooleanParam("multibootstrap") {
-		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
-		if err != nil {
-			return err
-		}
-		trustedPeers = []string{bridgeNode.Maddr}
-	} else {
+	if runenv.BooleanParam("multibootstrap") {
 		bridgeNodes, err := common.GetBridgeNodes(ctx, syncclient, runenv.IntParam("bridge"))
 		if err != nil {
 			return err
@@ -81,6 +73,12 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		for _, bridge := range bridgeNodes {
 			trustedPeers = append(trustedPeers, bridge.Maddr)
 		}
+	} else {
+		bridgeNode, err = common.GetBridgeNode(ctx, syncclient, initCtx.GroupSeq, runenv.IntParam("bridge"))
+		if err != nil {
+			return err
+		}
+		trustedPeers = []string{bridgeNode.Maddr}
 	}
 
 	ndhome := fmt.Sprintf("/.celestia-full-%d", initCtx.GlobalSeq)
@@ -102,20 +100,11 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		cfg.Share.UseShareExchange = false
 	}
 
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
-	}
 	nd, err := nodekit.NewNode(
 		ndhome,
 		node.Full,
 		"private",
 		cfg,
-		nodebuilder.WithMetrics(
-			optlOpts,
-			node.Full,
-			node.BuildInfo{},
-		),
 	)
 	if err != nil {
 		return err
@@ -132,14 +121,29 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	if err != nil {
 		return err
 	}
-	runenv.RecordMessage("Reached Block#%d contains Hash: %s",
-		runenv.IntParam("block-height"),
-		eh.Commit.BlockID.Hash.String())
 
-	if nodekit.IsSyncing(ctx, nd) {
+	runenv.RecordMessage(
+		"Reached Block#%d contains Hash: %s",
+		runenv.IntParam("block-height"),
+		eh.Commit.BlockID.Hash.String(),
+	)
+
+	state, err := nd.HeaderServ.SyncState(ctx)
+	if err != nil {
+		return err
+	}
+	if !state.Finished() {
 		return fmt.Errorf("full node is still syncing the past")
 	}
 
+	l, err := syncclient.Barrier(ctx, testkit.FinishState, runenv.IntParam("historical"))
+	if err != nil {
+		return err
+	}
+	lerr := <-l.C
+	if lerr != nil {
+		return err
+	}
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
