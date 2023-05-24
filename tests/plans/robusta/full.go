@@ -69,8 +69,8 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	cfg := nodekit.NewConfig(
 		node.Full,
 		ip,
-		[]string{"/dns/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"},
-		"97273F7F7DEA75CABCF1A1BE074E0952815B63880AB905BE0A3DEF016CFED271",
+		[]string{"/ip4/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"},
+		"BA11BC0D83BB0591630B44AB8CE234924241ECC51D20A8029B0D11CA5F6B4D67",
 	)
 
 	nd, err := nodekit.NewNode(ndHome, node.Full, netId, cfg)

@@ -13,7 +13,6 @@
     artifact = ""
     [global.run.test_params]
       execution-time = "20"
-      light = "140"
 
 [[groups]]
   id = "lights"
@@ -42,8 +41,8 @@
   id = "fulls"
   builder = "docker:generic"
 [groups.resources]
-  memory = "200Mi"
-  cpu = "200m"
+  memory = "4Gi"
+  cpu = "2000m"
 [groups.instances]
   count = 1
   percentage = 0.0
