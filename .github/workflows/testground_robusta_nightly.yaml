@@ -1,0 +1,62 @@
+name: TestGround Nightly
+
+on:
+  schedule:
+    # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+    - cron: '0 0 * * *' # triggered at midnight
+  push:
+    branches:
+      - 'main'
+
+env:
+  ORG: celestiaorg
+  CELESTIA_NODE_REPO: celestia-node
+  CELESTIA_APP_REPO: celestia-app
+  BRANCH: main
+
+jobs:
+  prepare-env:
+    runs-on: ubuntu-latest
+    outputs:
+      testground_url: ${{ steps.testground_url.outputs.testground_url }}
+      testground_region: ${{ steps.testground_region.outputs.testground_region }}
+    steps:
+      - id: testground_url
+        run: echo "testground_url=$(echo ${{ secrets.TESTGROUND_URL }})" >> "$GITHUB_OUTPUT"
+      - id: testground_region
+        run: echo "testground_region=$(echo ${{ secrets.TESTGROUND_REGION }})" >> "$GITHUB_OUTPUT"
+
+  # We want to specify the latest commit, so we use this job to get it from the
+  # repo and use it in the inputs
+  celestia-custom-latest-commit:
+    runs-on: ubuntu-latest
+    outputs:
+      celestia_node_latest_commit: ${{ steps.celestia_node_latest_commit.outputs.celestia_node_latest_commit }}
+      celestia_app_latest_commit: ${{ steps.celestia_app_latest_commit.outputs.celestia_app_latest_commit }}
+    steps:
+      - id: celestia_node_latest_commit
+        name: Get The Latest Celestia Node Commit SHA
+        run: |
+          # Get the latest commit SHA in the celestia-node repo
+          CELESTIA_NODE=$(curl -Ls https://api.github.com/repos/${ORG}/${CELESTIA_NODE_REPO}/commits/${BRANCH} | jq -c '.sha'| tr -d '"'| cut -c1-7)
+          echo $CELESTIA_NODE
+          # Replace the value in the go.mod file
+          echo "celestia_node_latest_commit=$(echo $CELESTIA_NODE)" >> "$GITHUB_OUTPUT"
+      - id: celestia_app_latest_commit
+        name: Get The Latest Celestia APP Commit SHA
+        run: |
+          # Get the latest commit SHA in the celestia-app repo
+          CELESTIA_APP=$(curl -Ls https://api.github.com/repos/${ORG}/${CELESTIA_APP_REPO}/commits/${BRANCH} | jq -c '.sha'| tr -d '"'| cut -c1-7)
+          echo $CELESTIA_APP
+          # Replace the value in the go.mod file
+          echo "celestia_app_latest_commit=$(echo $CELESTIA_APP)" >> "$GITHUB_OUTPUT"
+
+  testground:
+    needs: [prepare-env, celestia-custom-latest-commit]
+    uses: celestiaorg/.github/.github/workflows/reusable_testground_tests.yaml@main # yamllint disable-line rule:line-length
+    with:
+      tests_files_path: "compositions/cluster-k8s/robusta/flood.toml"
+      testground_url: ${{ needs.prepare-env.outputs.testground_url }}"
+      testground_region: ${{ needs.prepare-env.outputs.testground_region }}"
+      celestia_node_commit_sha: ${{ needs.celestia-custom-latest-commit.outputs.celestia_node_latest_commit }}"
+      celestia_app_commit_sha: ${{ needs.celestia-custom-latest-commit.outputs.celestia_app_latest_commit }}"

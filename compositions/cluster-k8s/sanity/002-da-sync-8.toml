@@ -26,8 +26,8 @@
   id = "seeds"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "3"
+    memory = "1Gi"
+    cpu = "1"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -48,8 +48,8 @@
   id = "validators"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "2000m"
+    memory = "1Gi"
+    cpu = "200m"
   [groups.instances]
     count = 3
     percentage = 0.0
@@ -70,8 +70,8 @@
   id = "bridges"
   builder = "docker:generic"
   [groups.resources]
-    memory = "4Gi"
-    cpu = "2000m"
+    memory = "1Gi"
+    cpu = "200m"
   [groups.instances]
     count = 3
     percentage = 0.0
@@ -93,8 +93,8 @@
   id = "fulls"
   builder = "docker:generic"
   [groups.resources]
-    memory = "3Gi"
-    cpu = "2000m"
+    memory = "1Gi"
+    cpu = "200m"
   [groups.instances]
     count = 1
     percentage = 0.0
@@ -116,8 +116,8 @@
   id = "lights"
   builder = "docker:generic"
   [groups.resources]
-    memory = "2Gi"
-    cpu = "1500m"
+    memory = "1Gi"
+    cpu = "150m"
   [groups.instances]
     count = 1
     percentage = 0.0

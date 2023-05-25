@@ -71,8 +71,6 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 			node.BuildInfo{},
 		))
 
-	nd, err := nodekit.NewNode(ndhome, node.Bridge, runenv.StringParam("p2p-network"), cfg, opts...)
-
 	if err != nil {
 		return nil, err
 	}

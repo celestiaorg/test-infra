@@ -1,9 +1,10 @@
-package arabica
+package robusta
 
 import (
 	"context"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"time"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -11,11 +12,9 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	"time"
 )
 
-func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
+func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	ctx, cancel := context.WithTimeout(
 		context.Background(),
 		time.Minute*time.Duration(runenv.IntParam("execution-time")),
@@ -57,38 +56,39 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	netId := runenv.StringParam("p2p-network")
-	ndHome := fmt.Sprintf("/.celestia-light-%s", netId)
+	ndHome := fmt.Sprintf("/.celestia-full")
 	runenv.RecordMessage(ndHome)
 
-	cfg := nodebuilder.DefaultConfig(node.Light)
-	optlOpts := []otlpmetrichttp.Option{
-		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
-		otlpmetrichttp.WithInsecure(),
-	}
-
-	nd, err := nodekit.NewNode(ndHome, node.Light, netId, cfg,
-		nodebuilder.WithMetrics(
-			optlOpts,
-			node.Light,
-			node.BuildInfo{},
-		))
+	// get the ip address
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
 	if err != nil {
 		return err
 	}
 
-	durationCount := time.Duration(initCtx.GroupSeq)
-	time.Sleep(time.Second * durationCount * 5)
+	// generate the new config for the Full node
+	cfg := nodekit.NewConfig(
+		node.Full,
+		ip,
+		[]string{"/ip4/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"},
+		"BA11BC0D83BB0591630B44AB8CE234924241ECC51D20A8029B0D11CA5F6B4D67",
+	)
+
+	nd, err := nodekit.NewNode(ndHome, node.Full, netId, cfg)
+	if err != nil {
+		return err
+	}
+
 	err = nd.Start(ctx)
 	if err != nil {
 		return err
 	}
 
-	time.Sleep(time.Minute * 40)
+	time.Sleep(time.Minute * 15)
 	err = nd.Stop(ctx)
 	if err != nil {
 		return err
 	}
-	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.IntParam("light"))
+	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.IntParam("full"))
 	if err != nil {
 		return err
 	}

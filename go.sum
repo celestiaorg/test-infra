@@ -349,8 +349,6 @@ github.com/celestiaorg/celestia-app v0.13.0 h1:NPOR1P98YCCv+E2I9TdqsO1/UnGyzTHW5
 github.com/celestiaorg/celestia-app v0.13.0/go.mod h1:OcPBfWDyowJgoEQ89NB2LgLOm9LSwloCgCzdZKjmi78=
 github.com/celestiaorg/celestia-core v1.15.0-tm-v0.34.23 h1:BHvn41IHOtvHeX1VZqO/xBFIHj93llcw9ZQfNxyVRlI=
 github.com/celestiaorg/celestia-core v1.15.0-tm-v0.34.23/go.mod h1:nL+vkAMKy/A8wWemWqMwBy4pOGWYYbboAVTEe3N5gIU=
-github.com/celestiaorg/celestia-node v0.9.3 h1:THeFDRQbn62eQBYOoIclsRQAUmM7bkg2/H5nFS7zuCQ=
-github.com/celestiaorg/celestia-node v0.9.3/go.mod h1:PH9az+TY3SuJauvRdOR++l6twFllGYmDjN0FKv1HyGw=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7 h1:EADZy33ufskVIy6Rj6jbi3SOVCeYYo26zUi7iYx+QR0=
 github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7/go.mod h1:vg3Eza9adJJ5Mdx6boz5MpZsZcTZyrfTVYZHyi2zLm4=
 github.com/celestiaorg/dagstore v0.0.0-20230413141458-735ab09a15d6 h1:/yCwMCoOPcYCiG18u8/1pv5eXF04xczoQO3sR0bKsgM=
@@ -1131,6 +1129,8 @@ github.com/jmhodges/levigo v1.0.0/go.mod h1:Q6Qx+uH3RAqyK4rFQroq9RL7mdkABMcfhEI+
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jpillora/backoff v1.0.0/go.mod h1:J/6gKK9jxlEcS3zixgDgUAsiuZ7yrSoa/FX5e0EB2j4=
 github.com/jrick/logrotate v1.0.0/go.mod h1:LNinyqDIJnpAur+b8yyulnQw/wDuN1+BYKlTRt3OuAQ=
+github.com/jrmanes/celestia-node v0.0.1 h1:nqaG9iA9JPvHM49qIU82iMSrwo+KCrDPnVoQ/rcKMM4=
+github.com/jrmanes/celestia-node v0.0.1/go.mod h1:PH9az+TY3SuJauvRdOR++l6twFllGYmDjN0FKv1HyGw=
 github.com/json-iterator/go v0.0.0-20180612202835-f2b4162afba3/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
 github.com/json-iterator/go v1.1.6/go.mod h1:+SdeFBvtyEkXs7REEP0seUULqWtbJapLOCVDaaPEHmU=
 github.com/json-iterator/go v1.1.7/go.mod h1:KdQUCv79m/52Kvf8AW2vK1V8akMuk1QjK/uOdHXbAo4=
