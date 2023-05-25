@@ -1,10 +1,10 @@
 module github.com/celestiaorg/test-infra
 
-go 1.19
+go 1.20
 
 replace (
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.8.0-sdk-v0.46.7
-	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20221014072825-395797efb659
+	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20230413141458-735ab09a15d6
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-verifcid => github.com/celestiaorg/go-verifcid v0.0.1-lazypatch
 	github.com/tendermint/tendermint => github.com/celestiaorg/celestia-core v1.15.0-tm-v0.34.23
@@ -12,7 +12,7 @@ replace (
 
 require (
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
-	github.com/celestiaorg/celestia-app v0.12.2
+	github.com/celestiaorg/celestia-app v0.13.0
 	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/spf13/cobra v1.6.1
@@ -22,12 +22,12 @@ require (
 
 require (
 	cosmossdk.io/math v1.0.0-beta.3
-	github.com/celestiaorg/celestia-node v0.8.1
+	github.com/celestiaorg/celestia-node v0.9.3
 	github.com/celestiaorg/nmt v0.15.0
 	github.com/libp2p/go-libp2p v0.26.3
 	github.com/tendermint/tendermint v0.35.4
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp v0.34.0
-	go.uber.org/fx v1.18.2
+	go.uber.org/fx v1.19.2
 )
 
 require (
@@ -45,14 +45,15 @@ require (
 	github.com/Workiva/go-datastructures v1.0.53 // indirect
 	github.com/armon/go-metrics v0.4.1 // indirect
 	github.com/avast/retry-go v2.6.0+incompatible // indirect
-	github.com/aws/aws-sdk-go v1.40.45 // indirect
+	github.com/aws/aws-sdk-go v1.44.122 // indirect
 	github.com/benbjohnson/clock v1.3.0 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/bgentry/go-netrc v0.0.0-20140422174119-9fd32a8b3d3d // indirect
 	github.com/bgentry/speakeasy v0.1.0 // indirect
 	github.com/btcsuite/btcd v0.22.1 // indirect
 	github.com/btcsuite/btcd/btcec/v2 v2.3.2 // indirect
-	github.com/celestiaorg/go-header v0.2.3 // indirect
+	github.com/celestiaorg/go-fraud v0.1.0 // indirect
+	github.com/celestiaorg/go-header v0.2.7 // indirect
 	github.com/celestiaorg/go-libp2p-messenger v0.2.0 // indirect
 	github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 // indirect
 	github.com/celestiaorg/quantum-gravity-bridge v1.3.0 // indirect
@@ -136,7 +137,7 @@ require (
 	github.com/gtank/ristretto255 v0.1.2 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-getter v1.6.1 // indirect
+	github.com/hashicorp/go-getter v1.7.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.2 // indirect
@@ -147,6 +148,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hdevalence/ed25519consensus v0.0.0-20220222234857-c00d1f31bab3 // indirect
 	github.com/huin/goupnp v1.0.3 // indirect
+	github.com/imdario/mergo v0.3.15 // indirect
 	github.com/improbable-eng/grpc-web v0.15.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.1 // indirect
 	github.com/influxdata/influxdb1-client v0.0.0-20200827194710-b269163b24ab // indirect
@@ -215,7 +217,7 @@ require (
 	github.com/minio/highwayhash v1.0.2 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
-	github.com/mitchellh/go-testing-interface v1.0.0 // indirect
+	github.com/mitchellh/go-testing-interface v1.14.1 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/mr-tron/base58 v1.2.0 // indirect
 	github.com/mtibben/percent v0.2.1 // indirect
@@ -244,6 +246,8 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/pyroscope-io/client v0.7.0 // indirect
+	github.com/pyroscope-io/godeltaprof v0.1.0 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
 	github.com/quic-go/qtls-go1-19 v0.2.1 // indirect
 	github.com/quic-go/qtls-go1-20 v0.1.1 // indirect
@@ -275,7 +279,7 @@ require (
 	github.com/testground/testground v0.5.3 // indirect
 	github.com/tklauser/go-sysconf v0.3.10 // indirect
 	github.com/tklauser/numcpus v0.4.0 // indirect
-	github.com/ulikunitz/xz v0.5.8 // indirect
+	github.com/ulikunitz/xz v0.5.10 // indirect
 	github.com/vivint/infectious v0.0.0-20200605153912-25a574ae18a3 // indirect
 	github.com/whyrusleeping/cbor v0.0.0-20171005072247-63513f603b11 // indirect
 	github.com/whyrusleeping/cbor-gen v0.0.0-20230126041949-52956bd4c9aa // indirect
@@ -293,8 +297,8 @@ require (
 	go.opentelemetry.io/otel/trace v1.13.0 // indirect
 	go.opentelemetry.io/proto/otlp v0.19.0 // indirect
 	go.uber.org/atomic v1.10.0 // indirect
-	go.uber.org/dig v1.15.0 // indirect
-	go.uber.org/multierr v1.9.0 // indirect
+	go.uber.org/dig v1.16.1 // indirect
+	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.24.0 // indirect
 	golang.org/x/crypto v0.7.0 // indirect
 	golang.org/x/exp v0.0.0-20230129154200-a960b3787bd2 // indirect

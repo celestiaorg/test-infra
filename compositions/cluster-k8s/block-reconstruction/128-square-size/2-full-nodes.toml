@@ -5,21 +5,21 @@ author = "Bidon15"
 [global]
 plan = "celestia"
 case = "reconstruction"
-total_instances = 373
+total_instances = 1454
 builder = "docker:generic"
 runner = "cluster:k8s"
 disable_metrics = false
 [global.run]
 artifact = ""
 [global.run.test_params]
-bridge = "10"
-execution-time = "40"
-full = "3"
-light = "350"
-msg-size = "15000"
+bridge = "20"
+execution-time = "20"
+full = "2"
+light = "1412"
+msg-size = "40000"
 persistent-peers = "10"
-submit-times = "60"
-validator = "10"
+submit-times = "20"
+validator = "20"
 
 [[groups]]
 id = "validators"
@@ -28,7 +28,7 @@ builder = "docker:generic"
 memory = "4Gi"
 cpu = "2000m"
 [groups.instances]
-count = 10
+count = 20
 percentage = 0.0
 [groups.build_config]
 build_base_image = "golang:1.20"
@@ -47,10 +47,10 @@ role = "validator"
 id = "bridges"
 builder = "docker:generic"
 [groups.resources]
-memory = "3Gi"
+memory = "4Gi"
 cpu = "2000m"
 [groups.instances]
-count = 10
+count = 20
 percentage = 0.0
 [groups.build_config]
 build_base_image = "golang:1.20"
@@ -73,7 +73,7 @@ builder = "docker:generic"
 memory = "4Gi"
 cpu = "3"
 [groups.instances]
-count = 3
+count = 2
 percentage = 0.0
 [groups.build_config]
 build_base_image = "golang:1.20"
@@ -93,10 +93,10 @@ role = "full"
 id = "lights"
 builder = "docker:generic"
 [groups.resources]
-memory = "400Mi"
-cpu = "200m"
+memory = "300Mi"
+cpu = "150m"
 [groups.instances]
-count = 350
+count = 1412
 percentage = 0.0
 [groups.build_config]
 build_base_image = "golang:1.20"

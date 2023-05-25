@@ -3,6 +3,8 @@ package reconstruction
 import (
 	"context"
 	"fmt"
+	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
 	"time"
 
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
@@ -24,7 +26,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	)
 	defer cancel()
 
-	err := nodekit.SetLoggersLevel("DEBUG")
+	err := nodekit.SetLoggersLevel("INFO")
 	if err != nil {
 		return err
 	}
@@ -66,7 +68,7 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return err
 	}
 
-	runenv.RecordMessage("Getting briges")
+	runenv.RecordMessage("Getting bridges")
 	bridgeNodes, err := func(ctx context.Context, syncclient sync.Client, amountOfBridges int) (bridges []*testkit.BridgeNodeInfo, err error) {
 		bridgeCh := make(chan *testkit.BridgeNodeInfo, amountOfBridges)
 		sub, err := syncclient.Subscribe(ctx, testkit.BridgeNodeTopic, bridgeCh)
@@ -100,7 +102,17 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		return peers
 	}(bridgeNodes)
 	cfg := nodekit.NewConfig(node.Full, ip, trustedPeers, bridgeNodes[0].TrustedHash)
-	nd, err := nodekit.NewNode(ndhome, node.Full, runenv.StringParam("p2p-network"), cfg)
+	cfg.Share.Discovery.PeersLimit = uint(runenv.IntParam("peers-limit"))
+	optlOpts := []otlpmetrichttp.Option{
+		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
+		otlpmetrichttp.WithInsecure(),
+	}
+	nd, err := nodekit.NewNode(ndhome, node.Full, runenv.StringParam("p2p-network"), cfg,
+		nodebuilder.WithMetrics(
+			optlOpts,
+			node.Full,
+			node.BuildInfo{},
+		))
 	if err != nil {
 		return err
 	}

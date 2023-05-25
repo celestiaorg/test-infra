@@ -58,17 +58,18 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Core.GRPCPort = "9090"
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
-	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
+	cfg.Share.Discovery.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
 	optlOpts := []otlpmetrichttp.Option{
 		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
 		otlpmetrichttp.WithInsecure(),
 	}
-
-	opts = append(opts, nodebuilder.WithMetrics(
-		optlOpts,
-		node.Bridge,
-	))
+	nd, err := nodekit.NewNode(ndhome, node.Bridge, runenv.StringParam("p2p-network"), cfg,
+		nodebuilder.WithMetrics(
+			optlOpts,
+			node.Bridge,
+			node.BuildInfo{},
+		))
 
 	nd, err := nodekit.NewNode(ndhome, node.Bridge, runenv.StringParam("p2p-network"), cfg, opts...)
 
