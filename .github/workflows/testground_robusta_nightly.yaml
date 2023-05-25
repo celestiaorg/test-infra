@@ -6,7 +6,8 @@ on:
     - cron: '0 0 * * *' # triggered at midnight
   push:
     branches:
-      - 'main'
+      - '*'
+        #- 'main'
 
 env:
   ORG: celestiaorg
