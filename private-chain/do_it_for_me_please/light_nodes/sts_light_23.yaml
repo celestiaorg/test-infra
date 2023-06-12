@@ -195,11 +195,11 @@ spec:
         #    claimName: da-keys-bridge-1
         - configMap:
             defaultMode: 0777
-            name: start-light-1
+            name: start-light-23
           name: start
         - configMap:
             defaultMode: 360
-            name: setup-light-1
+            name: setup-light-23
           name: setup
         - emptyDir: {}
           name: shared
@@ -309,5 +309,5 @@ metadata:
     app: da-light-23
     chain-id: light
     type: light
-  name: start-light-1
+  name: start-light-23
   namespace: light
