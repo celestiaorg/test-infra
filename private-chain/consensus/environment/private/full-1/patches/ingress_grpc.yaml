@@ -1,20 +1,20 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: consensus-grpc-ingress
-spec:
-  tls:
-  - hosts:
-    - grpc-private.consensus.celestia-private.com
-    secretName: consensus-grpc-tls-1
-  rules:
-  - host: grpc-private.consensus.celestia-private.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: consensus-api
-            port:
-              name: grpc
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: consensus-grpc-ingress
+#spec:
+#  tls:
+#  - hosts:
+#    - grpc-private.consensus.celestia-private.com
+#    secretName: consensus-grpc-tls-1
+#  rules:
+#  - host: grpc-private.consensus.celestia-private.com
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: consensus-api
+#            port:
+#              name: grpc

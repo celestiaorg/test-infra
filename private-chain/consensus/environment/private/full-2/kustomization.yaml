@@ -17,6 +17,6 @@ patches:
 - path: patches/resources.yaml
 - path: patches/service.yaml
 - path: patches/setup.yaml
-- path: patches/ingress_api.yaml
-- path: patches/ingress_rpc.yaml
-- path: patches/ingress_grpc.yaml
+  #- path: patches/ingress_api.yaml
+  #- path: patches/ingress_rpc.yaml
+  #- path: patches/ingress_grpc.yaml

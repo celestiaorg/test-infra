@@ -1,20 +1,20 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: consensus-api-ingress
-spec:
-  tls:
-  - hosts:
-    - api-private.consensus.celestia-private.com
-    secretName: consensus-api-tls-1
-  rules:
-  - host: api-private.consensus.celestia-private.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: consensus-api
-            port:
-              name: api
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: consensus-api-ingress
+#spec:
+#  tls:
+#  - hosts:
+#    - api-private.consensus.celestia-private.com
+#    secretName: consensus-api-tls-1
+#  rules:
+#  - host: api-private.consensus.celestia-private.com
+#    http:
+#      paths:
+#      - path: /
+#        pathType: Prefix
+#        backend:
+#          service:
+#            name: consensus-api
+#            port:
+#              name: api

@@ -4,9 +4,9 @@ kind: Kustomization
 resources:
 - ../../base
 - service_api.yaml
-- ingress_api.yaml
-- ingress_rpc.yaml
-- ingress_grpc.yaml
+#- ingress_api.yaml
+#- ingress_rpc.yaml
+#- ingress_grpc.yaml
 
 nameSuffix: -full
 
