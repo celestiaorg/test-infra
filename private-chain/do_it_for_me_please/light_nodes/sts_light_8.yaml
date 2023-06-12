@@ -1,0 +1,313 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: da-light-8
+    chain-id: private
+    environment: private
+    network: da
+    type: light
+  name: da-light-8
+  namespace: light
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: da-light-8
+      chain-id: private
+      environment: private
+      network: da
+      type: light
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: da-light-8
+        chain-id: private
+        environment: private
+        network: da
+        type: light
+    spec:
+      containers:
+        - command:
+            - /home/celestia/start.sh
+          env:
+            #- name: CELESTIA_BOOTSTRAPPER
+            #  value: "true"
+            - name: CELESTIA_HOME
+              value: /home/celestia
+            - name: CELESTIA_BIN_FOLDER
+              value: /bin
+            - name: CELESTIA_CUSTOM
+              value: "private:20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D"
+            - name: SETUP_PATH
+              value: /tmp/celestia-config
+                #- name: TRUSTED_PEERS
+                #  valueFrom:
+                #    configMapKeyRef:
+                #      key: TRUSTED_PEERS
+              #      name: trusted-peers
+          image: ghcr.io/celestiaorg/celestia-node:v0.11.0-rc3
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 20
+            successThreshold: 1
+            tcpSocket:
+              port: rest
+            timeoutSeconds: 1
+          name: da
+          ports:
+            - containerPort: 2121
+              name: p2p
+              protocol: TCP
+            - containerPort: 6060
+              name: something-1
+              protocol: TCP
+            - containerPort: 26658
+              name: rpc
+              protocol: TCP
+            - containerPort: 26659
+              name: rest
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: rest
+            timeoutSeconds: 1
+          resources:
+            limits:
+              memory: 6Gi
+            requests:
+              cpu: "3"
+              memory: 3Gi
+          securityContext:
+            runAsGroup: 10001
+            runAsUser: 10001
+          volumeMounts:
+            #- mountPath: /home/celestia/config
+            #  name: da-config
+            #- mountPath: /home/celestia/data
+            #  name: da-data
+            #  subPath: data
+            #- mountPath: /home/celestia/blocks
+            #  name: da-data
+            #  subPath: blocks
+            #- mountPath: /home/celestia/index
+            #  name: da-data
+            #  subPath: index
+            #- mountPath: /home/celestia/transients
+            #  name: da-data
+            #  subPath: transients
+            #- mountPath: /home/celestia/keys
+            #  name: da-keys
+            - mountPath: /home/celestia/start.sh
+              name: start
+              subPath: start.sh
+            - mountPath: /tmp/celestia-config
+              name: shared
+      #- command:
+      #  - /otelcol-contrib
+      #  - --config=/conf/otel-agent.yaml
+      #  image: otel/opentelemetry-collector-contrib:0.71.0
+      #  imagePullPolicy: IfNotPresent
+      #  name: otel-agent
+      #  ports:
+      #  - containerPort: 8888
+      #    name: prometheus-otel
+      #    protocol: TCP
+      #  - containerPort: 9090
+      #    name: prometheus
+      #    protocol: TCP
+      #  resources:
+      #    limits:
+      #      memory: 200Mi
+      #    requests:
+      #      cpu: 100m
+      #      memory: 100Mi
+      #  terminationMessagePath: /dev/termination-log
+      #  terminationMessagePolicy: File
+      #  volumeMounts:
+      #  - mountPath: /conf/otel-agent.yaml
+      #    name: otel-agent
+      #    subPath: otel-agent.yaml
+      dnsPolicy: ClusterFirst
+        #initContainers:
+        #- command:
+        #  #- /setup/setup.sh
+        #  - /setup/setup.sh
+        #  env:
+        #  - name: CELESTIA_BOOTSTRAPPER
+        #    value: "true"
+        #  - name: CONSENSUS_NODE_SERVICE
+        #    value: consensus-full-1
+        #  - name: CONSENSUS_NAMEPACE
+        #    valueFrom:
+        #      fieldRef:
+        #        apiVersion: v1
+        #        fieldPath: metadata.labels['consensus-namespace']
+        #  - name: SETUP_PATH
+        #    value: /tmp/celestia-config
+        #  image: alpine:3.18.0
+        #  imagePullPolicy: IfNotPresent
+        #  name: da-setup
+        #  resources:
+        #    limits:
+        #      memory: 500Mi
+        #    requests:
+        #      cpu: 300m
+        #      memory: 250Mi
+        #  terminationMessagePath: /dev/termination-log
+        #  terminationMessagePolicy: File
+        #  volumeMounts:
+        #  - mountPath: /tmp/celestia-config
+        #    name: shared
+        #  - mountPath: /setup/setup.sh
+        #    name: setup
+        #    subPath: setup.sh
+        #restartPolicy: Always
+        #schedulerName: default-scheduler
+        #securityContext:
+        #  fsGroup: 10001
+        #  fsGroupChangePolicy: OnRootMismatch
+        #    #serviceAccount: da-sa-bridge-1
+        #    #serviceAccountName: da-sa-bridge-1
+      #terminationGracePeriodSeconds: 30
+      volumes:
+        #- configMap:
+        #    defaultMode: 420
+        #    name: otel-agent-bridge-1-gb2ct8d928
+        #  name: otel-agent
+        #- name: da-config
+        #  persistentVolumeClaim:
+        #    claimName: da-config-bridge-1
+        #- name: da-data
+        #  persistentVolumeClaim:
+        #    claimName: da-data-bridge-1
+        #- name: da-keys
+        #  persistentVolumeClaim:
+        #    claimName: da-keys-bridge-1
+        - configMap:
+            defaultMode: 0777
+            name: start-light-1
+          name: start
+        - configMap:
+            defaultMode: 360
+            name: setup-light-1
+          name: setup
+        - emptyDir: {}
+          name: shared
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+      #---
+      #apiVersion: v1
+      #data:
+      #  setup.sh: |
+      #    #!/bin/sh
+      #
+      #    # CONSENSUS_NODE_SERVICE should be set in the environment
+      #    # CONSENSUS_NAMEPACE should be set in the environment
+      #    # SETUP_PATH should be set in the environment
+      #    # TIMEOUT optional
+      #
+      #    TIMEOUT="${TIMEOUT:-2}"
+      #    FULL_DOMAIN="${CONSENSUS_NODE_SERVICE}.${CONSENSUS_NAMEPACE}.svc.cluster.local"
+      #
+      #    echo "---------------------------------------------------"
+      #    echo "Installing required tools..."
+      #    echo "---------------------------------------------------"
+      #    apk add jq bind-tools
+      #
+      #    dig ${FULL_DOMAIN} +short > ${SETUP_PATH}/SERVICE_IP
+      #    echo "---------------------------------------------------"
+      #    echo "Getting the Kubernetes Service IP [$(cat ${SETUP_PATH}/SERVICE_IP)]"
+      #    echo "---------------------------------------------------"
+      #
+      #    wget --timeout=${TIMEOUT} -q -O - ${FULL_DOMAIN}:26657/block?height=1 | jq -r '.result .block_id.hash' > ${SETUP_PATH}/GENESIS_HASH
+      #    echo "---------------------------------------------------"
+      #    echo "Getting the Block Id Hash... [$(cat ${SETUP_PATH}/GENESIS_HASH)]"
+      #    echo "---------------------------------------------------"
+      #
+      #    wget --timeout=${TIMEOUT} -q -O - ${FULL_DOMAIN}:26657/status? | jq -r '.result.node_info.network' > ${SETUP_PATH}/CELESTIA_ID
+      #    echo "---------------------------------------------------"
+      #    echo "Getting the Celestia Network Id [$(cat ${SETUP_PATH}/CELESTIA_ID)]"
+      #    echo "---------------------------------------------------"
+      #
+      #    if [[ ! -s "${SETUP_PATH}/SERVICE_IP" ]]; then
+      #        echo "Node not ready yet (Could not fetch SERVICE_IP).. Exiting.."
+      #        exit 1
+      #    fi
+      #    if [[ ! -s "${SETUP_PATH}/GENESIS_HASH" ]]; then
+      #        echo "Node not ready yet (Could not fetch GENESIS_HASH).. Exiting.."
+      #        exit 1
+      #    fi
+      #    if [[ ! -s "${SETUP_PATH}/CELESTIA_ID" ]]; then
+      #        echo "Node not ready yet (Could not fetch CELESTIA_ID).. Exiting.."
+      #        exit 1
+      #    fi
+      #kind: ConfigMap
+      #metadata:
+      #  labels:
+      #    app: da-bridge-1
+      #    chain-id: private
+      #    consensus-namespace: app-v100-rc2-node-v0110-rc3
+      #    environment: robusta
+      #    type: bridge
+      #  name: setup-bridge-1
+      #  namespace: private
+      #---
+      #apiVersion: v1
+      #data:
+      #  start.sh: "#!/bin/bash\n\n# CELESTIA_HOME should be set in the environment\n# SETUP_PATH
+      #    should be set in the environment\n\necho \"---------------------------------------------------\"\necho
+      #    \"Checking if the keys already exists... \U0001F510\"\necho \"---------------------------------------------------\"\n\n#
+      #    TODO: CHECK THIS\n[ ! -f \"$CELESTIA_HOME/config/config.toml\" ] &&\\\n  echo
+      #    \"Keys doesn't exists: [$CELESTIA_HOME], let's create them! \U0001F680\" &&\\\n
+      #    \ CELESTIA_CUSTOM=$(cat $SETUP_PATH/CELESTIA_ID):$(cat $SETUP_PATH/GENESIS_HASH)
+      #    ${CELESTIA_BIN_FOLDER}/celestia bridge init --node.store $CELESTIA_HOME &&\\\n
+      #    \ echo \"---------------------------------------------------\"\n\n# TODO: Once
+      #    celestia-node handles SIGTERM correctly this can be moved below the start command\nif
+      #    [[ -f $CELESTIA_HOME/config/config.toml ]];then\n    cp $CELESTIA_HOME/config/config.toml
+      #    $CELESTIA_HOME/config.toml\nfi\n\ncp $CELESTIA_HOME/config.toml $CELESTIA_HOME/config/config.toml\n\necho
+      #    \"Starting the Celestia Node...\"\necho \"---------------------------------------------------\"\nexec
+      #    env CELESTIA_CUSTOM=$(cat $SETUP_PATH/CELESTIA_ID):$(cat $SETUP_PATH/GENESIS_HASH)
+      #    ${CELESTIA_BIN_FOLDER}/celestia bridge start --core.ip=\"$(cat /tmp/celestia-config/SERVICE_IP)\"
+      #    --node.store=\"$CELESTIA_HOME\" --gateway --metrics --metrics.tls=false --pyroscope
+      #    --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
+      #    --p2p.metrics\n"
+      #kind: ConfigMap
+      #metadata:
+      #  labels:
+      #    app: da-bridge-1
+      #    chain-id: bridge
+      #    consensus-namespace: consensus
+      #    environment: private
+      #    type: bridge
+      #  name: start-bridge-1
+    #  namespace: bridge
+---
+apiVersion: v1
+data:
+  start.sh: |
+    #!/bin/bash
+    celestia light init --node.store=/home/celestia/ && \
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml &&\
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.64.1.8/tcp/2121/p2p/12D3KooWNDgPP2vY8Wwk8oktPsAw5EQfZBcDXDsnNXEuzMTaKAtc"]|g' /home/celestia/config.toml &&\
+    cat /home/celestia/config.toml && \
+    celestia light start --core.ip=100.64.3.206 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
+kind: ConfigMap
+metadata:
+  labels:
+    app: da-light-8
+    chain-id: light
+    type: light
+  name: start-light-1
+  namespace: light
