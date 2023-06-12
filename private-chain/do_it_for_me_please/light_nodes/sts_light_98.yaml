@@ -11,7 +11,7 @@ metadata:
   namespace: light
 spec:
   podManagementPolicy: OrderedReady
-  replicas: 1
+  replicas: 56
   revisionHistoryLimit: 10
   selector:
     matchLabels:
