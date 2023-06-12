@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: consensus-validator
+  name: consensus-validator
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: consensus-setup
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 2500Mi
+          limits:
+            # cpu: https://home.private.dev/blog/stop-using-cpu-limits
+            memory: 6Gi
+      containers:
+      - name: consensus
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 2500Mi
+          limits:
+            # cpu: https://home.private.dev/blog/stop-using-cpu-limits
+            memory: 6Gi

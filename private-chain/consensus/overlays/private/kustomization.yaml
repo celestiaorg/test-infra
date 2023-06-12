@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# namespace: this is the namespace where all the resources will be deployed if
+# you want to create a new chain or separate these resources, first, create
+# a new namespace and put it here.
+namespace: consensus
+resources:
+  - ../../environment/private
+labels:
+  - pairs:
+      environment: private
+      # chain-id: this indicates the ChainID, update it in case you want to
+      # create a new chain or use another one
+      chain-id: private
+    includeSelectors: true
+    includeTemplates: true
+images:
+  - name: ghcr.io/celestiaorg/celestia-app
+    newTag: v1.0.0-rc2
+  - name: alpine
+    newTag: 3.18.0

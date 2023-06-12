@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: consensus
+  name: consensus
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: consensus-setup
+        image: alpine:SET-IT
+        # For alpine, we need to specify the user 0, 10001 doesnt exists
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+      volumes:
+      - name: setup
+        configMap:
+          defaultMode: 0550
+          name: setup-full

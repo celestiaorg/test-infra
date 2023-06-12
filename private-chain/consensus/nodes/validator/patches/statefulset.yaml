@@ -1,0 +1,16 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: consensus
+  name: consensus
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: consensus-setup
+      volumes:
+      - name: setup
+        configMap:
+          defaultMode: 0550
+          name: setup-validator

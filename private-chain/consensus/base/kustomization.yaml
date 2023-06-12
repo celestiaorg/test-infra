@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+labels:
+- pairs:
+    app: consensus
+    network: consensus
+  includeSelectors: true
+  includeTemplates: true
+
+resources:
+- monitoring
+- pvc.yaml
+- service.yaml
+- rbac.yaml
+- statefulset.yaml
+
+patches:
+- path: monitoring/patches/metric-port.yaml

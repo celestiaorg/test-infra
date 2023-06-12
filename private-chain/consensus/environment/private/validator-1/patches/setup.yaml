@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: consensus-validator
+  name: consensus-validator
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: consensus-setup
+        env:
+        - name: EVM_ADDRESS
+          value: "0xF25AAa05FE834c2460BaE471c2237E1D3edFB589"
+        - name: INITIAL_TIA_AMOUNT
+          value: 1000000000000000utia
+        - name: STAKING_TIA_AMOUNT
+          value: 500000000000000utia
+        - name: CHAIN_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.labels['chain-id']
+        - name: APP_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: consensus-full
+  name: consensus-full
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: consensus-full-private.celestia-private.com,full.consensus-private.celestia-private.com

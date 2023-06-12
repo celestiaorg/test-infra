@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: consensus
+spec:
+  template:
+    spec:
+      containers:
+      - name: consensus
+        ports:
+        - name: prometheus
+          containerPort: 26660

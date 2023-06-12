@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: consensus
+  name: consensus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consensus
+  template:
+    metadata:
+      labels:
+        app: consensus
+    spec:
+      serviceAccountName: consensus-sa
+      securityContext:
+        fsGroup: 10001
+        # This is needed because otherwise k8s will change the permission of the keys and the application will complain and fail
+        fsGroupChangePolicy: "OnRootMismatch"
+      initContainers:
+      - name: consensus-setup
+        securityContext:
+          runAsUser: 10001
+          runAsGroup: 10001
+        image: ghcr.io/celestiaorg/celestia-app:SET-IT
+        env:
+        - name: CELESTIA_HOME
+          value: /home/celestia
+        command:
+        - "/home/celestia/setup.sh"
+        volumeMounts:
+        - name: consensus-config
+          mountPath: "/home/celestia/config"
+        - name: consensus-data
+          mountPath: "/home/celestia/data"
+        - name: consensus-keys
+          subPath: keyring
+          mountPath: "/home/celestia/keyring-test"
+        - name: consensus-keys
+          subPath: keys
+          mountPath: "/home/celestia/keys"
+        - name: setup
+          mountPath: "/home/celestia/setup.sh"
+          subPath: setup.sh
+      containers:
+      - name: consensus
+        image: ghcr.io/celestiaorg/celestia-app:SET-IT
+        securityContext:
+          runAsUser: 10001
+          runAsGroup: 10001
+        env:
+        - name: CELESTIA_HOME
+          value: /home/celestia
+        args:
+        - "start --home $(CELESTIA_HOME) --rpc.laddr tcp://0.0.0.0:26657"
+        volumeMounts:
+        - name: consensus-config
+          mountPath: "/home/celestia/config"
+        - name: consensus-data
+          mountPath: "/home/celestia/data"
+        - name: consensus-keys
+          subPath: keyring
+          mountPath: "/home/celestia/keyring-test"
+        - name: consensus-keys
+          subPath: keys
+          mountPath: "/home/celestia/keys"
+        ports:
+        - name: p2p
+          containerPort: 26656
+        - name: rpc
+          containerPort: 26657
+        - name: api
+          containerPort: 1317
+        - name: grpc
+          containerPort: 9090
+        resources:
+          requests:
+            cpu: SET-IT
+            memory: SET-IT
+          limits:
+            # cpu: https://home.robusta.dev/blog/stop-using-cpu-limits
+            memory: SET-IT
+        readinessProbe:
+          tcpSocket:
+            port: rpc
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: rpc
+          initialDelaySeconds: 5
+          periodSeconds: 20
+          timeoutSeconds: 1
+          failureThreshold: 3
+          successThreshold: 1
+      volumes:
+      - name: consensus-config
+        persistentVolumeClaim:
+          claimName: consensus-config
+      - name: consensus-data
+        persistentVolumeClaim:
+          claimName: consensus-data
+      - name: consensus-keys
+        persistentVolumeClaim:
+          claimName: consensus-keys

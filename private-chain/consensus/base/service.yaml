@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: consensus
+  name: consensus
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: SET-IT.celestia-robusta.com
+spec:
+  selector:
+    app: consensus
+  type: LoadBalancer
+  ports:
+  - name: p2p
+    port: 26656
+    protocol: TCP
+    targetPort: p2p
+  - name: rpc
+    port: 26657
+    protocol: TCP
+    targetPort: rpc
+  - name: api
+    port: 1317
+    protocol: TCP
+    targetPort: api
+  - name: grpc
+    port: 9090
+    protocol: TCP
+    targetPort: grpc

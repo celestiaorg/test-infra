@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: consensus
+  name: consensus-api
+spec:
+  selector:
+    app: consensus
+  type: ClusterIP
+  ports:
+  - name: api
+    port: 1317
+    protocol: TCP
+    targetPort: api
+  - name: rpc
+    port: 26657
+    protocol: TCP
+    targetPort: rpc
+  - name: grpc
+    port: 80
+    protocol: TCP
+    targetPort: 9090

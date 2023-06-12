@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: consensus-rpc-ingress
+spec:
+  tls:
+  - hosts:
+    - rpc-private.consensus.celestia-private.com
+    secretName: consensus-rpc-tls-1
+  rules:
+  - host: rpc-private.consensus.celestia-private.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: consensus-api
+            port:
+              name: rpc

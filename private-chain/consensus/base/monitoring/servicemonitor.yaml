@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  labels:
+    app: consensus-metrics
+  name: consensus-metrics
+spec:
+  selector:
+    matchLabels:
+      app: consensus-metrics
+  targetLabels:
+  - app
+  - environment
+  - network
+  - type
+  - chain-id
+  endpoints:
+  - port: prometheus

@@ -1,0 +1,18 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: consensus-full
+  name: consensus-full
+spec:
+  template:
+    spec:
+      initContainers:
+      - name: consensus-setup
+        env:
+        - name: CONSENSUS_VALIDATOR_SERVICE
+          value: consensus-validator-1
+        - name: CONSENSUS_VALIDATOR_NAMEPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
