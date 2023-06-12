@@ -10,7 +10,7 @@ TIMEOUT=10
 uri='http://endpoint_from_a_consensus_node.com'
 
 # Execute the command before starting the loop.
-celestia bridge start --p2p.network private
+celestia full start --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
 
 # Sleep for 10 seconds.
 sleep 10
