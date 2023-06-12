@@ -27,11 +27,11 @@
    1. `I` mb of bandwidth
    2. `J` milliseconds of network latency
 2. Connects to respective Validator
-3. Shares the genesis hash and ip to Full / Light Nodes
+3. Shares the genesis hash and ip to Full / full Nodes
 4. Check that it is synced
 5. Broadcasts new blocks to the DA network
 
-## Steps for each of the DA Light nodes:
+## Steps for each of the DA full nodes:
 
 1. Setups network with:
    1. `I` mb of bandwidth
