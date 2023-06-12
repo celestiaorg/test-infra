@@ -338,7 +338,6 @@ data:
     celestia bridge init --node.store=/home/celestia/ && \
     sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml
     cat /home/celestia/config.toml && \
-    ls /home/celestia/ && \
     celestia bridge start --core.ip=51.159.206.92 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
 kind: ConfigMap
 metadata:
