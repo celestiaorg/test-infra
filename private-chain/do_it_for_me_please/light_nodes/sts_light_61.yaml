@@ -2,12 +2,12 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: da-light-1
+    app: da-light-61
     chain-id: private
     environment: private
     network: da
     type: light
-  name: da-light-1
+  name: da-light-61
   namespace: light
 spec:
   podManagementPolicy: OrderedReady
@@ -15,7 +15,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: da-light-1
+      app: da-light-61
       chain-id: private
       environment: private
       network: da
@@ -24,7 +24,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: da-light-1
+        app: da-light-61
         chain-id: private
         environment: private
         network: da
@@ -299,14 +299,14 @@ data:
   start.sh: |
     #!/bin/bash
     celestia light init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.64.11.21/tcp/2121/p2p/12D3KooWH9TEkeGKCk332KHPNfD8DiDi4qS1vtYi4xCNsGD7D1Et", "/ip4/100.64.3.206/tcp/2121/p2p/12D3KooWCokoUzyz47c2GNbxKFzmnaAC1VkUeJ68HxBCGiy4YeJG"]|g' /home/celestia/config.toml
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml &&\
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.64.5.43/tcp/2121/p2p/12D3KooWEfpJpkh4CauBcxwwbhgPwPJQMKRv9xAUcGaywFUg38A8"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml && \
-    celestia light start --core.ip=100.64.3.206 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --metrics.endpoint 51.159.206.246:4318  --p2p.network=private
+    celestia light start --core.ip=100.64.3.206 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
 kind: ConfigMap
 metadata:
   labels:
-    app: da-light-1
+    app: da-light-61
     chain-id: light
     type: light
   name: start-light-1
