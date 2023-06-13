@@ -39,12 +39,12 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: da-bridge-1
+    app: da-bridge
     chain-id: private
     environment: private
     network: da
     type: bridge
-  name: da-bridge-1
+  name: da-bridge
   namespace: bridge
 spec:
   podManagementPolicy: OrderedReady
@@ -52,7 +52,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: da-bridge-1
+      app: da-bridge
       chain-id: private
       environment: private
       network: da
@@ -61,7 +61,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: da-bridge-1
+        app: da-bridge
         chain-id: private
         environment: private
         network: da
@@ -213,30 +213,30 @@ spec:
         #securityContext:
         #  fsGroup: 10001
         #  fsGroupChangePolicy: OnRootMismatch
-        #    #serviceAccount: da-sa-bridge-1
-        #    #serviceAccountName: da-sa-bridge-1
+        #    #serviceAccount: da-sa-bridge
+        #    #serviceAccountName: da-sa-bridge
         #terminationGracePeriodSeconds: 30
       volumes:
         #- configMap:
         #    defaultMode: 420
-        #    name: otel-agent-bridge-1-gb2ct8d928
+        #    name: otel-agent-bridge-gb2ct8d928
         #  name: otel-agent
         #- name: da-config
         #  persistentVolumeClaim:
-        #    claimName: da-config-bridge-1
+        #    claimName: da-config-bridge
         #- name: da-data
         #  persistentVolumeClaim:
-        #    claimName: da-data-bridge-1
+        #    claimName: da-data-bridge
         #- name: da-keys
         #  persistentVolumeClaim:
-        #    claimName: da-keys-bridge-1
+        #    claimName: da-keys-bridge
       - configMap:
           defaultMode: 0777
-          name: start-bridge-1
+          name: start-bridge
         name: start
       - configMap:
           defaultMode: 360
-          name: setup-bridge-1
+          name: setup-bridge
         name: setup
       - emptyDir: {}
         name: shared
@@ -293,12 +293,12 @@ spec:
       #kind: ConfigMap
       #metadata:
       #  labels:
-      #    app: da-bridge-1
+      #    app: da-bridge
       #    chain-id: private
       #    consensus-namespace: app-v100-rc2-node-v0110-rc3
       #    environment: robusta
       #    type: bridge
-      #  name: setup-bridge-1
+      #  name: setup-bridge
       #  namespace: private
       #---
       #apiVersion: v1
@@ -323,12 +323,12 @@ spec:
       #kind: ConfigMap
       #metadata:
       #  labels:
-      #    app: da-bridge-1
+      #    app: da-bridge
       #    chain-id: bridge
       #    consensus-namespace: consensus
       #    environment: private
       #    type: bridge
-      #  name: start-bridge-1
+      #  name: start-bridge
       #  namespace: bridge
 ---
 apiVersion: v1
@@ -342,8 +342,8 @@ data:
 kind: ConfigMap
 metadata:
   labels:
-    app: da-bridge-1
+    app: da-bridge
     chain-id: bridge
     type: bridge
-  name: start-bridge-1
+  name: start-bridge
   namespace: bridge
