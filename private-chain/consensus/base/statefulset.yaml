@@ -6,6 +6,7 @@ metadata:
   name: consensus
 spec:
   replicas: 1
+  serviceName: consensus
   selector:
     matchLabels:
       app: consensus
@@ -97,11 +98,16 @@ spec:
           successThreshold: 1
       volumes:
       - name: consensus-config
-        persistentVolumeClaim:
-          claimName: consensus-config
-      - name: consensus-data
-        persistentVolumeClaim:
-          claimName: consensus-data
+        emptyDir: {}
       - name: consensus-keys
-        persistentVolumeClaim:
-          claimName: consensus-keys
+        emptyDir: {}
+      - name: consensus-data
+        emptyDir: {}
+          #        persistentVolumeClaim:
+          #          claimName: consensus-config
+            #- name: consensus-data
+            #  persistentVolumeClaim:
+            #    claimName: consensus-data
+            #- name: consensus-keys
+            #  persistentVolumeClaim:
+            #    claimName: consensus-keys

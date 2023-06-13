@@ -2,21 +2,21 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: da-light-88
+    app: da-light-101
     chain-id: private
     environment: private
     network: da
     type: light
-  name: da-light-88
+  name: da-light-101
   namespace: light
 spec:
   podManagementPolicy: OrderedReady
   replicas: 56
   revisionHistoryLimit: 10
-  serviceName: da-light-88
+  serviceName: da-light-101
   selector:
     matchLabels:
-      app: da-light-88
+      app: da-light-101
       chain-id: private
       environment: private
       network: da
@@ -25,7 +25,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: da-light-88
+        app: da-light-101
         chain-id: private
         environment: private
         network: da
@@ -196,11 +196,11 @@ spec:
         #    claimName: da-keys-bridge-1
         - configMap:
             defaultMode: 0777
-            name: start-light-88
+            name: start-light-101
           name: start
         - configMap:
             defaultMode: 360
-            name: setup-light-88
+            name: setup-light-101
           name: setup
         - emptyDir: {}
           name: shared
@@ -301,14 +301,14 @@ data:
     #!/bin/bash
     celestia light init --node.store=/home/celestia/ && \
     sed -i "s|TrustedHash = \"\"|TrustedHash = \"7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2\"|g" /home/celestia/config.toml &&\
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.62.163/tcp/2121/p2p/12D3KooWGNo4ELUL4EJVNbMYjjPFRbmftx9VtiEueFy6gDQFDZhr"]|g' /home/celestia/config.toml &&\
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.72.80/tcp/2121/p2p/12D3KooWAW9CgiHtVKZS6FJjB74zdg1Y6M5YhEsun2EayumCeadw"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml && \
     celestia light start --core.ip=100.64.3.206 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
 kind: ConfigMap
 metadata:
   labels:
-    app: da-light-88
+    app: da-light-101
     chain-id: light
     type: light
-  name: start-light-88
+  name: start-light-101
   namespace: light

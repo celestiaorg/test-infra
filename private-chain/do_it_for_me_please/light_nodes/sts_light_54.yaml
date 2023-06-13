@@ -13,6 +13,7 @@ spec:
   podManagementPolicy: OrderedReady
   replicas: 56
   revisionHistoryLimit: 10
+  serviceName: da-light-54
   selector:
     matchLabels:
       app: da-light-54
@@ -41,7 +42,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D"
+              value: "private:7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -83,10 +84,10 @@ spec:
             timeoutSeconds: 1
           resources:
             limits:
-              memory: 6Gi
+              memory: 250Mi
             requests:
-              cpu: "3"
-              memory: 3Gi
+              cpu: "100m"
+              memory: 200Mi
           securityContext:
             runAsGroup: 10001
             runAsUser: 10001
@@ -299,8 +300,8 @@ data:
   start.sh: |
     #!/bin/bash
     celestia light init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml &&\
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.64.5.102/tcp/2121/p2p/12D3KooWDN9e33atJbRZuibLHaRBTB1ogoYRqDPizsjCExSchHpU"]|g' /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2\"|g" /home/celestia/config.toml &&\
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.39.45/tcp/2121/p2p/12D3KooWDoMLGF6tdyW4Bb7Ej263pHB4gGGP3FRpLKJnsq3m9qSg"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml && \
     celestia light start --core.ip=100.64.3.206 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
 kind: ConfigMap

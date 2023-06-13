@@ -2,20 +2,21 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   labels:
-    app: da-full-1
+    app: da-full
     chain-id: private
     environment: private
     network: da
     type: full
-  name: da-full-1
+  name: da-full
   namespace: full
 spec:
   podManagementPolicy: OrderedReady
   replicas: 1
   revisionHistoryLimit: 10
+  serviceName: da-full
   selector:
     matchLabels:
-      app: da-full-1
+      app: da-full
       chain-id: private
       environment: private
       network: da
@@ -24,7 +25,7 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: da-full-1
+        app: da-full
         chain-id: private
         environment: private
         network: da
@@ -41,7 +42,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D"
+              value: "private:7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -146,7 +147,7 @@ spec:
         #  - name: CELESTIA_BOOTSTRAPPER
         #    value: "true"
         #  - name: CONSENSUS_NODE_SERVICE
-        #    value: consensus-full-1
+        #    value: consensus-full
         #  - name: CONSENSUS_NAMEPACE
         #    valueFrom:
         #      fieldRef:
@@ -195,11 +196,11 @@ spec:
         #    claimName: da-keys-bridge-1
         - configMap:
             defaultMode: 0777
-            name: start-full-1
+            name: start-full
           name: start
         - configMap:
             defaultMode: 360
-            name: setup-full-1
+            name: setup-full
           name: setup
         - emptyDir: {}
           name: shared
@@ -299,15 +300,15 @@ data:
   start.sh: |
     #!/bin/bash
     celestia full init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.64.3.206/tcp/2121/p2p/12D3KooWCokoUzyz47c2GNbxKFzmnaAC1VkUeJ68HxBCGiy4YeJG"]|g' /home/celestia/config.toml
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2\"|g" /home/celestia/config.toml
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.54.152/tcp/2121/p2p/12D3KooWR6bwuFKZK9gdv5b1W451PKwrsUf3ChqNu7B7V68r9pmu"]|g' /home/celestia/config.toml
     cat /home/celestia/config.toml && \
     celestia full start --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
 kind: ConfigMap
 metadata:
   labels:
-    app: da-full-1
+    app: da-full
     chain-id: full
     type: full
-  name: start-full-1
+  name: start-full
   namespace: full

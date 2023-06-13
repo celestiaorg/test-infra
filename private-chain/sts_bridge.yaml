@@ -48,8 +48,9 @@ metadata:
   namespace: bridge
 spec:
   podManagementPolicy: OrderedReady
-  replicas: 100
+  replicas: 101
   revisionHistoryLimit: 10
+  serviceName: da-bridge
   selector:
     matchLabels:
       app: da-bridge
@@ -214,7 +215,9 @@ spec:
         #  fsGroup: 10001
         #  fsGroupChangePolicy: OnRootMismatch
         #    #serviceAccount: da-sa-bridge
-        #    #serviceAccountName: da-sa-bridge
+        #   
+        #   
+        #serviceAccountName: da-sa-bridge
         #terminationGracePeriodSeconds: 30
       volumes:
         #- configMap:
@@ -336,9 +339,9 @@ data:
   start.sh: |
     #!/bin/bash
     celestia bridge init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2\"|g" /home/celestia/config.toml
     cat /home/celestia/config.toml && \
-    celestia bridge start --core.ip=51.159.206.92 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
+    celestia bridge start --core.ip=100.64.252.253 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
 kind: ConfigMap
 metadata:
   labels:
