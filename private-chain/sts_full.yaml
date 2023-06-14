@@ -42,7 +42,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2"
+              value: "private:29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -303,54 +303,48 @@ data:
     # $1 is the first argument passed to the script (input number).
     # $2 is the second argument passed to the script (string for if true).
     input_number="1480"
-    second_argument="12D3KooWCokoUzyz47c2GNbxKFzmnaAC1VkUeJ68HxBCGiy4YeJG"
+    second_argument="12D3KooWETdB6AxKeTfVU25T2F6CgUhTgMLQEeR2LE51emXpW2dN"
     
     # Set the timeout and the uri as per your requirements
     TIMEOUT=1
     uri='100.64.1.233'
     
     celestia full init --node.store=/home/celestia/ && \
-<<<<<<< HEAD
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2\"|g" /home/celestia/config.toml
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.54.152/tcp/2121/p2p/12D3KooWR6bwuFKZK9gdv5b1W451PKwrsUf3ChqNu7B7V68r9pmu"]|g' /home/celestia/config.toml
-    cat /home/celestia/config.toml && \
-    celestia full start --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
-=======
     
     sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml
     sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D\"|g" /home/celestia/config.toml
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.64.3.206/tcp/2121/p2p/12D3KooWCokoUzyz47c2GNbxKFzmnaAC1VkUeJ68HxBCGiy4YeJG"]|g' /home/celestia/config.toml
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573\"|g" /home/celestia/config.toml
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.63.35/tcp/2121/p2p/12D3KooWETdB6AxKeTfVU25T2F6CgUhTgMLQEeR2LE51emXpW2dN"]|g' /home/celestia/config.toml
     # Execute the command before starting the loop.
-    celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private
-    
+    celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private  --metrics.endpoint=otel.celestia.observer:4318
+   
     # Sleep for 10 seconds.
     sleep 10
     
     # Store the bearer token into an environment variable.
     export CELESTIA_NODE_AUTH_TOKEN=$(celestia full auth admin --node.store=/home/celestia | tail -n 1)
     # For loop (replace with your own loop conditions).
-    for i in {1..20}
-    do
-      echo "BEGIN THE LOOP"
-      # Fetch the data from the URL and extract the block height.
-      block_height=$(wget --timeout=1 -q -O - 100.64.1.233:26657/block | \grep -o '"height":"[^"]*"' | \sed 's/"height":"\([^"]*\)"/\1/' | \head -1)
-    
-      # Compare the block_height to the input_number.
-      if [ "$block_height" -eq "$input_number" ]; then
-        # If the comparison is true, execute other commands here.
-        echo "The block height equals the input number."
-    
-        # Execute the second command with the second argument from the script.
-        celestia rpc p2p BlockPeer $second_argument
-    
-      else
-        echo "The block height does not equal the input number."
-      fi
-     echo "ANOTHER ITERATION"
-      # Sleep for 10 seconds.
-      sleep 1
-    done
+    #for i in {1..20}
+    #do
+    #  echo "BEGIN THE LOOP"
+    #  # Fetch the data from the URL and extract the block height.
+    #  block_height=$(wget --timeout=1 -q -O - 100.64.1.233:26657/block | \grep -o '"height":"[^"]*"' | \sed 's/"height":"\([^"]*\)"/\1/' | \head -1)
+    #
+    #  # Compare the block_height to the input_number.
+    #  if [ "$block_height" -eq "$input_number" ]; then
+    #    # If the comparison is true, execute other commands here.
+    #    echo "The block height equals the input number."
+    #
+    #    # Execute the second command with the second argument from the script.
+    #    celestia rpc p2p BlockPeer $second_argument
+    #
+    #  else
+    #    echo "The block height does not equal the input number."
+    #  fi
+    # echo "ANOTHER ITERATION"
+    #  # Sleep for 10 seconds.
+    #  sleep 1
+    #done
 
 #  start.sh: |
 #    #!/bin/bash
@@ -359,7 +353,6 @@ data:
 #    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.64.3.206/tcp/2121/p2p/12D3KooWCokoUzyz47c2GNbxKFzmnaAC1VkUeJ68HxBCGiy4YeJG"]|g' /home/celestia/config.toml
 #    cat /home/celestia/config.toml && \
 #    celestia full start --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
->>>>>>> 47da97788e45d219cba13d974c4a4636aacad863
 kind: ConfigMap
 metadata:
   labels:

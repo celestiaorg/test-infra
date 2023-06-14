@@ -48,8 +48,7 @@ metadata:
   namespace: bridge
 spec:
   podManagementPolicy: OrderedReady
-  replicas: 1
-  #replicas: 101
+  replicas: 101
   revisionHistoryLimit: 10
   serviceName: da-bridge
   selector:
@@ -80,7 +79,7 @@ spec:
         - name: CELESTIA_BIN_FOLDER
           value: /bin
         - name: CELESTIA_CUSTOM
-          value: "private:20AFC7522FA0CB3F22ACC98AEB9A842393EF93D0EAD87992B3018424F388C69D"
+          value: "private:29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573"
         - name: SETUP_PATH
           value: /tmp/celestia-config
             #- name: TRUSTED_PEERS
@@ -340,9 +339,9 @@ data:
   start.sh: |
     #!/bin/bash
     celestia bridge init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2\"|g" /home/celestia/config.toml
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573\"|g" /home/celestia/config.toml
     cat /home/celestia/config.toml && \
-    celestia bridge start --core.ip=100.64.252.253 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318
+    celestia bridge start --core.ip=100.64.21.13 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318
 kind: ConfigMap
 metadata:
   labels:
