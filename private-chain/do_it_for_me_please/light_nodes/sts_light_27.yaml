@@ -1,3 +1,9 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: light
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -37,12 +43,14 @@ spec:
           env:
             #- name: CELESTIA_BOOTSTRAPPER
             #  value: "true"
+            - name: GOLOG_LOG_FMT
+              value: json
             - name: CELESTIA_HOME
               value: /home/celestia
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2"
+              value: "private:38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -300,10 +308,10 @@ data:
   start.sh: |
     #!/bin/bash
     celestia light init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"7D9E12801E952C9C9A4911C42FCBE449298ED2CC8630EECB5ECE9DC5D48D22B2\"|g" /home/celestia/config.toml &&\
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.74.197/tcp/2121/p2p/12D3KooWQDVcKi3GbQqUR6HwMDRq4etKAdPycuaeBNQv8ygZUzAD"]|g' /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml &&\
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.37.63/tcp/2121/p2p/12D3KooWHsNQU5rnKR4dwVfs3vXtPZ1wr6s1ptbDq88Sc2DBBCzw","/ip4/192.168.13.21/tcp/2121/p2p/12D3KooWFXDJrR86uUhJzZ5vShe95cti8QKKBQUND9Q6ViByMQ1S"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml && \
-    celestia light start --core.ip=100.64.3.206 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private
+    celestia light start --core.ip=100.65.58.158 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318
 kind: ConfigMap
 metadata:
   labels:

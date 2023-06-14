@@ -1,3 +1,9 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: full
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -35,6 +41,8 @@ spec:
         - command:
             - /home/celestia/start.sh
           env:
+            - name: GOLOG_LOG_FMT
+              value: json
             #- name: CELESTIA_BOOTSTRAPPER
             #  value: "true"
             - name: CELESTIA_HOME
@@ -313,8 +321,8 @@ data:
     
     sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml
     sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573\"|g" /home/celestia/config.toml
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.63.35/tcp/2121/p2p/12D3KooWETdB6AxKeTfVU25T2F6CgUhTgMLQEeR2LE51emXpW2dN"]|g' /home/celestia/config.toml
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.62.163/tcp/2121/p2p/12D3KooWFRQSMJ3SqaCVs5SNMwF1XkcaU1c7DxuNFcPRnCx3CJjf"]|g' /home/celestia/config.toml
     # Execute the command before starting the loop.
     celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private  --metrics.endpoint=otel.celestia.observer:4318
    

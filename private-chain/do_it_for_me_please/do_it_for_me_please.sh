@@ -32,6 +32,7 @@ for i in $(kubectl -n bridge get po --sort-by=.metadata.name -oname);do
     # clean up double quotes added...
     sed -i '' 's/\[""/["/g' sts_light_$counter.yaml
     sed -i '' 's/\""]/"]/g' sts_light_$counter.yaml
+    sed -i '' 's/\"",/",/g' sts_light_$counter.yaml
 
     mv sts_light_${counter}.yaml ./${LIGHT_FOLDER}/
 done

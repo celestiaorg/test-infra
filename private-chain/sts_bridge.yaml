@@ -1,39 +1,8 @@
-#---
-#apiVersion: v1
-#kind: PersistentVolumeClaim
-#metadata:
-#  name: da-config-1
-#spec:
-#  accessModes:
-#  - ReadWriteOnce
-#  resources:
-#    requests:
-#      storage: 1Gi
-#  storageClassName: scw-bssd-retain
-#---
-#apiVersion: v1
-#kind: PersistentVolumeClaim
-#metadata:
-#  name: da-data-1
-#spec:
-#  accessModes:
-#  - ReadWriteOnce
-#  resources:
-#    requests:
-#      storage: 20Gi
-#  storageClassName: scw-bssd-retain
-#---
-#apiVersion: v1
-#kind: PersistentVolumeClaim
-#metadata:
-#  name: da-keys-1
-#spec:
-#  accessModes:
-#  - ReadWriteOnce
-#  resources:
-#    requests:
-#      storage: 1Gi
-#  storageClassName: scw-bssd-retain
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bridge
 ---
 apiVersion: apps/v1
 kind: StatefulSet
@@ -74,12 +43,14 @@ spec:
         env:
           #- name: CELESTIA_BOOTSTRAPPER
           #  value: "true"
+        - name: GOLOG_LOG_FMT
+          value: json
         - name: CELESTIA_HOME
           value: /home/celestia
         - name: CELESTIA_BIN_FOLDER
           value: /bin
         - name: CELESTIA_CUSTOM
-          value: "private:29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573"
+          value: "private:38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684"
         - name: SETUP_PATH
           value: /tmp/celestia-config
             #- name: TRUSTED_PEERS
@@ -339,9 +310,9 @@ data:
   start.sh: |
     #!/bin/bash
     celestia bridge init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573\"|g" /home/celestia/config.toml
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml
     cat /home/celestia/config.toml && \
-    celestia bridge start --core.ip=100.64.21.13 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318
+    celestia bridge start --core.ip=100.65.58.158 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318
 kind: ConfigMap
 metadata:
   labels:
