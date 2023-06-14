@@ -72,3 +72,17 @@ else
     echo "[tx_index]" >> $CELESTIA_HOME/config/config.toml
     echo "indexer = \"kv\"" >> $CELESTIA_HOME/config/config.toml
 fi
+
+echo "---------------------------------------------------"
+echo "Tweaking the config - block reconstruction"
+echo "---------------------------------------------------"
+sed -i 's/"gov_max_square_size": "64"/"gov_max_square_size": "128"/g' /home/celestia/config/genesis.json
+sed -i 's/max_subscription_clients = 100/max_subscription_clients = 6000/g' /home/celestia/config/config.toml
+sed -i 's/max_subscriptions_per_client = 5/max_subscriptions_per_client = 1000/g' /home/celestia/config/config.toml
+
+sed -i 's/"max_bytes": "1974272"/"max_bytes": "8388608"/g' /home/celestia/config/genesis.json
+sed -i 's/"max_deposit_period": "172800s"/"max_deposit_period": "20s"/g' /home/celestia/config/genesis.json
+sed -i 's/"voting_period": "172800s"/"voting_period": "20s"/g' /home/celestia/config/genesis.json
+echo "---------------------------------------------------"
+cat /home/celestia/config/genesis.json
+echo "---------------------------------------------------"

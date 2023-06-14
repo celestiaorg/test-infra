@@ -117,3 +117,12 @@ echo "---------------------------------------------------"
 echo "Configuration applied =>"
 cat $CELESTIA_HOME/config/config.toml
 echo "---------------------------------------------------"
+
+echo "---------------------------------------------------"
+echo "Tweaking the config - block reconstruction"
+echo "---------------------------------------------------"
+sed -i 's/max_subscription_clients = 100/max_subscription_clients = 6000/g' /home/celestia/config/config.toml
+sed -i 's/max_subscriptions_per_client = 5/max_subscriptions_per_client = 1000/g' /home/celestia/config/config.toml
+echo "---------------------------------------------------"
+cat /home/celestia/config/genesis.json
+echo "---------------------------------------------------"
