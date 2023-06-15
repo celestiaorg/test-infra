@@ -50,7 +50,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684"
+              value: "private:CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -82,6 +82,9 @@ spec:
             - containerPort: 26659
               name: rest
               protocol: TCP
+            - containerPort: 8890
+              name: libp2p-metrics
+              protocol: TCP
           readinessProbe:
             failureThreshold: 3
             initialDelaySeconds: 5
@@ -91,8 +94,8 @@ spec:
               port: rest
             timeoutSeconds: 1
           resources:
-            limits:
-              memory: 250Mi
+           #limits:
+            #  memory: 250Mi
             requests:
               cpu: "100m"
               memory: 200Mi
@@ -221,11 +224,12 @@ apiVersion: v1
 data:
   start.sh: |
     #!/bin/bash
-    celestia light init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml &&\
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.53.161/tcp/2121/p2p/12D3KooWQ3t7hYLTyby8fRfJC2M3t97wGuhDte4N9fastEknvh5r","/ip4/192.168.13.21/tcp/2121/p2p/12D3KooWFXDJrR86uUhJzZ5vShe95cti8QKKBQUND9Q6ViByMQ1S"]|g' /home/celestia/config.toml &&\
-    cat /home/celestia/config.toml && \
-    celestia light start --core.ip=100.65.58.158 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
+    celestia light init --node.store=/home/celestia/
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747\"|g" /home/celestia/config.toml # consensus first hash
+    # BN, FN, Bootstrapper
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.34.255/tcp/2121/p2p/12D3KooWJgznj6UjdrvcpwBYPbUTZfAL4ZUyCZbduqmqX5P4hkwL","/ip4/192.168.26.206/tcp/2121/p2p/12D3KooWGP9hHcihg2QdA7PXfRedkXweqHxQH4w4WLSwBeT9eUDn","/ip4/192.168.53.90/tcp/2121/p2p/12D3KooWMGVqcAPLwoGdboGVPcGzg1mVDWRThHMjBwznQXckEcN4"]|g' /home/celestia/config.toml
+    cat /home/celestia/config.toml
+    celestia light start --core.ip=100.71.50.129 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
 kind: ConfigMap
 metadata:
   labels:

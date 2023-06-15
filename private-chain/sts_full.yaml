@@ -50,7 +50,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:29B393EB0F3D379E132B87D0232E032ADA6E0E00DC4D8820FDF366B12B8E6573"
+              value: "private:CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -238,8 +238,8 @@ data:
     
     sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml &&\
     sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml &&\
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml &&\
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.105.96/tcp/2121/p2p/12D3KooWEwnxvR1eX1BjUyeN83T9HCkAXr8GASVYDLSR6g6b3voL","/ip4/192.168.10.32/tcp/2121/p2p/12D3KooWHFDBoKECAPsJjBQGPn4WtKpPuJt9hsJgUHk6E1X1TRgD"]|g' /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747\"|g" /home/celestia/config.toml &&\ # consensus first hash
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.51.68/tcp/2121/p2p/12D3KooWE85QUJXWQr67zVeXx2y17y2NGDvLgDTxF12bkiscnvAa","/ip4/192.168.2.52/tcp/2121/p2p/12D3KooWEMtFWdcbQv61g2KKtyWjGVW1eDB8Ro3fjAMkcrKmf5Lu"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml &&\
     # Execute the command before starting the loop.
     celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private  --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
