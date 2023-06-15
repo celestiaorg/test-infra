@@ -5,7 +5,7 @@ metadata:
   name: light
 ---
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   labels:
     app: da-light-83
@@ -16,10 +16,8 @@ metadata:
   name: da-light-83
   namespace: light
 spec:
-  podManagementPolicy: OrderedReady
   replicas: 56
-  revisionHistoryLimit: 10
-  serviceName: da-light-83
+  #serviceName: da-light-83
   selector:
     matchLabels:
       app: da-light-83
@@ -27,9 +25,9 @@ spec:
       environment: private
       network: da
       type: light
+  strategy: {}
   template:
     metadata:
-      creationTimestamp: null
       labels:
         app: da-light-83
         chain-id: private
@@ -58,7 +56,7 @@ spec:
                 #    configMapKeyRef:
                 #      key: TRUSTED_PEERS
               #      name: trusted-peers
-          image: ghcr.io/celestiaorg/celestia-node:v0.11.0-rc3
+          image: ghcr.io/celestiaorg/celestia-node:403eb61
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -215,10 +213,6 @@ spec:
           name: setup
         - emptyDir: {}
           name: shared
-  updateStrategy:
-    rollingUpdate:
-      partition: 0
-    type: RollingUpdate
 ---
 apiVersion: v1
 data:
