@@ -89,8 +89,8 @@ spec:
             port: rest
           timeoutSeconds: 1
         resources:
-          limits:
-            memory: 12Gi
+          #limits:
+          #  memory: 12Gi
           requests:
             cpu: "3"
             memory: 3Gi

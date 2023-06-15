@@ -94,8 +94,8 @@ spec:
             port: rest
           timeoutSeconds: 1
         resources:
-          limits:
-            memory: 12Gi
+          #limits:
+          #  memory: 12Gi
           requests:
             cpu: "3"
             memory: 3Gi
@@ -228,7 +228,7 @@ data:
     #!/bin/bash
     celestia bridge init --node.store=/home/celestia/ && \
     sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml
-    sed -i 's|MutualPeers = \[]|MutualPeers = \["/ip4/192.168.76.98/tcp/2121/p2p/12D3KooWKGkjrRvagyQpDepWNT273rdoRcrrRYjvkx5dRgsrbeJg"]|g' /home/celestia/config.toml &&\
+    sed -i 's|MutualPeers = \[]|MutualPeers = \["/ip4/192.168.10.32/tcp/2121/p2p/12D3KooWHFDBoKECAPsJjBQGPn4WtKpPuJt9hsJgUHk6E1X1TRgD"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml && \
     celestia bridge start --core.ip=100.65.58.158 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
 kind: ConfigMap

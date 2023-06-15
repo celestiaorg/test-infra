@@ -94,8 +94,8 @@ spec:
               port: rest
             timeoutSeconds: 1
           resources:
-            limits:
-              memory: 12Gi
+            #limits:
+            #  memory: 12Gi
             requests:
               cpu: "3"
               memory: 3Gi
@@ -236,10 +236,11 @@ data:
     
     celestia full init --node.store=/home/celestia/ && \
     
-    sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml
-    sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.107.240/tcp/2121/p2p/12D3KooWPZqK4p8wwr8PhMcGEu2FzkvztXZUp6zi5UnpgQib2DGT","/ip4/192.168.76.98/tcp/2121/p2p/12D3KooWKGkjrRvagyQpDepWNT273rdoRcrrRYjvkx5dRgsrbeJg"]|g' /home/celestia/config.toml
+    sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml &&\
+    sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml &&\
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.105.96/tcp/2121/p2p/12D3KooWEwnxvR1eX1BjUyeN83T9HCkAXr8GASVYDLSR6g6b3voL","/ip4/192.168.10.32/tcp/2121/p2p/12D3KooWHFDBoKECAPsJjBQGPn4WtKpPuJt9hsJgUHk6E1X1TRgD"]|g' /home/celestia/config.toml &&\
+    cat /home/celestia/config.toml &&\
     # Execute the command before starting the loop.
     celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private  --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
    
