@@ -17,11 +17,7 @@ metadata:
   namespace: light
 spec:
   podManagementPolicy: OrderedReady
-<<<<<<< Updated upstream:private-chain/do_it_for_me_please/sts_light.yaml
   replicas: 56
-=======
-  replicas: 30
->>>>>>> Stashed changes:private-chain/sts_light.yaml
   revisionHistoryLimit: 10
   serviceName: da-light-1
   selector:
@@ -60,7 +56,7 @@ spec:
                 #- name: TRUSTED_PEERS
                 #  valueFrom:
                 #    configMapKeyRef:
-                #      key: TRUSTED_PEERS
+              #      key: TRUSTED_PEERS
               #      name: trusted-peers
           image: ghcr.io/celestiaorg/celestia-node:v0.11.0-rc3
           imagePullPolicy: IfNotPresent
@@ -190,7 +186,7 @@ spec:
         #  fsGroup: 10001
         #  fsGroupChangePolicy: OnRootMismatch
         #    #serviceAccount: da-sa-bridge-1
-        #    #serviceAccountName: da-sa-bridge-1
+      #    #serviceAccountName: da-sa-bridge-1
       #terminationGracePeriodSeconds: 30
       volumes:
         #- configMap:
@@ -229,11 +225,7 @@ data:
     sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml &&\
     sed -i 's|TrustedPeers = \[]|TrustedPeers = \["WHATEVER","/ip4/192.168.13.21/tcp/2121/p2p/12D3KooWFXDJrR86uUhJzZ5vShe95cti8QKKBQUND9Q6ViByMQ1S"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml && \
-<<<<<<< Updated upstream:private-chain/do_it_for_me_please/sts_light.yaml
     celestia light start --core.ip=100.65.58.158 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
-=======
-    celestia light start --core.ip=100.64.3.206 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --metrics.endpoint 195.154.197.188:4318  --p2p.network=private
->>>>>>> Stashed changes:private-chain/sts_light.yaml
 kind: ConfigMap
 metadata:
   labels:
