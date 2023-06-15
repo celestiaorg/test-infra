@@ -4,6 +4,7 @@ metadata:
   name: otel-collector-pod-monitor
   labels:
     team: devops
+    release: prometheus
 spec:
   selector:
     matchLabels:
