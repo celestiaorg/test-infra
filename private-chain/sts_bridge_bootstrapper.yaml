@@ -77,6 +77,9 @@ spec:
         - containerPort: 26659
           name: rest
           protocol: TCP
+        - containerPort: 8890
+          name: libp2p-metrics
+          protocol: TCP
         readinessProbe:
           failureThreshold: 3
           initialDelaySeconds: 5
