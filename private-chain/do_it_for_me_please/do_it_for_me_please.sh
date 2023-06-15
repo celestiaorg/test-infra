@@ -9,7 +9,7 @@ rm -fr ./${LIGHT_FOLDER}/*
 mkdir -p ${LIGHT_FOLDER}
 
 # find the bridges and loop for each of them
-for i in $(kubectl -n bridge get po --sort-by=.metadata.name -oname);do
+for i in $(kubectl -n bridge get po --sort-by=.metadata.name -oname | grep -v bootstrapper);do
     echo "=============================================================="
     echo $i
     # we are gonna use the counter to identify the LN sts

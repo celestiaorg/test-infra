@@ -1,0 +1,222 @@
+## Default values for pyroscope.
+## This is a YAML-formatted file.
+## Declare variables to be passed into your templates.
+
+# -- Defaults to .Chart.Name
+nameOverride: ""
+# -- Defaults to .Release.Name-.Chart.Name unless .Release.Name contains "pyroscope"
+fullnameOverride: ""
+
+# -- Extra common labels for all resources
+extraLabels: {}
+
+image:
+  # -- image to use for deploying
+  repository: pyroscope/pyroscope
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Tag for pyroscope image to use
+  tag: "0.37.2"
+
+# -- Image pull secrets
+imagePullSecrets: []
+
+serviceAccount:
+  # Specifies whether a service account should be created
+
+  # -- Create service account
+  create: true
+# The name of the service account to use.
+# If not set and create is true, a name is generated using the fullname template
+
+  # -- Service account name to use, when empty will be set to created account if serviceAccount.create is set else to default
+  name: ""
+  # Annotations to add to the service account
+
+  # -- ServiceAccount annotations
+  annotations: {}
+
+# -- Pyroscope server configuration. Please refer to https://pyroscope.io/docs/server-configuration
+pyroscopeConfigs: {}
+
+ ## Enable persistence using Persistent Volume Claims
+ ## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+
+persistence:
+  # -- Use persistent volume to store data
+  enabled: false
+  # storageClassName: default
+
+  # -- Persistence access modes
+  accessModes:
+    - ReadWriteOnce
+  # -- Size of persistent volume claim
+  size: 30Gi
+  # annotations: {}
+
+  # -- PersistentVolumeClaim finalizers
+  finalizers:
+    - kubernetes.io/pvc-protection
+  # selectorLabels: {}
+  # existingClaim:
+
+# -- Pod annotations
+podAnnotations: {}
+
+# -- Pod securityContext
+podSecurityContext:
+  fsGroup: 101
+
+# -- Deployment securityContext
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+## ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types
+
+  # --  Specify a service type
+  type: ClusterIP
+  # -- Kubernetes port where service is exposed
+  port: 4040
+  # nodePort:
+
+  # -- Service annotations
+  annotations: {}
+  # nodePort:
+  # loadBalancerIP:
+
+ingress:
+  # -- Enables Ingress
+  enabled: false
+  # -- Ingress class name
+  className: ""
+  # -- Ingress annotations (values are templated)
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+
+  # -- Ingress custom rules. Take precedence over chart built-ins.
+  rules: []
+  # -- Ingress accepted hostnames
+  hosts:
+    - host: chart-example.local
+      paths:
+      - path: /
+        pathType: Prefix
+
+## For Kubernetes >= 1.18 you should specify the pathType (determines how Ingress paths should be matched)
+## See https://kubernetes.io/blog/2020/04/02 improvements-to-the-ingress-api-in-kubernetes-1.18/#better-path-matching-with-path-types
+
+  # -- Ingress TLS configuration
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# -- Deployment strategy
+deploymentStrategy:
+  type: Recreate
+
+initContainers: []
+# - name: volume-mount-fix
+#   imagePullPolicy: Always
+#   command:
+#   image: busybox
+#   - sh
+#   - -c
+#   - chmod 777 /var/lib/pyroscope && chown -R 101:101 /var/lib/pyroscope
+#   volumeMounts:
+#   - name: storage
+#     mountPath: /var/lib/pyroscope
+
+readinessProbe:
+  # -- Enable Pyroscope server readiness
+  enabled: true
+  httpGet:
+    # -- Pyroscope server readiness check path
+    path: /healthz
+    # -- Pyroscope server readiness check port
+    port: 4040
+  # -- Pyroscope server readiness initial delay in seconds
+  initialDelaySeconds: 30
+  # -- Pyroscope server readiness check frequency in seconds
+  periodSeconds: 5
+  # -- Pyroscope server readiness check request timeout
+  timeoutSeconds: 30
+  # -- Pyroscope server readiness check failure threshold count
+  failureThreshold: 3
+  # -- Pyroscope server readiness check success threshold count
+  successThreshold: 1
+
+livenessProbe:
+  # -- Enable Pyroscope server liveness
+  enabled: true
+  httpGet:
+    # -- Pyroscope server liveness check path
+    path: /healthz
+    # -- Pyroscope server liveness check port
+    port: 4040
+  # -- Pyroscope server liveness check intial delay in seconds
+  initialDelaySeconds: 30
+  # -- Pyroscope server liveness check frequency in seconds
+  periodSeconds: 15
+  # -- Pyroscope server liveness check request timeout
+  timeoutSeconds: 30
+  # -- Pyroscope server liveness check failure threshold
+  failureThreshold: 3
+  # -- Pyroscope server liveness check success threshold
+  successThreshold: 1
+
+# -- CPU/Memory resource requests/limits
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# -- Node labels for pod assignment
+nodeSelector: {}
+
+# -- Toleration labels for pod assignment
+tolerations: []
+
+# -- Affinity settings for pod assignment
+affinity: {}
+
+# -- Additional volumes
+extraVolumes: []
+
+# -- Additional volume mounts for pyroscope server container
+extraVolumeMounts: []
+
+# -- Extra environment variables
+env: {}
+
+rbac:
+  # -- Creates Pyroscope cluster role and binds service account to it; requires service account to be created
+  create: false
+
+  clusterRole:
+    # -- Cluster role name. If not set, the fully qualified app name is used
+    name: ""
+    # -- Cluster role annotations
+    annotations: {}
+    # -- Extra rules for created cluster role
+    extraRules: []
+
+  clusterRoleBinding:
+    # -- Cluster role binding name. If not set, the fully qualified app name is used
+    name: ""
+    # -- Cluster role binding annotations
+    annotations: {}

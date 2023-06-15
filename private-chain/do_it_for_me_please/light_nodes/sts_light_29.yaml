@@ -216,92 +216,6 @@ spec:
     rollingUpdate:
       partition: 0
     type: RollingUpdate
-      #---
-      #apiVersion: v1
-      #data:
-      #  setup.sh: |
-      #    #!/bin/sh
-      #
-      #    # CONSENSUS_NODE_SERVICE should be set in the environment
-      #    # CONSENSUS_NAMEPACE should be set in the environment
-      #    # SETUP_PATH should be set in the environment
-      #    # TIMEOUT optional
-      #
-      #    TIMEOUT="${TIMEOUT:-2}"
-      #    FULL_DOMAIN="${CONSENSUS_NODE_SERVICE}.${CONSENSUS_NAMEPACE}.svc.cluster.local"
-      #
-      #    echo "---------------------------------------------------"
-      #    echo "Installing required tools..."
-      #    echo "---------------------------------------------------"
-      #    apk add jq bind-tools
-      #
-      #    dig ${FULL_DOMAIN} +short > ${SETUP_PATH}/SERVICE_IP
-      #    echo "---------------------------------------------------"
-      #    echo "Getting the Kubernetes Service IP [$(cat ${SETUP_PATH}/SERVICE_IP)]"
-      #    echo "---------------------------------------------------"
-      #
-      #    wget --timeout=${TIMEOUT} -q -O - ${FULL_DOMAIN}:26657/block?height=1 | jq -r '.result .block_id.hash' > ${SETUP_PATH}/GENESIS_HASH
-      #    echo "---------------------------------------------------"
-      #    echo "Getting the Block Id Hash... [$(cat ${SETUP_PATH}/GENESIS_HASH)]"
-      #    echo "---------------------------------------------------"
-      #
-      #    wget --timeout=${TIMEOUT} -q -O - ${FULL_DOMAIN}:26657/status? | jq -r '.result.node_info.network' > ${SETUP_PATH}/CELESTIA_ID
-      #    echo "---------------------------------------------------"
-      #    echo "Getting the Celestia Network Id [$(cat ${SETUP_PATH}/CELESTIA_ID)]"
-      #    echo "---------------------------------------------------"
-      #
-      #    if [[ ! -s "${SETUP_PATH}/SERVICE_IP" ]]; then
-      #        echo "Node not ready yet (Could not fetch SERVICE_IP).. Exiting.."
-      #        exit 1
-      #    fi
-      #    if [[ ! -s "${SETUP_PATH}/GENESIS_HASH" ]]; then
-      #        echo "Node not ready yet (Could not fetch GENESIS_HASH).. Exiting.."
-      #        exit 1
-      #    fi
-      #    if [[ ! -s "${SETUP_PATH}/CELESTIA_ID" ]]; then
-      #        echo "Node not ready yet (Could not fetch CELESTIA_ID).. Exiting.."
-      #        exit 1
-      #    fi
-      #kind: ConfigMap
-      #metadata:
-      #  labels:
-      #    app: da-bridge-1
-      #    chain-id: private
-      #    consensus-namespace: app-v100-rc2-node-v0110-rc3
-      #    environment: robusta
-      #    type: bridge
-      #  name: setup-bridge-1
-      #  namespace: private
-      #---
-      #apiVersion: v1
-      #data:
-      #  start.sh: "#!/bin/bash\n\n# CELESTIA_HOME should be set in the environment\n# SETUP_PATH
-      #    should be set in the environment\n\necho \"---------------------------------------------------\"\necho
-      #    \"Checking if the keys already exists... \U0001F510\"\necho \"---------------------------------------------------\"\n\n#
-      #    TODO: CHECK THIS\n[ ! -f \"$CELESTIA_HOME/config/config.toml\" ] &&\\\n  echo
-      #    \"Keys doesn't exists: [$CELESTIA_HOME], let's create them! \U0001F680\" &&\\\n
-      #    \ CELESTIA_CUSTOM=$(cat $SETUP_PATH/CELESTIA_ID):$(cat $SETUP_PATH/GENESIS_HASH)
-      #    ${CELESTIA_BIN_FOLDER}/celestia bridge init --node.store $CELESTIA_HOME &&\\\n
-      #    \ echo \"---------------------------------------------------\"\n\n# TODO: Once
-      #    celestia-node handles SIGTERM correctly this can be moved below the start command\nif
-      #    [[ -f $CELESTIA_HOME/config/config.toml ]];then\n    cp $CELESTIA_HOME/config/config.toml
-      #    $CELESTIA_HOME/config.toml\nfi\n\ncp $CELESTIA_HOME/config.toml $CELESTIA_HOME/config/config.toml\n\necho
-      #    \"Starting the Celestia Node...\"\necho \"---------------------------------------------------\"\nexec
-      #    env CELESTIA_CUSTOM=$(cat $SETUP_PATH/CELESTIA_ID):$(cat $SETUP_PATH/GENESIS_HASH)
-      #    ${CELESTIA_BIN_FOLDER}/celestia bridge start --core.ip=\"$(cat /tmp/celestia-config/SERVICE_IP)\"
-      #    --node.store=\"$CELESTIA_HOME\" --gateway --metrics --metrics.tls=false --pyroscope
-      #    --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
-      #    --p2p.metrics\n"
-      #kind: ConfigMap
-      #metadata:
-      #  labels:
-      #    app: da-bridge-1
-      #    chain-id: bridge
-      #    consensus-namespace: consensus
-      #    environment: private
-      #    type: bridge
-      #  name: start-bridge-1
-    #  namespace: bridge
 ---
 apiVersion: v1
 data:
@@ -309,9 +223,9 @@ data:
     #!/bin/bash
     celestia light init --node.store=/home/celestia/ && \
     sed -i "s|TrustedHash = \"\"|TrustedHash = \"38DF9533B8CF436D55252465550612603B3FB1D7124D3FF82005949681C2F684\"|g" /home/celestia/config.toml &&\
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.95.184/tcp/2121/p2p/12D3KooWRMzwtrmjGoNSEjPPrE56uSx6nWYde4fC4QQ2PhumkhtG","/ip4/192.168.13.21/tcp/2121/p2p/12D3KooWFXDJrR86uUhJzZ5vShe95cti8QKKBQUND9Q6ViByMQ1S"]|g' /home/celestia/config.toml &&\
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.72.243/tcp/2121/p2p/12D3KooWSJ3zbvrhtNivwK6XGyoTdapAvdciLHEKAowFB8T97pNt","/ip4/192.168.13.21/tcp/2121/p2p/12D3KooWFXDJrR86uUhJzZ5vShe95cti8QKKBQUND9Q6ViByMQ1S"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml && \
-    celestia light start --core.ip=100.65.58.158 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318
+    celestia light start --core.ip=100.65.58.158 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
 kind: ConfigMap
 metadata:
   labels:
