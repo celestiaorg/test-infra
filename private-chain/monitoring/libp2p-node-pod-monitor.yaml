@@ -1,12 +1,12 @@
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: otel-collector-pod-monitor
+  name: p2p-pod-monitor
   labels:
-    team: frontend
+    team: devops
 spec:
   selector:
     matchLabels:
-      app: opentelemetry
+      network: da
   podMetricsEndpoints:
-    - port: otlp-exporter
+    - port: libp2p-metrics

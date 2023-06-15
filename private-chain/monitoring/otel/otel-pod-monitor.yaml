@@ -3,7 +3,7 @@ kind: PodMonitor
 metadata:
   name: otel-collector-pod-monitor
   labels:
-    team: frontend
+    team: devops
 spec:
   selector:
     matchLabels:
