@@ -1,0 +1,13 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: otel-collector-pod-monitor
+  labels:
+    team: devops
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: opentelemetry
+  podMetricsEndpoints:
+    - port: otlp-exporter

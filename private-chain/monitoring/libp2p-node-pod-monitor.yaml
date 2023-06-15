@@ -1,0 +1,32 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: libp2p-pod-monitor
+  labels:
+    team: devops
+    release: prometheus
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels:
+      network: da
+  podMetricsEndpoints:
+    - port: libp2p-metrics
+      path: /metrics
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: libp2p-service-monitor
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      network: da
+  namespaceSelector:
+    any: true
+  endpoints:
+    - port: libp2p-metrics
+      path: /metrics

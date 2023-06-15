@@ -54,7 +54,7 @@ spec:
                 #- name: TRUSTED_PEERS
                 #  valueFrom:
                 #    configMapKeyRef:
-                #      key: TRUSTED_PEERS
+              #      key: TRUSTED_PEERS
               #      name: trusted-peers
           image: ghcr.io/celestiaorg/celestia-node:403eb61
           imagePullPolicy: IfNotPresent
@@ -187,7 +187,7 @@ spec:
         #  fsGroup: 10001
         #  fsGroupChangePolicy: OnRootMismatch
         #    #serviceAccount: da-sa-bridge-1
-        #    #serviceAccountName: da-sa-bridge-1
+      #    #serviceAccountName: da-sa-bridge-1
       #terminationGracePeriodSeconds: 30
       volumes:
         #- configMap:
