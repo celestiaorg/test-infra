@@ -1,0 +1,366 @@
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: Cluster
+metadata:
+  creationTimestamp: null
+  name: ${CLUSTER_NAME}
+spec:
+  kubeAPIServer:
+    disableBasicAuth: false
+  containerRuntime: containerd
+  # docker:
+  #   skipInstall: true
+  cloudLabels:
+    Team: ${TEAM}
+    Project: ${PROJECT}
+  api:
+    loadBalancer:
+      type: Public
+  kubeDNS:
+    provider: CoreDNS
+  # https://kops.sigs.k8s.io/addons/#metrics-server
+  certManager:
+    enabled: true
+  metricsServer:
+    enabled: true
+    insecure: false
+  clusterAutoscaler:
+    enabled: true
+  additionalPolicies: # https://kops.sigs.k8s.io/iam_roles/#adding-additional-policies
+    node: |
+      [
+        {
+          "Effect": "Allow",
+          "Action": [
+              "ecr:*",
+              "ec2:*",
+              "autoscaling:*",
+              "elasticfilesystem:*",
+              "elasticloadbalancing:*"
+          ],
+          "Resource": "*"
+        }
+      ]
+    master: |
+      [
+        {
+          "Effect": "Allow",
+          "Action": [
+              "ecr:*",
+              "ec2:*",
+              "autoscaling:*",
+              "elasticfilesystem:*",
+              "elasticloadbalancing:*"
+          ],
+          "Resource": "*"
+        }
+      ]
+  authorization:
+    rbac: {}
+  channel: stable
+  cloudProvider: aws
+  configBase: ${KOPS_STATE_STORE}/${CLUSTER_NAME}
+  docker:
+    defaultUlimit:
+    - "nofile=${ULIMIT_NOFILE}"
+  etcdClusters:
+  - cpuRequest: 200m
+    etcdMembers:
+    - instanceGroup: master-${ZONE}0
+      name: a
+    - instanceGroup: master-${ZONE}1
+      name: b
+    - instanceGroup: master-${ZONE}2
+      name: c
+    - instanceGroup: master-${ZONE}3
+      name: d
+    - instanceGroup: master-${ZONE}4
+      name: e
+    memoryRequest: 100Mi
+    name: main
+  - cpuRequest: 100m
+    etcdMembers:
+    - instanceGroup: master-${ZONE}0
+      name: a
+    - instanceGroup: master-${ZONE}1
+      name: b
+    - instanceGroup: master-${ZONE}2
+      name: c
+    - instanceGroup: master-${ZONE}3
+      name: d
+    - instanceGroup: master-${ZONE}4
+      name: e
+    memoryRequest: 100Mi
+    name: events
+  hooks:
+    - name: disable-transparent-hugepages.service
+      before:
+      - docker.service
+      - kubelet.service
+      manifest: |
+        Type=oneshot
+        ExecStart=/bin/sh -c "echo never >/sys/kernel/mm/transparent_hugepage/enabled"
+  iam:
+    allowContainerRegistry: true
+    legacy: false
+  kubelet:
+    anonymousAuth: false
+    maxPods: 200 # 234 is the max number of pods for c5.4xlarge
+      #allowedUnsafeSysctls:
+      #  - net.netfilter.nf_conntrack_max
+      #  - net.core.somaxconn
+      #  - net.core.netdev_max_backlog
+      #  - net.core.rmem_max
+      #  - net.core.wmem_max
+      #  - net.ipv4.ip_local_port_range
+      #  - net.ipv4.tcp_max_syn_backlog
+      #  - net.ipv4.tcp_tw_recycle
+      #  - net.ipv4.tcp_tw_reuse
+      #  - net.ipv4.tcp_mem
+      #  - net.ipv4.tcp_rmem
+      #  - net.ipv4.tcp_wmem
+      #  - net.ipv4.tcp_max_orphans
+      #  - net.ipv4.tcp_abort_on_overflow
+    streamingConnectionIdleTimeout: 60m
+    registryPullQPS: 3
+    registryBurst: 6
+  kubeControllerManager:
+    eventRecordQPS: 20
+    eventBurst: 40
+    kubeAPIQPS: 20
+    kubeAPIBurst: 40
+  kubernetesApiAccess:
+  - 0.0.0.0/0
+  # the latest version we can use atm is this one, due to the Docker CRI
+  kubernetesVersion: 1.26.3
+  masterInternalName: api.internal.${CLUSTER_NAME}
+  masterPublicName: api.${CLUSTER_NAME}
+  networkCIDR: 192.168.0.0/16
+  networking:
+    cilium: {}
+    #amazonvpc: {} # https://kops.sigs.k8s.io/networking/aws-vpc/
+    #amazonvpc:
+    #  env:
+    #  - name: AWS_VPC_K8S_CNI_LOGLEVEL
+    #    value: debug
+  #nonMasqueradeCIDR: 100.64.0.0/10
+  sshAccess:
+  - 0.0.0.0/0
+  subnets:
+  - cidr: 192.168.0.0/17 # hosts: 32,768
+    name: ${ZONE_A}
+    type: Public
+    zone: ${ZONE_A}
+  - cidr: 192.168.128.0/17 # hosts: 32,768
+    name: ${ZONE_B}
+    type: Public
+    zone: ${ZONE_B}
+  topology:
+    dns:
+      type: Public
+    masters: public
+    nodes: public
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: master-${ZONE}0
+spec:
+  image: testground_2023-05-04
+  machineType: ${MASTER_NODE_TYPE}
+  maxSize: 1
+  minSize: 1
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: master-${ZONE_A}0
+  role: Master
+  subnets:
+  - ${ZONE_A}
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: master-${ZONE}1
+spec:
+  image: testground_2023-05-04
+  machineType: ${MASTER_NODE_TYPE}
+  maxSize: 1
+  minSize: 1
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: master-${ZONE_A}1
+  role: Master
+  subnets:
+  - ${ZONE_A}
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: master-${ZONE}2
+spec:
+  image: testground_2023-05-04
+  machineType: ${MASTER_NODE_TYPE}
+  maxSize: 1
+  minSize: 1
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: master-${ZONE_A}2
+  role: Master
+  subnets:
+  - ${ZONE_A}
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: master-${ZONE}3
+spec:
+  image: testground_2023-05-04
+  machineType: ${MASTER_NODE_TYPE}
+  maxSize: 1
+  minSize: 1
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: master-${ZONE_A}3
+  role: Master
+  subnets:
+  - ${ZONE_A}
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  creationTimestamp: null
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: master-${ZONE}4
+spec:
+  image: testground_2023-05-04
+  machineType: ${MASTER_NODE_TYPE}
+  maxSize: 1
+  minSize: 1
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: master-${ZONE_A}4
+  role: Master
+  subnets:
+  - ${ZONE_A}
+
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: bridge
+spec:
+  cloudLabels:
+    testground.node.role.infra: "true"
+  image: testground_2023-05-04
+  machineType: c5a.8xlarge
+  minSize: 30
+  maxSize: 50
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: bridge
+  role: Node
+  subnets:
+  - ${ZONE_A}
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: light
+spec:
+  cloudLabels:
+    testground.node.role.infra: "true"
+  image: testground_2023-05-04
+  machineType: c5a.8xlarge
+  minSize: 200
+  maxSize: 250
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: light
+  role: Node
+  subnets:
+  - ${ZONE_A}
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: infra
+spec:
+  cloudLabels:
+    testground.node.role.infra: "true"
+  image: testground_2023-05-04
+  machineType: c5a.4xlarge
+  minSize: 10
+  maxSize: 20
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: infra
+  role: Node
+  subnets:
+  - ${ZONE_A}
+---
+apiVersion: kops.k8s.io/v1alpha2
+kind: InstanceGroup
+metadata:
+  labels:
+    kops.k8s.io/cluster: ${CLUSTER_NAME}
+  name: consensus
+spec:
+  cloudLabels:
+    testground.node.role.infra: "true"
+  image: testground_2023-05-04
+  machineType: c5a.8xlarge
+  minSize: 1
+  maxSize: 3
+  cloudLabels:
+    k8s.io/cluster-autoscaler/${CLUSTER_NAME}: "owned"
+    k8s.io/cluster-autoscaler/enabled: ""
+    k8s.io/cluster-autoscaler/node-template/label: ""
+  nodeLabels:
+    kops.k8s.io/instancegroup: consensus
+  role: Node
+  subnets:
+  - ${ZONE_A}
