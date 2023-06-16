@@ -47,7 +47,7 @@ spec:
         - name: CELESTIA_BIN_FOLDER
           value: /bin
         - name: CELESTIA_CUSTOM
-          value: "private:D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931"
+          value: "private:500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08"
         - name: SETUP_PATH
           value: /tmp/celestia-config
             #- name: TRUSTED_PEERS
@@ -225,9 +225,10 @@ data:
   start.sh: |
     #!/bin/bash
     celestia bridge init --node.store=/home/celestia/ && \
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931\"|g" /home/celestia/config.toml  # consensus first hash
+    sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08\"|g" /home/celestia/config.toml  # consensus first hash
     cat /home/celestia/config.toml
-    celestia bridge start --core.ip=100.67.235.20 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
+    celestia bridge start --core.ip=100.66.39.25 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
 kind: ConfigMap
 metadata:
   labels:

@@ -5,8 +5,8 @@ clear
 LIGHT_FOLDER=light_nodes
 counter=0
 
-rm -fr ./${LIGHT_FOLDER}/*
-mkdir -p ${LIGHT_FOLDER}
+#rm -fr ./${LIGHT_FOLDER}/*
+#mkdir -p ${LIGHT_FOLDER}
 
 # find the bridges and loop for each of them
 for i in $(kubectl -n bridge get po --sort-by=.metadata.name -oname | grep -v bootstrapper);do

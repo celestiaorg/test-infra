@@ -2,7 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prometheus-grafana-external
-  namespace: monitoring
+  namespace: default
+    #namespace: monitoring
   annotations:
   labels:
     app.kubernetes.io/instance: monitoring-stack

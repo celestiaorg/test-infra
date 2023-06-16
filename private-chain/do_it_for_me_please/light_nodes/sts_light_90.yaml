@@ -1,9 +1,4 @@
 ---
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: light
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,7 +45,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931"
+              value: "private:500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -221,11 +216,11 @@ data:
   start.sh: |
     #!/bin/bash
     celestia light init --node.store=/home/celestia/
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931\"|g" /home/celestia/config.toml # consensus first hash
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08\"|g" /home/celestia/config.toml # consensus first hash
     # BN, FN, Bootstrapper
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.96.37.137/tcp/2121/p2p/12D3KooWQA3tR4vMPCgH6mjBrn1hfpC9uFcdYCdmeRxQUmvuLsBu","/ip4/100.96.186.119/tcp/2121/p2p/12D3KooWCJtN1Drms4t1xqy4sgT8B8E66Hojv7CvqqXu54tQYfdx","/ip4/100.96.37.111/tcp/2121/p2p/12D3KooWDxM2myL94xWPp7UFeAHVFJGkii17s6X5wr3qGvcTtUrV"]|g' /home/celestia/config.toml
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.96.142.129/tcp/2121/p2p/12D3KooWDmdTKgsfndq7jc5vkAwud8JtwgMTZAUwKGAyWrFZ7Qu5","/ip4/100.96.142.174/tcp/2121/p2p/12D3KooWJMRfAifkqdztJMNFzS7Rje68YNFTxLX1R7xifVDJyfi6","/ip4/100.96.86.67/tcp/2121/p2p/12D3KooWMA5Sm6fn4U5nCJfcRkVrHBRE2NXZC11hoUoBEP747M5S"]|g' /home/celestia/config.toml
     cat /home/celestia/config.toml
-    celestia light start --core.ip=100.67.235.20 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
+    celestia light start --core.ip=100.66.39.25  --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
 kind: ConfigMap
 metadata:
   labels:

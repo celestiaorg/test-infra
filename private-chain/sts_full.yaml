@@ -47,7 +47,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931"
+              value: "private:500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -236,8 +236,11 @@ data:
     
     sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml &&\
     sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml &&\
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931\"|g" /home/celestia/config.toml &&\ # consensus first hash
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.96.126.217/tcp/2121/p2p/12D3KooWM5x9tH43VyR1JaxHmJfJjSCcD9n2vExKzrmzy2TwTRba","/ip4/100.96.37.111/tcp/2121/p2p/12D3KooWDxM2myL94xWPp7UFeAHVFJGkii17s6X5wr3qGvcTtUrV"]|g' /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08\"|g" /home/celestia/config.toml &&\ # consensus first hash
+    # bootstrapper & first bn
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.96.86.67/tcp/2121/p2p/12D3KooWMA5Sm6fn4U5nCJfcRkVrHBRE2NXZC11hoUoBEP747M5S","/ip4/100.96.152.183/tcp/2121/p2p/12D3KooWHvcABySB949bJCDfXroBXHyttsgqzjLVZjg3QEyJMjpw"]|g' /home/celestia/config.toml &&\
+    sed -i 's|UseShareExchange = true|UseShareExchange = false|g' /home/celestia/config.toml &&\
+    sed -i 's|SampleTimeout = \"3m0s\"|SampleTimeout = \"15m0s\"|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml &&\
     # Execute the command before starting the loop.
     celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private  --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
