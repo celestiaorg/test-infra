@@ -35,6 +35,8 @@ spec:
         network: da
         type: light
     spec:
+      nodeSelector:
+        kops.k8s.io/instancegroup: light
       containers:
         - command:
             - /home/celestia/start.sh
@@ -48,13 +50,13 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747"
+              value: "private:D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
                 #  valueFrom:
                 #    configMapKeyRef:
-                #      key: TRUSTED_PEERS
+              #      key: TRUSTED_PEERS
               #      name: trusted-peers
           image: ghcr.io/celestiaorg/celestia-node:403eb61
           imagePullPolicy: IfNotPresent
@@ -187,7 +189,7 @@ spec:
         #  fsGroup: 10001
         #  fsGroupChangePolicy: OnRootMismatch
         #    #serviceAccount: da-sa-bridge-1
-        #    #serviceAccountName: da-sa-bridge-1
+      #    #serviceAccountName: da-sa-bridge-1
       #terminationGracePeriodSeconds: 30
       volumes:
         #- configMap:
@@ -219,11 +221,11 @@ data:
   start.sh: |
     #!/bin/bash
     celestia light init --node.store=/home/celestia/
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747\"|g" /home/celestia/config.toml # consensus first hash
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931\"|g" /home/celestia/config.toml # consensus first hash
     # BN, FN, Bootstrapper
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.104.105/tcp/2121/p2p/12D3KooWHeJvLukHQ6k4oYW5onN9k1pGPt6UbpnNB4KJcdcX4WrR","/ip4/192.168.26.206/tcp/2121/p2p/12D3KooWGP9hHcihg2QdA7PXfRedkXweqHxQH4w4WLSwBeT9eUDn","/ip4/192.168.53.90/tcp/2121/p2p/12D3KooWMGVqcAPLwoGdboGVPcGzg1mVDWRThHMjBwznQXckEcN4"]|g' /home/celestia/config.toml
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.96.190.137/tcp/2121/p2p/12D3KooWHEXWX68S9XWmJFD73JN2qta9Fp6CdaQNRqacMYGxNomh","/ip4/100.96.186.119/tcp/2121/p2p/12D3KooWCJtN1Drms4t1xqy4sgT8B8E66Hojv7CvqqXu54tQYfdx","/ip4/100.96.37.111/tcp/2121/p2p/12D3KooWDxM2myL94xWPp7UFeAHVFJGkii17s6X5wr3qGvcTtUrV"]|g' /home/celestia/config.toml
     cat /home/celestia/config.toml
-    celestia light start --core.ip=100.71.50.129 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
+    celestia light start --core.ip=100.67.235.20 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318  --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
 kind: ConfigMap
 metadata:
   labels:
