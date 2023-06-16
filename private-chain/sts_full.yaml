@@ -37,6 +37,8 @@ spec:
         network: da
         type: full
     spec:
+      nodeSelector:
+        kops.k8s.io/instancegroup: bridge
       containers:
         - command:
             - /home/celestia/start.sh
@@ -50,7 +52,7 @@ spec:
             - name: CELESTIA_BIN_FOLDER
               value: /bin
             - name: CELESTIA_CUSTOM
-              value: "private:CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747"
+              value: "private:D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931"
             - name: SETUP_PATH
               value: /tmp/celestia-config
                 #- name: TRUSTED_PEERS
@@ -58,7 +60,8 @@ spec:
                 #    configMapKeyRef:
               #      key: TRUSTED_PEERS
               #      name: trusted-peers
-          image: ghcr.io/celestiaorg/celestia-node:v0.11.0-rc3
+          #image: ghcr.io/celestiaorg/celestia-node:v0.11.0-rc3
+          image: ghcr.io/celestiaorg/celestia-node:403eb61
           imagePullPolicy: IfNotPresent
           livenessProbe:
             failureThreshold: 3
@@ -238,8 +241,8 @@ data:
     
     sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml &&\
     sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml &&\
-    sed -i "s|TrustedHash = \"\"|TrustedHash = \"CF5C1DC1A332B26B393ADD03EA2519F5C7BF6207573C35349C5E22DD17751747\"|g" /home/celestia/config.toml &&\ # consensus first hash
-    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/192.168.51.68/tcp/2121/p2p/12D3KooWE85QUJXWQr67zVeXx2y17y2NGDvLgDTxF12bkiscnvAa","/ip4/192.168.2.52/tcp/2121/p2p/12D3KooWEMtFWdcbQv61g2KKtyWjGVW1eDB8Ro3fjAMkcrKmf5Lu"]|g' /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"D3F200681DBB9BC89EF054BA962847A0FD0D870B0A229928BE69937E2B843931\"|g" /home/celestia/config.toml &&\ # consensus first hash
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.96.126.217/tcp/2121/p2p/12D3KooWM5x9tH43VyR1JaxHmJfJjSCcD9n2vExKzrmzy2TwTRba","/ip4/100.96.37.111/tcp/2121/p2p/12D3KooWDxM2myL94xWPp7UFeAHVFJGkii17s6X5wr3qGvcTtUrV"]|g' /home/celestia/config.toml &&\
     cat /home/celestia/config.toml &&\
     # Execute the command before starting the loop.
     celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private  --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
