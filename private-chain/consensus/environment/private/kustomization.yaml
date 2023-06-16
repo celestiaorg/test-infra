@@ -4,4 +4,5 @@ kind: Kustomization
 resources:
 - ./full-1
 - ./full-2
+- ./full-3
 - ./validator-1
