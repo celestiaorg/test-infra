@@ -1,0 +1,178 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: da-full
+    chain-id: private
+    environment: private
+    network: da
+    type: full
+  name: da-full
+  namespace: full
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  serviceName: da-full
+  selector:
+    matchLabels:
+      app: da-full
+      chain-id: private
+      environment: private
+      network: da
+      type: full
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: da-full
+        chain-id: private
+        environment: private
+        network: da
+        type: full
+    spec:
+      nodeSelector:
+        kops.k8s.io/instancegroup: bridge
+      containers:
+        - command:
+            - /home/celestia/start.sh
+          env:
+            - name: GOLOG_LOG_FMT
+              value: json
+            - name: CELESTIA_HOME
+              value: /home/celestia
+            - name: CELESTIA_BIN_FOLDER
+              value: /bin
+            - name: CELESTIA_CUSTOM
+              value: "private:500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08"
+            - name: SETUP_PATH
+              value: /tmp/celestia-config
+          image: ghcr.io/celestiaorg/celestia-node:403eb61
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 20
+            successThreshold: 1
+            tcpSocket:
+              port: rest
+            timeoutSeconds: 1
+          name: da
+          ports:
+            - containerPort: 2121
+              name: p2p
+              protocol: TCP
+            - containerPort: 6060
+              name: something-1
+              protocol: TCP
+            - containerPort: 26658
+              name: rpc
+              protocol: TCP
+            - containerPort: 26659
+              name: rest
+              protocol: TCP
+            - containerPort: 8890
+              name: libp2p-metrics
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            tcpSocket:
+              port: rest
+            timeoutSeconds: 1
+          resources:
+            requests:
+              cpu: "3"
+              memory: 3Gi
+          securityContext:
+            runAsGroup: 10001
+            runAsUser: 10001
+          volumeMounts:
+            - mountPath: /home/celestia/start.sh
+              name: start
+              subPath: start.sh
+            - mountPath: /tmp/celestia-config
+              name: shared
+      dnsPolicy: ClusterFirst
+      volumes:
+        - configMap:
+            defaultMode: 0777
+            name: start-full
+          name: start
+        - configMap:
+            defaultMode: 360
+            name: setup-full
+          name: setup
+        - emptyDir: {}
+          name: shared
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+---
+apiVersion: v1
+data:
+  start.sh: |
+    #!/bin/bash
+    
+    # $1 is the first argument passed to the script (input number).
+    # $2 is the second argument passed to the script (string for if true).
+    input_number="1480"
+    second_argument="12D3KooWETdB6AxKeTfVU25T2F6CgUhTgMLQEeR2LE51emXpW2dN"
+    
+    # Set the timeout and the uri as per your requirements
+    TIMEOUT=1
+    uri='100.64.1.233'
+    
+    celestia full init --node.store=/home/celestia/ && \
+    
+    sed -i "s|High = 1000|High = 6000|g" /home/celestia/config.toml &&\
+    sed -i "s|EnableBlackListing = false|EnableBlackListing = true|g" /home/celestia/config.toml &&\
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08\"|g" /home/celestia/config.toml &&\ # consensus first hash
+    # bootstrapper & first bn
+    sed -i 's|TrustedPeers = \[]|TrustedPeers = \["/ip4/100.96.86.67/tcp/2121/p2p/12D3KooWMA5Sm6fn4U5nCJfcRkVrHBRE2NXZC11hoUoBEP747M5S","/ip4/100.96.152.183/tcp/2121/p2p/12D3KooWHvcABySB949bJCDfXroBXHyttsgqzjLVZjg3QEyJMjpw"]|g' /home/celestia/config.toml &&\
+    sed -i 's|UseShareExchange = true|UseShareExchange = false|g' /home/celestia/config.toml &&\
+    sed -i 's|SampleTimeout = \"3m0s\"|SampleTimeout = \"15m0s\"|g' /home/celestia/config.toml &&\
+    cat /home/celestia/config.toml &&\
+    # Execute the command before starting the loop.
+    celestia full start --log.level DEBUG --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --metrics.endpoint=51.159.206.246:4318 --p2p.metrics --p2p.network=private  --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
+   
+    # Sleep for 10 seconds.
+    sleep 10
+    
+    # Store the bearer token into an environment variable.
+    export CELESTIA_NODE_AUTH_TOKEN=$(celestia full auth admin --node.store=/home/celestia | tail -n 1)
+    # For loop (replace with your own loop conditions).
+    #for i in {1..20}
+    #do
+    #  echo "BEGIN THE LOOP"
+    #  # Fetch the data from the URL and extract the block height.
+    #  block_height=$(wget --timeout=1 -q -O - 100.64.1.233:26657/block | \grep -o '"height":"[^"]*"' | \sed 's/"height":"\([^"]*\)"/\1/' | \head -1)
+    #
+    #  # Compare the block_height to the input_number.
+    #  if [ "$block_height" -eq "$input_number" ]; then
+    #    # If the comparison is true, execute other commands here.
+    #    echo "The block height equals the input number."
+    #
+    #    # Execute the second command with the second argument from the script.
+    #    celestia rpc p2p BlockPeer $second_argument
+    #
+    #  else
+    #    echo "The block height does not equal the input number."
+    #  fi
+    # echo "ANOTHER ITERATION"
+    #  # Sleep for 10 seconds.
+    #  sleep 1
+    #done
+
+kind: ConfigMap
+metadata:
+  labels:
+    app: da-full
+    chain-id: full
+    type: full
+  name: start-full
+  namespace: full

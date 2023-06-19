@@ -1,0 +1,134 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: da-bridge
+    chain-id: private
+    environment: private
+    network: da
+    type: bridge
+  name: da-bridge
+  namespace: bridge
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 101
+  revisionHistoryLimit: 10
+  serviceName: da-bridge
+  selector:
+    matchLabels:
+      app: da-bridge
+      chain-id: private
+      environment: private
+      network: da
+      type: bridge
+  template:
+    metadata:
+      labels:
+        app: da-bridge
+        chain-id: private
+        environment: private
+        network: da
+        type: bridge
+    spec:
+      nodeSelector:
+        kops.k8s.io/instancegroup: bridge
+      containers:
+      - command:
+        - /home/celestia/start.sh
+        env:
+        - name: GOLOG_LOG_FMT
+          value: json
+        - name: CELESTIA_HOME
+          value: /home/celestia
+        - name: CELESTIA_BIN_FOLDER
+          value: /bin
+        - name: CELESTIA_CUSTOM
+          value: "private:500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08"
+        - name: SETUP_PATH
+          value: /tmp/celestia-config
+        image: ghcr.io/celestiaorg/celestia-node:403eb61
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 20
+          successThreshold: 1
+          tcpSocket:
+            port: rest
+          timeoutSeconds: 1
+        name: da
+        ports:
+        - containerPort: 2121
+          name: p2p
+          protocol: TCP
+        - containerPort: 6060
+          name: something-1
+          protocol: TCP
+        - containerPort: 26658
+          name: rpc
+          protocol: TCP
+        - containerPort: 26659
+          name: rest
+          protocol: TCP
+        - containerPort: 8890
+          name: libp2p-metrics
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          tcpSocket:
+            port: rest
+          timeoutSeconds: 1
+        resources:
+          #limits:
+          #  memory: 12Gi
+          requests:
+            cpu: "3"
+            memory: 3Gi
+        securityContext:
+          runAsGroup: 10001
+          runAsUser: 10001
+        volumeMounts:
+        - mountPath: /home/celestia/start.sh
+          name: start
+          subPath: start.sh
+        - mountPath: /tmp/celestia-config
+          name: shared
+      dnsPolicy: ClusterFirst
+      volumes:
+      - configMap:
+          defaultMode: 0777
+          name: start-bridge
+        name: start
+      - configMap:
+          defaultMode: 360
+          name: setup-bridge
+        name: setup
+      - emptyDir: {}
+        name: shared
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+---
+apiVersion: v1
+data:
+  start.sh: |
+    #!/bin/bash
+    celestia bridge init --node.store=/home/celestia/ && \
+    sed -i "s|TrustedHash = \"\"|TrustedHash = \"500DEFD029C60703765BBC188948CDC4AA7B99605E780D1685BCEF6252C17D08\"|g" /home/celestia/config.toml # consensus first hash
+    # bootstrapper trusted peer
+    sed -i 's|MutualPeers = \[]|MutualPeers = \["/ip4/100.96.86.67/tcp/2121/p2p/12D3KooWMA5Sm6fn4U5nCJfcRkVrHBRE2NXZC11hoUoBEP747M5S"]|g' /home/celestia/config.toml
+    cat /home/celestia/config.toml
+    celestia bridge start --core.ip=100.66.39.25 --node.store=/home/celestia/ --gateway --metrics --metrics.tls=false --p2p.metrics --p2p.network=private --metrics.endpoint=otel.celestia.observer:4318 --pyroscope --pyroscope.tracing --pyroscope.endpoint http://pyroscope.pyroscope.svc.cluster.local:4040
+kind: ConfigMap
+metadata:
+  labels:
+    app: da-bridge
+    chain-id: bridge
+    type: bridge
+  name: start-bridge
+  namespace: bridge
