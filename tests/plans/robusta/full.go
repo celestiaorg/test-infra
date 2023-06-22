@@ -1,9 +1,10 @@
-package arabica
+package robusta
 
 import (
 	"context"
 	"fmt"
-	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"time"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
 	"github.com/celestiaorg/test-infra/testkit"
 	"github.com/celestiaorg/test-infra/testkit/nodekit"
@@ -11,7 +12,6 @@ import (
 	"github.com/testground/sdk-go/network"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
-	"time"
 )
 
 func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
@@ -56,10 +56,22 @@ func RunFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	}
 
 	netId := runenv.StringParam("p2p-network")
-	ndHome := fmt.Sprintf("/.celestia-full-%s", netId)
+	ndHome := fmt.Sprintf("/.celestia-full")
 	runenv.RecordMessage(ndHome)
 
-	cfg := nodebuilder.DefaultConfig(node.Full)
+	// get the ip address
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	if err != nil {
+		return err
+	}
+
+	// generate the new config for the Full node
+	cfg := nodekit.NewConfig(
+		node.Full,
+		ip,
+		[]string{"/ip4/51.159.11.217/tcp/2121/p2p/12D3KooWLD5aFJo3R7HxQYDfu1ssipuQcc8W1xgWk5muwnq9DFbn"},
+		"BA11BC0D83BB0591630B44AB8CE234924241ECC51D20A8029B0D11CA5F6B4D67",
+	)
 
 	nd, err := nodekit.NewNode(ndHome, node.Full, netId, cfg)
 	if err != nil {

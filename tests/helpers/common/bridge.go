@@ -3,21 +3,24 @@ package common
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/celestiaorg/celestia-node/nodebuilder"
 	"github.com/celestiaorg/celestia-node/nodebuilder/node"
-	"github.com/celestiaorg/test-infra/testkit"
-	"github.com/celestiaorg/test-infra/testkit/appkit"
-	"github.com/celestiaorg/test-infra/testkit/nodekit"
 	"github.com/libp2p/go-libp2p/core/host"
 	"github.com/libp2p/go-libp2p/core/peer"
 	"github.com/testground/sdk-go/run"
 	"github.com/testground/sdk-go/runtime"
 	"github.com/testground/sdk-go/sync"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
-	"os"
+	"go.uber.org/fx"
+
+	"github.com/celestiaorg/test-infra/testkit"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
+	"github.com/celestiaorg/test-infra/testkit/nodekit"
 )
 
-func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*nodebuilder.Node, error) {
+func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext, opts ...fx.Option) (*nodebuilder.Node, error) {
 	syncclient := initCtx.SyncClient
 
 	err := <-syncclient.MustBarrier(ctx, testkit.ValidatorReadyTopic, runenv.IntParam("validator")).C
@@ -55,7 +58,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 	cfg.Core.GRPCPort = "9090"
 	cfg.Gateway.Enabled = true
 	cfg.Gateway.Port = "26659"
-	cfg.Share.PeersLimit = uint(runenv.IntParam("peers-limit"))
+	cfg.Share.Discovery.PeersLimit = uint(runenv.IntParam("peers-limit"))
 
 	optlOpts := []otlpmetrichttp.Option{
 		otlpmetrichttp.WithEndpoint(runenv.StringParam("otel-collector-address")),
@@ -65,6 +68,7 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Bridge,
+			node.BuildInfo{},
 		))
 
 	if err != nil {

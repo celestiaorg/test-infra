@@ -1,7 +1,6 @@
 # BUILD_BASE_IMAGE is the base image to use for the build. It contains a rolling
 # accumulation of Go build/package caches.
-ARG BUILD_BASE_IMAGE=golang:1.19.5
-
+ARG BUILD_BASE_IMAGE=golang:1.20-alpine3.17
 # This Dockerfile performs a multi-stage build and RUNTIME_IMAGE is the image
 # onto which to copy the resulting binary.
 #
@@ -10,7 +9,7 @@ ARG BUILD_BASE_IMAGE=golang:1.19.5
 #
 # The user can override the runtime image by passing in the appropriate builder
 # configuration option.
-ARG RUNTIME_IMAGE=alpine
+ARG RUNTIME_IMAGE=alpine:3.18
 
 #:::
 #::: BUILD CONTAINER
@@ -48,6 +47,7 @@ ENV GOCACHE /go/cache
 # Copy only go.mod files and download deps, in order to leverage Docker caching.
 COPY /plan/go.mod ${PLAN_DIR}/go.mod
 
+RUN apk add gcompat
 
 # Download deps.
 RUN echo "Using go proxy: ${GO_PROXY}" \
@@ -79,12 +79,13 @@ RUN apk add --no-cache bash gcompat curl
 ENV PLAN_DIR /plan
 ENV GOLOG_LOG_FMT="json"
 ENV GOLOG_FILE /var/log/node.log
+
+
 # HOME ENV is crucial for app/sdk -> remove at your OWN RISK!
 ENV HOME /
 
 COPY --from=builder /testground_dep_list /
 COPY --from=builder ${PLAN_DIR}/testplan.bin /testplan
-
 
 EXPOSE 9090 26657 26656 1317 26658 26660 26659 2121 4318 4317 30000
 ENTRYPOINT [ "/testplan"]

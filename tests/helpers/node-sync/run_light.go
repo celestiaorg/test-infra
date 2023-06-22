@@ -80,6 +80,7 @@ func RunLightNode(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Light,
+			node.BuildInfo{},
 		))
 	if err != nil {
 		return err

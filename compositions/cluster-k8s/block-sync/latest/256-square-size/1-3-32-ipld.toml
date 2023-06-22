@@ -19,7 +19,7 @@
   bridge = "3"
   full = "32"
   block-height = "30"
-  otel-collector-address = "178.128.163.171:4318"
+  otel-collector-address = "" # insert your otel collector address here
   getter = "ipld"
   peers-limit = "3"
   bootstrapper = "true"
