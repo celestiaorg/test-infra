@@ -31,7 +31,7 @@ func RunValidatorWithOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitConte
 		return err
 	}
 
-	go RunValidatorWithEVMAddress(runenv, initCtx, common.ECDSAToAddress(orchcmd.EVMPrivateKey), true)
+	go RunValidatorWithEVMAddress(runenv, initCtx, common.ECDSAToAddress(orchcmd.EVMPrivateKey))
 
 	// wait for the validator to start
 	time.Sleep(2 * time.Minute)
@@ -109,7 +109,7 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 		return err
 	}
 
-	go RunValidatorWithEVMAddress(runenv, initCtx, common.ECDSAToAddress(relCmd.EVMPrivateKey), false)
+	go RunValidatorWithEVMAddress(runenv, initCtx, common.ECDSAToAddress(relCmd.EVMPrivateKey))
 
 	// wait for the validator to start
 	time.Sleep(2 * time.Minute)
@@ -145,15 +145,25 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 		return fmt.Errorf("invalid EVM RPC. please set it in configuration")
 	}
 
-	addr, err := relCmd.DeployContract(
-		common.ECDSAToAddress(relCmd.EVMPrivateKey).Hex(),
-		common.EVMPrivateKeyPassphrase,
-		chainID,
-		evmRPC,
-	)
-	if err != nil {
+	retries := 0
+	var addr string
+	for {
+		addr, err = relCmd.DeployContract(
+			common.ECDSAToAddress(relCmd.EVMPrivateKey).Hex(),
+			common.EVMPrivateKeyPassphrase,
+			chainID,
+			evmRPC,
+		)
+		if err == nil {
+			break
+		}
+		if retries > 5 {
+			return err
+		}
 		runenv.RecordMessage(err.Error())
-		return err
+		retries++
+		time.Sleep(10 * time.Second)
+		fmt.Println("retrying deploying contract")
 	}
 
 	go relCmd.StartRelayer(
@@ -179,7 +189,7 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 // The distinction is made because in the case of an orchestrator, we want to start the first
 // validator, i.e. whose group sequence number is 1, and publish its genesis state so the seeds can start.
 // In the case of a relayer, we only care about running the validator.
-func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext, evmAddr *common2.Address, isOrchestratorValidator bool) error {
+func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext, evmAddr *common2.Address) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
 
@@ -200,7 +210,7 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 		return err
 	}
 
-	if isOrchestratorValidator && initCtx.GroupSeq == 1 {
+	if initCtx.GroupSeq == 1 {
 		ip, err := netclient.GetDataNetworkIP()
 		if err != nil {
 			return err
@@ -211,7 +221,7 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 			return err
 		}
 
-		go appcmd.StartNode("error")
+		go appcmd.StartNode("info")
 	}
 
 	err = appsync.HandleSeedPeers(ctx, runenv, appcmd, initCtx)
@@ -221,7 +231,7 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 
 	if initCtx.GroupSeq != 1 {
 		runenv.RecordMessage("starting........")
-		go appcmd.StartNode("error")
+		go appcmd.StartNode("info")
 	}
 
 	// wait for a new block to be produced
