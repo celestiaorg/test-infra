@@ -16,12 +16,12 @@ replace (
 require (
 	cosmossdk.io/errors v1.0.0-beta.7 // indirect
 	github.com/celestiaorg/celestia-app v0.13.0
+	github.com/celestiaorg/orchestrator-relayer v0.1.1-app-v0.12.2-beta
 	github.com/cosmos/cosmos-sdk v0.46.7
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.14.0
 	github.com/testground/sdk-go v0.3.0
-	github.com/celestiaorg/orchestrator-relayer v0.1.1-app-v0.12.2-beta
 
 )
 
@@ -250,8 +250,8 @@ require (
 	github.com/polydawn/refmt v0.89.0 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
-	github.com/prometheus/common v0.37.0 // indirect
-	github.com/prometheus/procfs v0.8.0 // indirect
+	github.com/prometheus/common v0.39.0 // indirect
+	github.com/prometheus/procfs v0.9.0 // indirect
 	github.com/pyroscope-io/client v0.7.0 // indirect
 	github.com/pyroscope-io/godeltaprof v0.1.0 // indirect
 	github.com/quic-go/qpack v0.4.0 // indirect
