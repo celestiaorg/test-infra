@@ -20,10 +20,47 @@ import (
 )
 
 func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*appkit.AppKit, error) {
-	syncclient := initCtx.SyncClient
-
 	home := "/.celestia-app"
 	runenv.RecordMessage(home)
+
+	cmd, keyringName, accAddr, err := InitChainAndMaybeBroadcastGenesis(ctx, runenv, initCtx, home)
+	if err != nil {
+		return nil, err
+	}
+
+	runenv.RecordMessage("Validator is signing its own GenTx")
+	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", home)
+	if err != nil {
+		return nil, err
+	}
+
+	err = BroadcastAndCollectGenTx(ctx, home, accAddr, initCtx, runenv, cmd)
+	if err != nil {
+		return nil, err
+	}
+
+	ip, err := UpdateAndPublishConfig(ctx, home, cmd, initCtx)
+	if err != nil {
+		return nil, err
+	}
+
+	if runenv.IntParam("validator") > 1 {
+		err := DiscoverPeers(ctx, home, ip, initCtx, runenv)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return cmd, nil
+}
+
+func InitChainAndMaybeBroadcastGenesis(
+	ctx context.Context,
+	runenv *runtime.RunEnv,
+	initCtx *run.InitContext,
+	home string,
+) (*appkit.AppKit, string, string, error) {
+	syncclient := initCtx.SyncClient
 
 	const chainId string = "private"
 	cmd := appkit.New(home, chainId)
@@ -31,22 +68,23 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GroupSeq)
 	accAddr, err := cmd.CreateKey(keyringName, "test", home)
 	if err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 	cmd.AccountAddress = accAddr
 
 	// we need this dirty-hack to check the k8s cluster has
 	// the time to ramp up all the instances
 	time.Sleep(30 * time.Second)
+
 	seq, err := syncclient.Publish(ctx, testkit.AccountAddressTopic, accAddr)
 	if err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 
 	accAddrCh := make(chan string)
 	_, err = syncclient.Subscribe(ctx, testkit.AccountAddressTopic, accAddrCh)
 	if err != nil {
-		return nil, err
+		return nil, "", "", err
 	}
 
 	var accounts []string
@@ -64,23 +102,23 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	if seq == 1 {
 		_, err = cmd.InitChain(moniker)
 		if err != nil {
-			return nil, err
+			return nil, "", "", err
 		}
 		runenv.RecordMessage("Chain initialised")
 
 		gen, err := os.Open(fmt.Sprintf("%s/config/genesis.json", home))
 		if err != nil {
-			return nil, err
+			return nil, "", "", err
 		}
 
 		bt, err := io.ReadAll(gen)
 		if err != nil {
-			return nil, err
+			return nil, "", "", err
 		}
 
 		_, err = syncclient.Publish(ctx, testkit.InitialGenesisTopic, string(bt))
 		if err != nil {
-			return nil, err
+			return nil, "", "", err
 		}
 
 		runenv.RecordMessage("Orchestrator has sent initial genesis")
@@ -88,17 +126,17 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 		initGenCh := make(chan string)
 		sub, err := syncclient.Subscribe(ctx, testkit.InitialGenesisTopic, initGenCh)
 		if err != nil {
-			return nil, err
+			return nil, "", "", err
 		}
 		select {
 		case err = <-sub.Done():
 			if err != nil {
-				return nil, err
+				return nil, "", "", err
 			}
 		case initGen := <-initGenCh:
 			err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
 			if err != nil {
-				return nil, err
+				return nil, "", "", err
 			}
 		}
 		runenv.RecordMessage("Validator has received the initial genesis")
@@ -107,56 +145,53 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 	for _, v := range accounts {
 		_, err := cmd.AddGenAccount(v, "10000000000000000utia")
 		if err != nil {
-			return nil, err
+			return nil, "", "", err
 		}
 	}
 
-	runenv.RecordMessage("Validator is signing its own GenTx")
-	_, err = cmd.SignGenTx(keyringName, "5000000000utia", "test", home)
-	if err != nil {
-		return nil, err
-	}
+	return cmd, keyringName, accAddr, nil
+}
 
+func BroadcastAndCollectGenTx(ctx context.Context, home string, accAddr string, initCtx *run.InitContext, runenv *runtime.RunEnv, cmd *appkit.AppKit) error {
 	fs, err := os.ReadDir(fmt.Sprintf("%s/config/gentx", home))
 	if err != nil {
-		return nil, err
+		return err
 	}
 	// slice is needed because of auto-gen gentx-name
 	for _, f := range fs {
 		gentx, err := os.Open(fmt.Sprintf("%s/config/gentx/%s", home, f.Name()))
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		bt, err := io.ReadAll(gentx)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		_, err = syncclient.Publish(ctx, testkit.GenesisTxTopic, string(bt))
+		_, err = initCtx.SyncClient.Publish(ctx, testkit.GenesisTxTopic, string(bt))
 		if err != nil {
-			return nil, err
+			return err
 		}
-
 	}
 
 	genTxCh := make(chan string)
-	sub, err := syncclient.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
+	sub, err := initCtx.SyncClient.Subscribe(ctx, testkit.GenesisTxTopic, genTxCh)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for i := 0; i < runenv.IntParam("validator"); i++ {
 		select {
 		case err = <-sub.Done():
 			if err != nil {
-				return nil, err
+				return err
 			}
 		case genTx := <-genTxCh:
 			if !strings.Contains(genTx, accAddr) {
 				err := os.WriteFile(fmt.Sprintf("%s/config/gentx/%d.json", home, i), []byte(genTx), 0777)
 				if err != nil {
-					return nil, err
+					return err
 				}
 			}
 		}
@@ -164,82 +199,9 @@ func BuildValidator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.In
 
 	_, err = cmd.CollectGenTxs()
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	configPath := filepath.Join(home, "config", "config.toml")
-	err = appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
-	if err != nil {
-		return nil, err
-	}
-
-	err = changeConfig(configPath, "v1")
-	if err != nil {
-		return nil, err
-	}
-
-	ip, err := initCtx.NetClient.GetDataNetworkIP()
-	if err != nil {
-		return nil, err
-	}
-
-	nodeId, err := cmd.GetNodeId()
-	if err != nil {
-		return nil, err
-	}
-
-	_, err = syncclient.Publish(
-		ctx,
-		testkit.ValidatorPeerTopic,
-		&appkit.ValidatorNode{
-			PubKey: nodeId,
-			IP:     ip},
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	if runenv.IntParam("validator") > 1 {
-		valCh := make(chan *appkit.ValidatorNode)
-		sub, err = syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
-		if err != nil {
-			return nil, err
-		}
-
-		runenv.RecordMessage("Discovering peers")
-		var peers []appkit.ValidatorNode
-		for i := 0; i < runenv.IntParam("validator"); i++ {
-			select {
-			case err = <-sub.Done():
-				if err != nil {
-					return nil, err
-				}
-			case val := <-valCh:
-				if !val.IP.Equal(ip) {
-					peers = append(peers, *val)
-				}
-			}
-		}
-		runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
-		randomizer := tmrand.Intn(runenv.IntParam("validator"))
-		runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
-		peersRange := runenv.IntParam("persistent-peers")
-		runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
-		randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
-		if randPeers == nil {
-			runenv.RecordMessage("No peers added to the address book")
-			return cmd, nil
-		}
-
-		err = appkit.AddPeersToAddressBook(home, randPeers)
-		if err != nil {
-			return nil, err
-		}
-
-		runenv.RecordMessage("Added %d to the address book", len(randPeers))
-	}
-
-	return cmd, nil
+	return nil
 }
 
 func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.ValidatorNode) []appkit.ValidatorNode {
@@ -275,6 +237,89 @@ func GetRandomisedPeers(randomizer int, peersRange int, peers []appkit.Validator
 	return peers[startIndex:endIndex]
 }
 
+func UpdateAndPublishConfig(
+	ctx context.Context,
+	home string,
+	cmd *appkit.AppKit,
+	initCtx *run.InitContext,
+) (net.IP, error) {
+	configPath := filepath.Join(home, "config", "config.toml")
+	err := appkit.ChangeRPCServerAddress(configPath, net.ParseIP("0.0.0.0"))
+	if err != nil {
+		return nil, err
+	}
+
+	err = changeConfig(configPath, "v1")
+	if err != nil {
+		return nil, err
+	}
+
+	ip, err := initCtx.NetClient.GetDataNetworkIP()
+	if err != nil {
+		return nil, err
+	}
+
+	nodeId, err := cmd.GetNodeId()
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = initCtx.SyncClient.Publish(
+		ctx,
+		testkit.ValidatorPeerTopic,
+		&appkit.ValidatorNode{
+			PubKey: nodeId,
+			IP:     ip,
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return ip, nil
+}
+
+func DiscoverPeers(ctx context.Context, home string, ip net.IP, initCtx *run.InitContext, runenv *runtime.RunEnv) error {
+	syncclient := initCtx.SyncClient
+	valCh := make(chan *appkit.ValidatorNode)
+	sub, err := syncclient.Subscribe(ctx, testkit.ValidatorPeerTopic, valCh)
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("Discovering peers")
+	var peers []appkit.ValidatorNode
+	for i := 0; i < runenv.IntParam("validator"); i++ {
+		select {
+		case err = <-sub.Done():
+			if err != nil {
+				return err
+			}
+		case val := <-valCh:
+			if !val.IP.Equal(ip) {
+				peers = append(peers, *val)
+			}
+		}
+	}
+	runenv.RecordMessage("Validator Received is equal to: %d", len(peers))
+	randomizer := tmrand.Intn(runenv.IntParam("validator"))
+	runenv.RecordMessage("Randomized number is equal to: %d", randomizer)
+	peersRange := runenv.IntParam("persistent-peers")
+	runenv.RecordMessage("Peers Range is equal to: %d", peersRange)
+	randPeers := GetRandomisedPeers(randomizer, peersRange, peers)
+	if randPeers == nil {
+		runenv.RecordMessage("No peers added to the address book")
+		return nil
+	}
+
+	err = appkit.AddPeersToAddressBook(home, randPeers)
+	if err != nil {
+		return err
+	}
+
+	runenv.RecordMessage("Added %d to the address book", len(randPeers))
+	return nil
+}
+
 func changeConfig(path, mempool string) error {
 	cfg := map[string]map[string]interface{}{
 		"mempool": {
@@ -305,6 +350,9 @@ func changeConfig(path, mempool string) error {
 			"prometheus_listen_addr": ":26660",
 			"max_open_connections":   100,
 			"namespace":              "tendermint",
+		},
+		"tx_index": {
+			"indexer": "kv",
 		},
 	}
 

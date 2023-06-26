@@ -3,6 +3,7 @@ package appkit
 import (
 	"bytes"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"io"
 	"net"
 	"net/http"
@@ -144,6 +145,10 @@ func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, 
 		return "", err
 	}
 
+	return ak.SignGenTxWithEVMAddress(accName, amount, krbackend, krpath, ethAddress)
+}
+
+func (ak *AppKit) SignGenTxWithEVMAddress(accName, amount, krbackend, krpath string, ethAddress *common.Address) (string, error) {
 	args := []string{
 		"gentx",
 		accName,

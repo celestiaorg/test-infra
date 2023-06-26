@@ -227,3 +227,22 @@ instances = { min = 4, max = 3000, default = 12 }
     role = { type = "string" }
     p2p-network = { type = "string", default = "private" }
     otel-collector-address = { type = "string", default = "af1bfabcbea22463497ee7a3439188c9-319132230.eu-west-1.elb.amazonaws.com:4318" }
+
+[[testcases]]
+name = "qgb-test"
+instances = { min = 1, max = 200, default = 3 }
+    [testcases.params]
+    execution-time = { type = "int" }
+    latency = { type = "int", default = 0}
+    bandwidth = { type = "string", default = "256Mib"}
+    validator = { type = "int", default = 3}
+    orchestrator = { type = "int", default = 1}
+    relayer = { type = "int", default = 1}
+    persistent-peers = { type = "int", default = 2}
+    seed = { type = "int", default = 1}
+    submit-times = { type = "int", default = 4}
+    msg-size = { type = "int", default = 10000}
+    p2p-network = { type = "string", default = "private" }
+    evm-rpc = { type = "string", default = "" }
+    chain-id = { type = "string", default = "" }
+    funded-evm-private-key={ type = "string", default = "" }

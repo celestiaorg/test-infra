@@ -7,6 +7,7 @@ import (
 	blocksync "github.com/celestiaorg/test-infra/tests/plans/block-sync"
 	pfdgsbn "github.com/celestiaorg/test-infra/tests/plans/pfd-gsbn"
 	"github.com/celestiaorg/test-infra/tests/plans/robusta"
+	"github.com/celestiaorg/test-infra/tests/plans/qgb"
 	"github.com/testground/sdk-go/run"
 )
 
@@ -29,6 +30,7 @@ var testcases = map[string]interface{}{
 	// Robusta Nightly Plan
 	"flood-robusta-nightly-1": robusta.RunRobusta,
 	"flood-internal":          plans.SyncNodes,
+	"qgb-test":       qgb.RunQGB,
 }
 
 func main() {

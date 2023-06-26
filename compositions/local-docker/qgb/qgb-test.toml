@@ -1,0 +1,77 @@
+# not actively maintained
+[metadata]
+  name = "qgb-test"
+  author = "SweeXordious"
+
+[global]
+  plan = "celestia"
+  case = "qgb-test"
+  total_instances = 6
+  builder = "docker:generic"
+  runner = "local:docker"
+  disable_metrics = false
+
+[global.run.test_params]
+  execution-time = "10"
+  latency = "0"
+  bandwidth = "320Mib"
+  orchestrator = "4"
+  validator = "5"
+  seed = "1"
+  relayer = "1"
+  persistent-peers = "2"
+  msg-size = "100000"
+
+[[groups]]
+  id = "orchestrators"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 4
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+
+[[groups]]
+  id = "relayers"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
+
+[[groups]]
+  id = "seeds"
+  builder = "docker:generic"
+  [groups.resources]
+    memory = ""
+    cpu = ""
+  [groups.instances]
+    count = 1
+    percentage = 0.0
+  [groups.build_config]
+    build_base_image = "golang:1.19.1"
+    enable_go_build_cache = true
+    enabled = true
+    go_version = "1.19"
+  [groups.build]
+  [groups.run]
+    artifact = ""
