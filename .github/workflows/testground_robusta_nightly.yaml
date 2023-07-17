@@ -1,9 +1,9 @@
 name: TestGround Nightly
 
 on:
-  schedule:
-    # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
-    - cron: '0 0 * * *' # triggered at midnight
+  #schedule:
+  #  # https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#schedule
+  #  - cron: '0 0 * * *' # triggered at midnight
   push:
     branches:
       - 'main'
