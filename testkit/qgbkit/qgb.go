@@ -168,10 +168,10 @@ func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, boot
 	}
 
 	if p2pNickname != "" {
-		args = append(args, wrapFlag(qgborch.FlagP2PNickname), p2pNickname)
+		args = append(args, wrapFlag(qgbbase.FlagP2PNickname), p2pNickname)
 	}
 	if bootstrappers != "" {
-		args = append(args, wrapFlag(qgborch.FlagBootstrappers), bootstrappers)
+		args = append(args, wrapFlag(qgbbase.FlagBootstrappers), bootstrappers)
 	}
 
 	ak.Cmd.SetArgs(args)
@@ -202,7 +202,7 @@ func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, co
 		evmAddress,
 		wrapFlag(qgbbase.FlagEVMPassphrase),
 		evmPassphrase,
-		wrapFlag(relayer.FlagBootstrappers),
+		wrapFlag(qgbbase.FlagBootstrappers),
 		bootstrappers,
 		wrapFlag(relayer.FlagEVMChainID),
 		evmChainID,
@@ -213,7 +213,7 @@ func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, co
 	}
 
 	if p2pNickname != "" {
-		args = append(args, wrapFlag(qgborch.FlagP2PNickname), p2pNickname)
+		args = append(args, wrapFlag(qgbbase.FlagP2PNickname), p2pNickname)
 	}
 	ak.Cmd.SetArgs(args)
 

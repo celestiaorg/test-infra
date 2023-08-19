@@ -115,7 +115,6 @@ func RunHistoricalFullNode(runenv *runtime.RunEnv, initCtx *run.InitContext) err
 		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Full,
-			node.BuildInfo{},
 		),
 	)
 	if err != nil {
