@@ -28,6 +28,6 @@ func RunQGB(runenv *runtime.RunEnv, initCtx *run.InitContext) (err error) {
 	}
 
 	runenv.RecordSuccess()
-	time.Sleep(15 * time.Minute)
+	time.Sleep(50 * time.Minute)
 	return err
 }

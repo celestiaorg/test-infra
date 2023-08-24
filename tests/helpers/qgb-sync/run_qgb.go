@@ -19,7 +19,7 @@ import (
 
 func RunValidatorWithOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("running orch........")
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*40)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -98,7 +98,7 @@ func RunValidatorWithOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitConte
 func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
 	runenv.RecordMessage("running relayer........")
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*40)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -197,7 +197,7 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 
 // RunValidatorWithEVMAddress runs a validator with the specified EVM address.
 func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext, evmAddr *common2.Address) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*40)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
@@ -256,7 +256,7 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 	}
 
 	// keep the validator running long enough for attestations to get signed
-	time.Sleep(20 * time.Minute)
+	time.Sleep(40 * time.Minute)
 
 	return nil
 }
