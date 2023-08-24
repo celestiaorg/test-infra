@@ -27,7 +27,7 @@ const gasLimit uint64 = 2000000
 func GetRandomNamespace() namespace.ID {
 	for {
 		s := tmrand.Bytes(8)
-		if bytes.Compare(s, share.MaxReservedNamespace) > 0 {
+		if bytes.Compare(s, share.MaxPrimaryReservedNamespace) > 0 {
 			return s
 		}
 	}

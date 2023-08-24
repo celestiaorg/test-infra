@@ -66,11 +66,13 @@ func InitChainAndMaybeBroadcastGenesis(
 	cmd := appkit.New(home, chainId)
 
 	keyringName := fmt.Sprintf("keyName-%d", initCtx.GroupSeq)
-	accAddr, err := cmd.CreateKey(keyringName, "test", home)
+	accAddr, valopAddr, err := cmd.CreateKey(keyringName, "test", home)
 	if err != nil {
 		return nil, "", "", err
 	}
 	cmd.AccountAddress = accAddr
+	cmd.ValopAddress = valopAddr
+	cmd.AccountName = keyringName
 
 	// we need this dirty-hack to check the k8s cluster has
 	// the time to ramp up all the instances
@@ -134,6 +136,7 @@ func InitChainAndMaybeBroadcastGenesis(
 				return nil, "", "", err
 			}
 		case initGen := <-initGenCh:
+			runenv.RecordMessage(initGen)
 			err = os.WriteFile(fmt.Sprintf("%s/config/genesis.json", home), []byte(initGen), 0777)
 			if err != nil {
 				return nil, "", "", err
