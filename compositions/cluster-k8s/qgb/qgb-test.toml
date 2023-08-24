@@ -11,7 +11,7 @@
   disable_metrics = false
 
 [global.run.test_params]
-  execution-time = "15"
+  execution-time = "60"
   latency = "0"
   bandwidth = "320Mib"
   orchestrator = "100"
