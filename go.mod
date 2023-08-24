@@ -4,9 +4,10 @@ go 1.20
 
 replace (
 	github.com/celestiaorg/celestia-app => github.com/celestiaorg/celestia-app v1.0.0-rc9.0.20230823215252-3ba1c60a15e7
-	github.com/celestiaorg/orchestrator-relayer => github.com/sweexordious/orchestrator-relayer v0.0.0-20230823122917-e06b6780d6f5
+	github.com/celestiaorg/orchestrator-relayer => github.com/sweexordious/orchestrator-relayer v0.0.0-20230824121212-012b43f44c32
 	// TODO (@jrmanes): remove this replace when we won't have to harcode the private network
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.17.0-sdk-v0.46.14
+	github.com/cosmos/gogoproto => github.com/cosmos/gogoproto v1.4.11
 	github.com/filecoin-project/dagstore => github.com/celestiaorg/dagstore v0.0.0-20230413141458-735ab09a15d6
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/ipfs/go-block-format => github.com/ipfs/go-block-format v0.1.1
@@ -29,7 +30,7 @@ require (
 require (
 	cosmossdk.io/math v1.1.1
 	github.com/celestiaorg/nmt v0.18.1
-	github.com/ethereum/go-ethereum v1.12.1
+	github.com/ethereum/go-ethereum v1.12.2
 	github.com/ipfs/go-ipfs-util v0.0.3
 	github.com/libp2p/go-libp2p v0.30.0
 	github.com/tendermint/tendermint v0.35.4
