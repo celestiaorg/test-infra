@@ -92,6 +92,7 @@ func RunValidatorWithOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitConte
 		return err
 	}
 
+	runenv.RecordMessage("end RunValidatorWithOrchestrator")
 	return nil
 }
 
