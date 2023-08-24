@@ -5,9 +5,10 @@ import (
 	"context"
 	"cosmossdk.io/math"
 	"fmt"
-	"github.com/celestiaorg/celestia-app/pkg/appconsts"
+	"github.com/celestiaorg/celestia-node/blob"
 	"github.com/celestiaorg/celestia-node/header"
 	"github.com/celestiaorg/celestia-node/nodebuilder"
+	"github.com/celestiaorg/celestia-node/share"
 	"github.com/celestiaorg/celestia-node/state"
 	"github.com/celestiaorg/nmt/namespace"
 	tmrand "github.com/tendermint/tendermint/libs/rand"
@@ -26,7 +27,7 @@ const gasLimit uint64 = 2000000
 func GetRandomNamespace() namespace.ID {
 	for {
 		s := tmrand.Bytes(8)
-		if bytes.Compare(s, appconsts.MaxReservedNamespace) > 0 {
+		if bytes.Compare(s, share.MaxPrimaryReservedNamespace) > 0 {
 			return s
 		}
 	}
@@ -50,7 +51,17 @@ func GetRandomMessageBySize(size int) []byte {
 // SubmitData calls a node.StateService SubmitPayForBlob() method with recording a txLog output.
 func SubmitData(ctx context.Context, runenv *runtime.RunEnv, nd *nodebuilder.Node, nid namespace.ID, data []byte) error {
 	fee := math.NewInt(30000)
-	tx, err := nd.StateServ.SubmitPayForBlob(ctx, nid, data, fee, gasLimit)
+	blb, err := blob.NewBlobV0(share.Namespace(nid), data)
+	if err != nil {
+		return err
+	}
+
+	tx, err := nd.StateServ.SubmitPayForBlob(
+		ctx,
+		fee,
+		gasLimit,
+		[]*blob.Blob{blb},
+	)
 	if err != nil {
 		return err
 	}
@@ -67,7 +78,7 @@ func SubmitData(ctx context.Context, runenv *runtime.RunEnv, nd *nodebuilder.Nod
 // Next, it verifies the data against the received shares of a block from a user-specified extended header
 // by comparing length of each
 func CheckSharesByNamespace(ctx context.Context, nd *nodebuilder.Node, nid namespace.ID, eh *header.ExtendedHeader, expectedData []byte) error {
-	shares, err := nd.ShareServ.GetSharesByNamespace(ctx, eh.DAH, nid)
+	shares, err := nd.ShareServ.GetSharesByNamespace(ctx, eh.DAH, share.Namespace(nid))
 	if err != nil {
 		return err
 	}

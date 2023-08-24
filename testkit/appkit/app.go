@@ -3,7 +3,6 @@ package appkit
 import (
 	"bytes"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
 	"io"
 	"net"
 	"net/http"
@@ -20,7 +19,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/keys"
 	svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	tmjson "github.com/tendermint/tendermint/libs/json"
@@ -37,6 +35,8 @@ type AppKit struct {
 	m              sync.Mutex
 	Home           string
 	AccountAddress string
+	AccountName    string
+	ValopAddress   string
 	ChainId        string
 	Cmd            *cobra.Command
 }
@@ -98,7 +98,7 @@ func (ak *AppKit) InitChain(moniker string) (string, error) {
 	)
 }
 
-func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
+func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, string, error) {
 	_, err := ak.execCmd(
 		[]string{
 			"keys",
@@ -113,9 +113,9 @@ func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
 		},
 	)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
-	return ak.execCmd(
+	accAddr, err := ak.execCmd(
 		[]string{
 			"keys",
 			"show",
@@ -129,6 +129,30 @@ func (ak *AppKit) CreateKey(name, krbackend, krpath string) (string, error) {
 			krpath,
 		},
 	)
+	if err != nil {
+		return "", "", err
+	}
+
+	valopAddr, err := ak.execCmd(
+		[]string{
+			"keys",
+			"show",
+			name,
+			wrapFlag(keys.FlagAddress),
+			wrapFlag(flags.FlagKeyringBackend),
+			krbackend,
+			wrapFlag(flags.FlagHome),
+			ak.Home,
+			wrapFlag(flags.FlagKeyringDir),
+			krpath,
+			wrapFlag(keys.FlagBechPrefix),
+			"val",
+		},
+	)
+	if err != nil {
+		return "", "", err
+	}
+	return accAddr, valopAddr, nil
 }
 
 func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
@@ -140,21 +164,10 @@ func (ak *AppKit) AddGenAccount(addr, amount string) (string, error) {
 }
 
 func (ak *AppKit) SignGenTx(accName, amount, krbackend, krpath string) (string, error) {
-	ethAddress, err := teststaking.RandomEVMAddress()
-	if err != nil {
-		return "", err
-	}
-
-	return ak.SignGenTxWithEVMAddress(accName, amount, krbackend, krpath, ethAddress)
-}
-
-func (ak *AppKit) SignGenTxWithEVMAddress(accName, amount, krbackend, krpath string, ethAddress *common.Address) (string, error) {
 	args := []string{
 		"gentx",
 		accName,
 		amount,
-		wrapFlag(flags.FlagEVMAddress),
-		ethAddress.String(),
 		wrapFlag(flags.FlagKeyringBackend),
 		krbackend,
 		wrapFlag(flags.FlagChainID),
@@ -202,6 +215,8 @@ func (ak *AppKit) GetNodeId() (string, error) {
 }
 
 func (ak *AppKit) StartNode(loglvl string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	ak.Cmd.ResetFlags()
 
 	// SetErr: send the error logs to stderr stream.
@@ -228,6 +243,8 @@ func (ak *AppKit) StartNode(loglvl string) error {
 }
 
 func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddrs ...string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	args := []string{"tx", "bank", "multi-send", accAdr}
 	args = append(args, accAddrs...)
 	args = append(args, amount,
@@ -251,7 +268,30 @@ func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddr
 	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
 }
 
+func (ak *AppKit) RegisterEVMAddress(valoperAddr, evmAddr, krbackend, krpath, from string) error {
+	args := []string{"tx", "qgb", "register", valoperAddr, evmAddr}
+	args = append(args,
+		wrapFlag(flags.FlagBroadcastMode), flags.BroadcastBlock,
+		wrapFlag(flags.FlagSkipConfirmation),
+		wrapFlag(flags.FlagFees), "100000utia",
+		wrapFlag(flags.FlagKeyringBackend), krbackend,
+		wrapFlag(flags.FlagChainID), ak.ChainId,
+		wrapFlag(flags.FlagHome), ak.Home,
+		wrapFlag(flags.FlagKeyringDir), krpath,
+		wrapFlag(flags.FlagFrom), from,
+	)
+	fmt.Println(args)
+	ak.m.Lock()
+	defer ak.m.Unlock()
+	ak.Cmd.ResetFlags()
+	ak.Cmd.SetArgs(args)
+
+	return svrcmd.Execute(ak.Cmd, appcmd.EnvPrefix, app.DefaultNodeHome)
+}
+
 func (ak *AppKit) PayForBlob(accAdr string, msg int, krbackend, krpath string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
 		"tx", "blob", "TestRandBlob", fmt.Sprint(msg),
@@ -439,6 +479,10 @@ func AddPeersToAddressBook(path string, peers []ValidatorNode) error {
 
 func ChangeRPCServerAddress(path string, ip net.IP) error {
 	return updateConfig(path, "rpc.laddr", fmt.Sprintf("tcp://%s:26657", ip.To4().String()))
+}
+
+func ChangePruningStrategy(path string, strategy string) error {
+	return updateConfig(path, "pruning", strategy)
 }
 
 func ChangeConfigParam(path, section, mode string, value interface{}) error {

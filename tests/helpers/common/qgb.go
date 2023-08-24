@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/ecdsa"
 	"fmt"
-	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/qgbkit"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
@@ -63,6 +62,7 @@ func BuildOrchestrator(ctx context.Context, runenv *runtime.RunEnv, initCtx *run
 
 	return cmd, nil
 }
+
 func BuildRelayer(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext) (*qgbkit.QGBKit, error) {
 	home := "/.relayer"
 	runenv.RecordMessage(home)
@@ -96,7 +96,7 @@ func BuildRelayer(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.Init
 		return nil, err
 	}
 
-	// import the corresp2ppkRawponding p2p private key
+	// import the corresponding p2p private key
 	p2ppkRaw, err := p2ppk.Raw()
 	if err != nil {
 		return nil, err
@@ -104,41 +104,6 @@ func BuildRelayer(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.Init
 	_, err = cmd.ImportP2PKey("relayer", hexutil.Encode(p2ppkRaw)[2:], P2PPrivateKeyNickname)
 	if err != nil {
 		return nil, err
-	}
-
-	return cmd, nil
-}
-
-func BuildValidatorWithEVMAddress(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitContext, evmAddress *common.Address) (*appkit.AppKit, error) {
-	home := "/.celestia-app"
-	runenv.RecordMessage(home)
-
-	cmd, keyringName, accAddr, err := InitChainAndMaybeBroadcastGenesis(ctx, runenv, initCtx, home)
-	if err != nil {
-		return nil, err
-	}
-
-	runenv.RecordMessage("Validator is signing its own GenTx")
-	_, err = cmd.SignGenTxWithEVMAddress(keyringName, "5000000000utia", "test", home, evmAddress)
-	if err != nil {
-		return nil, err
-	}
-
-	err = BroadcastAndCollectGenTx(ctx, home, accAddr, initCtx, runenv, cmd)
-	if err != nil {
-		return nil, err
-	}
-
-	ip, err := UpdateAndPublishConfig(ctx, home, cmd, initCtx)
-	if err != nil {
-		return nil, err
-	}
-
-	if runenv.IntParam("validator") > 1 {
-		err := DiscoverPeers(ctx, home, ip, initCtx, runenv)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	return cmd, nil

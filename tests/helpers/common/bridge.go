@@ -68,7 +68,6 @@ func BuildBridge(ctx context.Context, runenv *runtime.RunEnv, initCtx *run.InitC
 		nodebuilder.WithMetrics(
 			optlOpts,
 			node.Bridge,
-			node.BuildInfo{},
 		))
 
 	if err != nil {

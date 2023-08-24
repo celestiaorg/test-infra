@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/celestiaorg/test-infra/testkit"
+	"github.com/celestiaorg/test-infra/testkit/appkit"
 	"github.com/celestiaorg/test-infra/testkit/qgbkit"
 	appsync "github.com/celestiaorg/test-infra/tests/helpers/app-sync"
 	"github.com/celestiaorg/test-infra/tests/helpers/common"
@@ -33,8 +34,9 @@ func RunValidatorWithOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitConte
 
 	go RunValidatorWithEVMAddress(runenv, initCtx, common.ECDSAToAddress(orchcmd.EVMPrivateKey))
 
+	runenv.RecordMessage("waiting for validator to start......")
 	// wait for the validator to start
-	time.Sleep(2 * time.Minute)
+	time.Sleep(4 * time.Minute)
 
 	if initCtx.GroupSeq == 1 {
 		ip, err := netclient.GetDataNetworkIP()
@@ -111,8 +113,9 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 
 	go RunValidatorWithEVMAddress(runenv, initCtx, common.ECDSAToAddress(relCmd.EVMPrivateKey))
 
+	runenv.RecordMessage("waiting for validator to start......")
 	// wait for the validator to start
-	time.Sleep(2 * time.Minute)
+	time.Sleep(4 * time.Minute)
 
 	runenv.RecordMessage("getting bootstrappers information........")
 	bootstrapperCh := make(chan *qgbkit.BootstrapperNode)
@@ -145,6 +148,9 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 		return fmt.Errorf("invalid EVM RPC. please set it in configuration")
 	}
 
+	// to give time for validators to register their EVM addresses
+	time.Sleep(time.Minute)
+
 	retries := 0
 	var addr string
 	for {
@@ -166,15 +172,20 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 		fmt.Println("retrying deploying contract")
 	}
 
-	go relCmd.StartRelayer(
-		common.ECDSAToAddress(relCmd.EVMPrivateKey).Hex(),
-		common.EVMPrivateKeyPassphrase,
-		chainID,
-		evmRPC,
-		addr,
-		"",
-		bs,
-	)
+	go func() {
+		err := relCmd.StartRelayer(
+			common.ECDSAToAddress(relCmd.EVMPrivateKey).Hex(),
+			common.EVMPrivateKeyPassphrase,
+			chainID,
+			evmRPC,
+			addr,
+			"",
+			bs,
+		)
+		if err != nil {
+			runenv.RecordMessage(err.Error())
+		}
+	}()
 
 	_, err = syncclient.SignalAndWait(ctx, testkit.FinishState, runenv.TestInstanceCount)
 	if err != nil {
@@ -185,10 +196,6 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 }
 
 // RunValidatorWithEVMAddress runs a validator with the specified EVM address.
-// isOrchestratorValidator specifies if this is a validator for an orchestrator.
-// The distinction is made because in the case of an orchestrator, we want to start the first
-// validator, i.e. whose group sequence number is 1, and publish its genesis state so the seeds can start.
-// In the case of a relayer, we only care about running the validator.
 func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext, evmAddr *common2.Address) error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*10)
 	defer cancel()
@@ -205,7 +212,7 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 		return err
 	}
 
-	appcmd, err := common.BuildValidatorWithEVMAddress(ctx, runenv, initCtx, evmAddr)
+	appcmd, err := common.BuildValidator(ctx, runenv, initCtx)
 	if err != nil {
 		return err
 	}
@@ -237,13 +244,30 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 	// wait for a new block to be produced
 	time.Sleep(2 * time.Minute)
 
+	err = RegisterEVMAddress(runenv, appcmd, evmAddr)
+	if err != nil {
+		runenv.RecordFailure(err)
+		return err
+	}
+
 	err = appsync.SubmitPFBs(runenv, appcmd)
 	if err != nil {
 		return err
 	}
 
 	// keep the validator running long enough for attestations to get signed
-	time.Sleep(9 * time.Minute)
+	time.Sleep(20 * time.Minute)
 
 	return nil
+}
+
+func RegisterEVMAddress(runenv *runtime.RunEnv, appcmd *appkit.AppKit, evmAddr *common2.Address) error {
+	runenv.RecordMessage("Registering EVM address for validator")
+	return appcmd.RegisterEVMAddress(
+		appcmd.ValopAddress,
+		evmAddr.Hex(),
+		"test",
+		appcmd.GetHomePath(),
+		appcmd.AccountName,
+	)
 }
