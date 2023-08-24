@@ -15,7 +15,7 @@ replace (
 
 require (
 	cosmossdk.io/errors v1.0.0 // indirect
-	github.com/celestiaorg/celestia-app v1.0.0-rc12
+	github.com/celestiaorg/celestia-app v1.0.0-rc9.0.20230824131933-d9b6c3a34168
 	github.com/celestiaorg/celestia-node v0.11.0-rc9.0.20230823151555-bbe970f8b215
 	github.com/celestiaorg/orchestrator-relayer v0.0.0-20230824202113-a24106bc5874
 	github.com/cosmos/cosmos-sdk v0.46.14

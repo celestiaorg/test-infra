@@ -352,9 +352,8 @@ github.com/buger/jsonparser v0.0.0-20181115193947-bf1c66bbce23/go.mod h1:bbYlZJ7
 github.com/bwesterb/go-ristretto v1.2.0/go.mod h1:fUIoIZaG73pV5biE2Blr2xEzDoMj7NFEuV9ekS419A0=
 github.com/c-bata/go-prompt v0.2.2/go.mod h1:VzqtzE2ksDBcdln8G7mk2RX9QyGjH+OVqOCSiVIqS34=
 github.com/casbin/casbin/v2 v2.1.2/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
-github.com/celestiaorg/celestia-app v1.0.0-rc12/go.mod h1:vXvKEudUpdJCvUr79qVKKJ0Xo7ofsuU80+Hs9aKGjvU=
-github.com/celestiaorg/celestia-app v1.0.0-rc9.0.20230823215252-3ba1c60a15e7 h1:FeN7juYpamo07Hlbp8cgfPfNCpU0w/ey96NffXlMHTk=
-github.com/celestiaorg/celestia-app v1.0.0-rc9.0.20230823215252-3ba1c60a15e7/go.mod h1:4SaJFqgaA7InydmiVG/b1iisuS/tyQreWDoN5dlixuw=
+github.com/celestiaorg/celestia-app v1.0.0-rc9.0.20230824131933-d9b6c3a34168 h1:LwRwUj1QcoHN4ThHEol3w8EpUx93AxH70X9rYU0yW/w=
+github.com/celestiaorg/celestia-app v1.0.0-rc9.0.20230824131933-d9b6c3a34168/go.mod h1:4SaJFqgaA7InydmiVG/b1iisuS/tyQreWDoN5dlixuw=
 github.com/celestiaorg/celestia-core v1.26.2-tm-v0.34.28 h1:2efXQaggLFknz0wQufr4nUEz5G7pSVHS1j7NuJDsvII=
 github.com/celestiaorg/celestia-core v1.26.2-tm-v0.34.28/go.mod h1:++dNzzzjP9jYg+NopN9G8sg1HEZ58lv1TPtg71evZ0E=
 github.com/celestiaorg/celestia-node v0.11.0-rc9.0.20230823151555-bbe970f8b215 h1:QxbHmpldUp3sO5vd6XDPQN/IM3Mx44xoxGMOCSOJpyo=
@@ -377,6 +376,7 @@ github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4 h1:CJdIpo8n
 github.com/celestiaorg/merkletree v0.0.0-20210714075610-a84dc3ddbbe4/go.mod h1:fzuHnhzj1pUygGz+1ZkB3uQbEUL4htqCGJ4Qs2LwMZA=
 github.com/celestiaorg/nmt v0.18.1 h1:zU3apzW4y0fs0ilQA74XnEYW8FvRv0CUK2LXK66L3rA=
 github.com/celestiaorg/nmt v0.18.1/go.mod h1:0l8q6UYRju1xNrxtvV6NwPdW3lfsN6KuZ0htRnModdc=
+github.com/celestiaorg/orchestrator-relayer v0.0.0-20230824202113-a24106bc5874 h1:Iby3Qenm0ZDiqWlqN9NG6BD3oKsb/nRhvO/CuofNg38=
 github.com/celestiaorg/orchestrator-relayer v0.0.0-20230824202113-a24106bc5874/go.mod h1:B3WAznNWx5WNVynzsAopjjhFk9TKb60IpR38CAcUHJw=
 github.com/celestiaorg/quantum-gravity-bridge v1.3.0 h1:9zPIp7w1FWfkPnn16y3S4FpFLnQtS7rm81CUVcHEts0=
 github.com/celestiaorg/quantum-gravity-bridge v1.3.0/go.mod h1:6WOajINTDEUXpSj5UZzod16UZ96ZVB/rFNKyM+Mt1gI=
@@ -1023,8 +1023,7 @@ github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mq
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
 github.com/ipfs/bbloom v0.0.4 h1:Gi+8EGJ2y5qiD5FbsbpX/TMNcJw8gSqr7eyjHa4Fhvs=
 github.com/ipfs/bbloom v0.0.4/go.mod h1:cS9YprKXpoZ9lT0n/Mw/a6/aFV6DTjTLYHeA+gyqMG0=
-github.com/ipfs/boxo v0.11.0 h1:urMxhZ3xoF4HssJVD3+0ssGT9pptEfHfbL8DYdoWFlg=
-github.com/ipfs/boxo v0.11.0/go.mod h1:8IfDmp+FzFGcF4zjAgHMVPpwYw4AjN9ePEzDfkaYJ1w=
+github.com/ipfs/boxo v0.12.0 h1:AXHg/1ONZdRQHQLgG5JHsSC3XoE4DjCAMgK+asZvUcQ=
 github.com/ipfs/boxo v0.12.0/go.mod h1:xAnfiU6PtxWCnRqu7dcXQ10bB5/kvI1kXRotuGqGBhg=
 github.com/ipfs/go-bitfield v1.1.0 h1:fh7FIo8bSwaJEh6DdTWbCeZ1eqOaOkKFI74SCnsWbGA=
 github.com/ipfs/go-bitswap v0.5.1/go.mod h1:P+ckC87ri1xFLvk74NlXdP0Kj9RmWAh4+H78sC6Qopo=
@@ -2079,8 +2078,6 @@ github.com/stretchr/testify v1.8.4/go.mod h1:sz/lmYIOXD/1dqDmKjjqLyZ2RngseejIcXl
 github.com/subosito/gotenv v1.4.1 h1:jyEFiXpy21Wm81FBN71l9VoMMV8H8jG+qIK3GCpY6Qs=
 github.com/subosito/gotenv v1.4.1/go.mod h1:ayKnFf/c6rvx/2iiLrJUk1e6plDbT3edrFNGqEflhK0=
 github.com/supranational/blst v0.3.11 h1:LyU6FolezeWAhvQk0k6O/d49jqgO52MSDDfYgbeoEm4=
-github.com/sweexordious/orchestrator-relayer v0.0.0-20230824121212-012b43f44c32 h1:OvMWu4LHbz8EsWHUzCT0EvZHxCAGQsYerBAmIPP0Tq0=
-github.com/sweexordious/orchestrator-relayer v0.0.0-20230824121212-012b43f44c32/go.mod h1:GXcXIVIPqPEvZodsnSHZb0+O8Pz2DTZ7MSeSO3Sc1DQ=
 github.com/syndtr/gocapability v0.0.0-20170704070218-db04d3cc01c8/go.mod h1:hkRG7XYTFWNJGYcbNJQlaLq0fg1yr4J4t/NcTQtrfww=
 github.com/syndtr/goleveldb v1.0.0/go.mod h1:ZVVdQEZoIme9iO1Ch2Jdy24qqXrMMOU6lpPAyBWyWuQ=
 github.com/syndtr/goleveldb v1.0.1-0.20210819022825-2ae1ddf74ef7/go.mod h1:q4W45IWZaF22tdD+VEXcAWRA037jwmWEB5VWYORlTpc=
