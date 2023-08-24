@@ -3,8 +3,6 @@ module github.com/celestiaorg/test-infra
 go 1.20
 
 replace (
-	github.com/celestiaorg/celestia-app => github.com/celestiaorg/celestia-app v1.0.0-rc9.0.20230823215252-3ba1c60a15e7
-	github.com/celestiaorg/orchestrator-relayer => github.com/sweexordious/orchestrator-relayer v0.0.0-20230824121212-012b43f44c32
 	// TODO (@jrmanes): remove this replace when we won't have to harcode the private network
 	github.com/cosmos/cosmos-sdk => github.com/celestiaorg/cosmos-sdk v1.17.0-sdk-v0.46.14
 	github.com/cosmos/gogoproto => github.com/cosmos/gogoproto v1.4.11
@@ -19,7 +17,7 @@ require (
 	cosmossdk.io/errors v1.0.0 // indirect
 	github.com/celestiaorg/celestia-app v1.0.0-rc12
 	github.com/celestiaorg/celestia-node v0.11.0-rc9.0.20230823151555-bbe970f8b215
-	github.com/celestiaorg/orchestrator-relayer v0.0.0-20230811074934-a9390c7ebe60
+	github.com/celestiaorg/orchestrator-relayer v0.0.0-20230824202113-a24106bc5874
 	github.com/cosmos/cosmos-sdk v0.46.14
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/spf13/cobra v1.7.0
@@ -169,7 +167,7 @@ require (
 	github.com/influxdata/influxdb1-client v0.0.0-20220302092344-a9ab5670611c // indirect
 	github.com/influxdata/line-protocol v0.0.0-20210311194329-9aa0e372d097 // indirect
 	github.com/ipfs/bbloom v0.0.4 // indirect
-	github.com/ipfs/boxo v0.11.0 // indirect
+	github.com/ipfs/boxo v0.12.0 // indirect
 	github.com/ipfs/go-block-format v0.1.2 // indirect
 	github.com/ipfs/go-blockservice v0.5.1 // indirect
 	github.com/ipfs/go-cid v0.4.1 // indirect
