@@ -36,7 +36,7 @@ func RunValidatorWithOrchestrator(runenv *runtime.RunEnv, initCtx *run.InitConte
 
 	runenv.RecordMessage("waiting for validator to start......")
 	// wait for the validator to start
-	time.Sleep(4 * time.Minute)
+	time.Sleep(1 * time.Minute)
 
 	if initCtx.GroupSeq == 1 {
 		ip, err := netclient.GetDataNetworkIP()
