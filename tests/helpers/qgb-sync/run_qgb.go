@@ -116,7 +116,7 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 
 	runenv.RecordMessage("waiting for validator to start......")
 	// wait for the validator to start
-	time.Sleep(4 * time.Minute)
+	time.Sleep(1 * time.Minute)
 
 	runenv.RecordMessage("getting bootstrappers information........")
 	bootstrapperCh := make(chan *qgbkit.BootstrapperNode)
@@ -172,6 +172,8 @@ func RunValidatorWithRelayer(runenv *runtime.RunEnv, initCtx *run.InitContext) e
 		time.Sleep(10 * time.Second)
 		fmt.Println("retrying deploying contract")
 	}
+
+	runenv.RecordMessage("contract deployed %s", addr)
 
 	go func() {
 		err := relCmd.StartRelayer(
@@ -229,7 +231,7 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 			return err
 		}
 
-		go appcmd.StartNode("info")
+		go appcmd.StartNode("error")
 	}
 
 	err = appsync.HandleSeedPeers(ctx, runenv, appcmd, initCtx)
@@ -239,21 +241,19 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 
 	if initCtx.GroupSeq != 1 {
 		runenv.RecordMessage("starting........")
-		go appcmd.StartNode("info")
+		go appcmd.StartNode("error")
 	}
 
 	// wait for a new block to be produced
-	time.Sleep(2 * time.Minute)
+	time.Sleep(time.Minute)
 
-	err = RegisterEVMAddress(runenv, appcmd, evmAddr)
-	if err != nil {
+	for {
+		err := RegisterEVMAddress(runenv, appcmd, evmAddr)
+		if err == nil {
+			break
+		}
 		runenv.RecordFailure(err)
-		return err
-	}
-
-	err = appsync.SubmitPFBs(runenv, appcmd)
-	if err != nil {
-		return err
+		time.Sleep(10 * time.Second)
 	}
 
 	// keep the validator running long enough for attestations to get signed
