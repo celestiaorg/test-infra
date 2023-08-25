@@ -215,6 +215,8 @@ func (ak *AppKit) GetNodeId() (string, error) {
 }
 
 func (ak *AppKit) StartNode(loglvl string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	ak.Cmd.ResetFlags()
 
 	// SetErr: send the error logs to stderr stream.
@@ -241,6 +243,8 @@ func (ak *AppKit) StartNode(loglvl string) error {
 }
 
 func (ak *AppKit) FundAccounts(accAdr, amount, krbackend, krpath string, accAddrs ...string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	args := []string{"tx", "bank", "multi-send", accAdr}
 	args = append(args, accAddrs...)
 	args = append(args, amount,
@@ -286,6 +290,8 @@ func (ak *AppKit) RegisterEVMAddress(valoperAddr, evmAddr, krbackend, krpath, fr
 }
 
 func (ak *AppKit) PayForBlob(accAdr string, msg int, krbackend, krpath string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	ak.Cmd.ResetFlags()
 	ak.Cmd.SetArgs([]string{
 		"tx", "blob", "TestRandBlob", fmt.Sprint(msg),

@@ -154,6 +154,8 @@ func (ak *QGBKit) ImportP2PKey(service, p2pPrivateKey, nickname string) (string,
 // Set the p2p nickname or the bootstrappers to an empty string not to pass them to the
 // start command.
 func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, bootstrappers string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	ak.Cmd.ResetFlags()
 
 	args := []string{
@@ -191,6 +193,8 @@ func (ak *QGBKit) StartOrchestrator(evmAddress, evmPassphrase, p2pNickname, boot
 // Set the p2p nickname to an empty string not to pass them to the
 // start command.
 func (ak *QGBKit) StartRelayer(evmAddress, evmPassphrase, evmChainID, evmRPC, contractAddr, p2pNickname, bootstrappers string) error {
+	ak.m.Lock()
+	defer ak.m.Unlock()
 	ak.Cmd.ResetFlags()
 
 	args := []string{
