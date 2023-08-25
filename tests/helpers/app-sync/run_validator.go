@@ -17,7 +17,7 @@ import (
 )
 
 func RunValidator(runenv *runtime.RunEnv, initCtx *run.InitContext) error {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*40)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute*4)
 	defer cancel()
 
 	syncclient := initCtx.SyncClient
