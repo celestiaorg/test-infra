@@ -329,10 +329,10 @@ func changeConfig(path, mempool string) error {
 			"version": mempool,
 		},
 		"consensus": {
-			"timeout_propose":   "200ms",
-			"timeout_prevote":   "200ms",
-			"timeout_precommit": "200ms",
-			"timeout_commit":    "200ms",
+			"timeout_propose":   "10s",
+			"timeout_prevote":   "1s",
+			"timeout_precommit": "1s",
+			"timeout_commit":    "15s",
 		},
 		"rpc": {
 			"max_subscriptions_per_client": 150,
