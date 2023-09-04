@@ -38,10 +38,10 @@
     count = 100
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.19.1"
+    build_base_image = "golang:1.20.1"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.19"
+    go_version = "1.20"
   [groups.build]
   [groups.run]
     artifact = ""
@@ -56,10 +56,10 @@
     count = 5
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.19.1"
+    build_base_image = "golang:1.20.1"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.19"
+    go_version = "1.20"
   [groups.build]
   [groups.run]
     artifact = ""
@@ -74,10 +74,10 @@
     count = 1
     percentage = 0.0
   [groups.build_config]
-    build_base_image = "golang:1.19.1"
+    build_base_image = "golang:1.20.1"
     enable_go_build_cache = true
     enabled = true
-    go_version = "1.19"
+    go_version = "1.20"
   [groups.build]
   [groups.run]
     artifact = ""
