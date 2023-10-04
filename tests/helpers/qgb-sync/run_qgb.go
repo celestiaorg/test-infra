@@ -263,11 +263,17 @@ func RunValidatorWithEVMAddress(runenv *runtime.RunEnv, initCtx *run.InitContext
 
 func RegisterEVMAddress(runenv *runtime.RunEnv, appcmd *appkit.AppKit, evmAddr *common2.Address) error {
 	runenv.RecordMessage("Registering EVM address for validator")
-	return appcmd.RegisterEVMAddress(
+	err := appcmd.RegisterEVMAddress(
 		appcmd.ValopAddress,
 		evmAddr.Hex(),
 		"test",
 		appcmd.GetHomePath(),
 		appcmd.AccountName,
 	)
+	if err != nil {
+		runenv.RecordMessage("Failed to register new EVM address for validator")
+		return err
+	}
+	runenv.RecordMessage("Registered new EVM address for validator successfully")
+	return nil
 }
